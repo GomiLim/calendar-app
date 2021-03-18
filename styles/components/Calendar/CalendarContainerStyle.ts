@@ -1,11 +1,18 @@
+import styled from 'styled-components'
+import tw from 'tailwind-styled-components'
 import theme from '../../theme'
 
 const CalendarContainerStyle = {
-  container: {
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden' as const,
-  },
+  container: tw(styled.div`
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  `)`
+    w-full
+    h-full
+    overflow-hidden
+  `,
   header: {
     width: '100%',
     height: '7.625',

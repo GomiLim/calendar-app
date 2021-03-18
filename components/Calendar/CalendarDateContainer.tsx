@@ -41,6 +41,8 @@ interface Props {
   chosenDate?: Date
   yearMonth: string
   onClick: (date: Date, doubleClicked?: boolean) => void
+  onDoubleClickSchedule: (scheduleNo: number) => void
+  onRangeSelect: (range: Date[]) => void
   actionProcessing: boolean
   setActionProcessing: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -51,6 +53,8 @@ export default function CalendarDateContainer({
   chosenDate,
   yearMonth,
   onClick,
+  onDoubleClickSchedule,
+  onRangeSelect,
   actionProcessing,
   setActionProcessing,
 }: Props) {
@@ -65,10 +69,186 @@ export default function CalendarDateContainer({
   const [offsetY, setOffsetY] = React.useState(0)
   const [lastScrollTop, setLastScrollTop] = React.useState(0)
   const [init, setInit] = React.useState(true)
+  const [mousePosition, setMousePosition] = React.useState({ x: -1, y: -1 })
+  const [mouseDownPosition, setMouseDownPosition] = React.useState({
+    x: -1,
+    y: -1,
+  })
+  const [mouseUp, setMouseUp] = React.useState(true)
+  const [rectangle, setRectangle] = React.useState({
+    startX: -1,
+    startY: -1,
+    stopX: -1,
+    stopY: -1,
+  })
 
   React.useEffect(() => {
     smoothscroll.polyfill()
   }, [])
+
+  // const checkMouseDown = React.useCallback(
+  //   (e: MouseEvent) => {
+  //     e.preventDefault()
+
+  //     if (!isMounted()) return
+
+  //     setMouseUp(() => false)
+
+  //     setMouseDownPosition(() => ({ x: e.clientX, y: e.clientY }))
+  //   },
+  //   [isMounted],
+  // )
+
+  // const recordMousePosition = debounce(
+  //   React.useCallback(
+  //     (e: MouseEvent) => {
+  //       if (!isMounted()) return
+  //       if (mouseUp) return
+
+  //       setMousePosition(() => ({ x: e.clientX, y: e.clientY }))
+
+  //       setRectangle((rec) => ({
+  //         ...rec,
+  //         stopX: e.clientX,
+  //         stopY: e.clientY,
+  //       }))
+  //     },
+  //     [isMounted, mouseUp],
+  //   ),
+  //   25,
+  // )
+
+  // const checkMouseUp = React.useCallback(
+  //   (e: MouseEvent) => {
+  //     e.preventDefault()
+  //     console.log('MOUSEPOSITION', mousePosition)
+  //     console.log('MOUSEDOWNPOSITION', mouseDownPosition)
+
+  //     if (!isMounted()) return
+  //     if (
+  //       mousePosition.x === -1 ||
+  //       mousePosition.y === -1 ||
+  //       mouseDownPosition.x === -1 ||
+  //       mouseDownPosition.y === -1
+  //     ) {
+  //       setMouseUp(() => true)
+  //       setMousePosition(() => ({ x: -1, y: -1 }))
+  //       setMouseDownPosition(() => ({ x: -1, y: -1 }))
+  //       return
+  //     }
+  //     if (
+  //       mouseDownPosition.x === mousePosition.x &&
+  //       mouseDownPosition.y === mousePosition.y
+  //     )
+  //       return
+
+  //     setRectangle(() => ({
+  //       startX: mouseDownPosition.x,
+  //       startY: mouseDownPosition.y,
+  //       stopX: e.clientX,
+  //       stopY: e.clientY,
+  //     }))
+
+  //     setMouseUp(() => true)
+  //   },
+  //   [isMounted, mousePosition, mouseDownPosition],
+  // )
+
+  // React.useEffect(() => {
+  //   if (!isMounted()) return
+  //   if (!_dateBody?.current) return
+
+  //   _dateBody.current.addEventListener('mousedown', checkMouseDown)
+  //   _dateBody.current.addEventListener('mousemove', recordMousePosition)
+  //   _dateBody.current.addEventListener('mouseup', checkMouseUp)
+
+  //   return () => {
+  //     if (!_dateBody?.current) return
+
+  //     _dateBody.current.removeEventListener('mousedown', checkMouseDown)
+  //     _dateBody.current.removeEventListener('mousemove', recordMousePosition)
+  //     _dateBody.current.removeEventListener('mouseup', checkMouseUp)
+  //   }
+  // }, [isMounted, _dateBody, checkMouseDown, recordMousePosition, checkMouseUp])
+
+  // React.useEffect(() => {
+  //   if (!isMounted()) return
+  //   if (_dateList.length === 0) return
+  //   if (mouseDownPosition.x === -1 || mouseDownPosition.y === -1) return
+  //   if (mousePosition.x === -1 || mousePosition.y === -1) return
+  //   if (
+  //     mouseDownPosition.x === mousePosition.x &&
+  //     mouseDownPosition.y === mousePosition.y
+  //   )
+  //     return
+  //   if (
+  //     rectangle.startX === -1 ||
+  //     rectangle.startY === -1 ||
+  //     rectangle.stopX === -1 ||
+  //     rectangle.stopY === -1
+  //   )
+  //     return
+
+  //   console.log('rectangle', rectangle)
+
+  //   _dateList.forEach((_date) => {
+  //     if (_date?.current) {
+  //       if (_date.current.style.backgroundColor) {
+  //         _date.current.style.backgroundColor = 'transparent'
+  //       }
+  //     }
+  //   })
+
+  //   const _selected = _dateList.filter((_date) => {
+  //     if (!_date?.current) return false
+
+  //     const xMin = _date.current.getBoundingClientRect().x
+  //     const xMax =
+  //       _date.current.getBoundingClientRect().x +
+  //       _date.current.getBoundingClientRect().width
+  //     const yMin = _date.current.getBoundingClientRect().y
+  //     const yMax =
+  //       _date.current.getBoundingClientRect().y +
+  //       _date.current.getBoundingClientRect().height
+
+  //     const recXMin =
+  //       rectangle.startX > rectangle.stopX ? rectangle.stopX : rectangle.startX
+  //     const recXMax =
+  //       rectangle.startX < rectangle.stopX ? rectangle.stopX : rectangle.startX
+  //     const recYMin =
+  //       rectangle.startY > rectangle.stopY ? rectangle.stopY : rectangle.startY
+  //     const recYMax =
+  //       rectangle.startY < rectangle.stopY ? rectangle.stopY : rectangle.startY
+
+  //     return (
+  //       (recXMin >= xMin &&
+  //         xMax >= recXMin &&
+  //         recYMin >= yMin &&
+  //         yMax >= recYMin) ||
+  //       (recXMax >= xMin &&
+  //         xMax >= recXMax &&
+  //         recYMax >= yMin &&
+  //         yMax >= recYMax) ||
+  //       (xMin >= recXMin &&
+  //         recXMax >= xMin &&
+  //         yMin >= recYMin &&
+  //         recYMax >= yMin) ||
+  //       (xMax >= recXMin &&
+  //         recXMax >= xMax &&
+  //         yMax >= recYMin &&
+  //         recYMax >= yMax)
+  //     )
+  //   })
+
+  //   _selected.forEach((_date) => {
+  //     if (_date?.current) {
+  //       _date.current.style.backgroundColor = theme.palette.mono.pale
+  //     }
+  //   })
+
+  //   setMouseDownPosition(() => ({ x: -1, y: -1 }))
+  //   setRectangle(() => ({ startX: -1, startY: -1, stopX: -1, stopY: -1 }))
+  // }, [isMounted, mouseDownPosition, mousePosition, rectangle, _dateList])
 
   // 월 포커스 이벤트
   const focusMonth = (focusingYear: number, focusingMonth: number) => {
@@ -493,6 +673,7 @@ export default function CalendarDateContainer({
         beforeOrAfter={beforeOrAfter}
         thisMonth={thisMonth}
         onClick={onClickDate}
+        onDoubleClickSchedule={onDoubleClickSchedule}
         _date={_date}
         scheduleStack={scheduleStack}
         icons={testData}

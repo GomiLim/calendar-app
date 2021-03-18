@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import theme from '../../theme'
 
 const stick = {
   margin: '0.063rem 0 0 0',
@@ -29,7 +30,7 @@ const CalendarSchedulesStyle = {
     justify-content: flex-start;
 
     &:hover {
-      opacity: 0.1;
+      opacity: 0.5;
     }
   `,
   nullStyle: {
@@ -42,6 +43,11 @@ const CalendarSchedulesStyle = {
     opacity: 0.3,
     zIndex: 0,
   },
+  subBox: styled.div`
+    &:hover {
+      box-shadow: inset 100rem 1.25rem ${theme.palette.mono.lightGray};
+    }
+  `,
   main: {
     ...stick,
     zIndex: 1,

@@ -57,6 +57,7 @@ interface Props {
   onChangeMonth: (date: Date) => void
   chosenDate?: Date
   onClick: (date: Date, doubleClicked?: boolean) => void
+  onDoubleClickSchedule: (scheduleNo: number) => void
   startDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6
 }
 
@@ -65,6 +66,7 @@ export default function Calendar({
   onChangeMonth,
   chosenDate,
   onClick,
+  onDoubleClickSchedule,
   startDay = 0,
 }: Props) {
   const { t } = useTranslation()
@@ -146,8 +148,12 @@ export default function Calendar({
     }
   }
 
+  const onRangeSelect = (range: Date[]) => {
+    console.log('RANGE1!!!!!', range)
+  }
+
   return (
-    <div style={CalendarContainerStyle.container}>
+    <CalendarContainerStyle.container>
       <div style={CalendarContainerStyle.header}>
         <Box direction="horizontal" style={CalendarContainerStyle.headerTop}>
           <div style={CalendarContainerStyle.pickerModal}>
@@ -192,10 +198,12 @@ export default function Calendar({
           chosenDate={chosenDate}
           yearMonth={yearMonth}
           onClick={onClick}
+          onDoubleClickSchedule={onDoubleClickSchedule}
+          onRangeSelect={onRangeSelect}
           actionProcessing={actionProcessing}
           setActionProcessing={setActionProcessing}
         />
       </div>
-    </div>
+    </CalendarContainerStyle.container>
   )
 }

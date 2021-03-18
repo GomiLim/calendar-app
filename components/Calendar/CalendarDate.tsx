@@ -22,6 +22,7 @@ interface Props {
   thisMonth?: boolean
   beforeOrAfter?: 'before' | 'after'
   onClick: (date: Date, doubleClicked?: boolean) => void
+  onDoubleClickSchedule: (scheduleNo: number) => void
   _date: React.RefObject<HTMLDivElement> | null
   scheduleStack: Array<Array<ScheduleStackType>>
   icons?: {
@@ -43,6 +44,7 @@ export default React.memo(function CalendarDate({
   thisMonth = true,
   beforeOrAfter,
   onClick,
+  onDoubleClickSchedule,
   _date,
   scheduleStack,
   icons,
@@ -263,10 +265,6 @@ export default React.memo(function CalendarDate({
     onClick(new Date(actualYear, actualMonth, day), true)
   }
 
-  const onDoubeClickSchedule = (schedule?: ScheduleDisplayType) => {
-    // alert(schedule)
-  }
-
   return (
     <Box
       direction="vertical"
@@ -328,7 +326,8 @@ export default React.memo(function CalendarDate({
         {scheduleStack.length > 0 && (
           <CalendarSchedules
             schedules={calendarSchedules}
-            onDoubleClick={onDoubeClickSchedule}
+            onClick={onClickDay}
+            onDoubleClick={onDoubleClickSchedule}
           />
         )}
       </div>

@@ -203,6 +203,10 @@ export default function Home() {
     setBaseDate(date)
   }
 
+  const onDoubleClickSchedule = (scheduleNo: number) => {
+    console.log('CLICKED SCHEDULE NO', scheduleNo)
+  }
+
   return (
     <CalendarPageStyle.container
       style={{
@@ -214,6 +218,7 @@ export default function Home() {
           onChangeMonth={onChangeMonth}
           chosenDate={chosenDate}
           onClick={onClickDate}
+          onDoubleClickSchedule={onDoubleClickSchedule}
         />
       </div>
       <CalendarPageStyle.rightContainer style={rightContainerStyle}>

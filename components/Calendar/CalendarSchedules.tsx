@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Text from '../../foundations/Text'
 import CalendarSchedulesStyle from '../../styles/components/Calendar/CalendarSchedulesStyle'
 import theme from '../../styles/theme'
-import * as hook from '../../utils/hooks'
+import { useClickPreventionOnDoubleClick } from '../../utils/hooks'
 import { Icons } from '../../utils/types'
 
 export type ScheduleDisplayType = {
@@ -21,38 +21,31 @@ export type ScheduleDisplayType = {
 
 interface Props {
   schedules: Array<ScheduleDisplayType | null>
-  onDoubleClick: (schedule?: ScheduleDisplayType) => void
+  onClick: () => void
+  onDoubleClick: (no: number) => void
 }
 
 export default React.memo(function CalendarSchedules({
   schedules,
+  onClick,
   onDoubleClick,
 }: Props) {
   const { t } = useTranslation()
 
-  const [chosenSchedule, setChosenSchedule] = React.useState<
-    ScheduleDisplayType | undefined
-  >()
-
-  const handleClick = (e?: React.MouseEvent<HTMLDivElement>) => {
-    console.log('A>#H#H?', e)
-    if (e) {
-      e.preventDefault()
-      console.log('clickedId', e?.target?.id)
-    }
+  let handleClick: (arg?: any) => void = () => {
+    onClick()
   }
-  const handleDoubleClick = (e?: React.MouseEvent<HTMLDivElement>) => {
-    if (e) {
-      e.stopPropagation()
-      e.preventDefault()
-      onDoubleClick(chosenSchedule)
-    }
+  let handleDoubleClick: (arg: any) => void = (scheduleNo: number) => {
+    onDoubleClick(scheduleNo)
   }
 
-  const [hookedClick, hookedDoubleClick] = hook.useClickPreventionOnDoubleClick(
+  const [hookedClick, hookedDoubleClick] = useClickPreventionOnDoubleClick(
     handleClick,
     handleDoubleClick,
   )
+
+  handleClick = hookedClick
+  handleDoubleClick = hookedDoubleClick
 
   const maxCount = 10
   const extraCount =
@@ -87,11 +80,15 @@ export default React.memo(function CalendarSchedules({
             <CalendarSchedulesStyle.box
               id={String(schedule.week) + '_' + String(schedule.no)}
               key={String(schedule.week) + '_' + String(schedule.no)}
-              onClick={hookedClick}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleClick()
+              }}
               onDoubleClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
-                console.log('aegwawegaweg', schedule.no)
+                handleDoubleClick(schedule.no)
               }}>
               <div
                 style={{
@@ -147,7 +144,7 @@ export default React.memo(function CalendarSchedules({
                 ))}
             </CalendarSchedulesStyle.box>
           ) : (
-            <div
+            <CalendarSchedulesStyle.subBox
               id={String(schedule.week) + '_' + String(schedule.no)}
               key={String(schedule.week) + '_' + String(schedule.no)}
               style={{
@@ -161,8 +158,16 @@ export default React.memo(function CalendarSchedules({
                   ? '0px 1.875rem 1.875rem 0px'
                   : 'unset',
               }}
-              onClick={hookedClick}
-              onDoubleClick={hookedDoubleClick}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleClick()
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleDoubleClick(schedule.no)
+              }}
             />
           ),
         )}
