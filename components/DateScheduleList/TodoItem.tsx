@@ -1,6 +1,4 @@
-import moment from 'moment'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import { TestIconDataType } from '../../pages/api/testScheduleData'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import { Icons } from '../../utils/types'
@@ -11,8 +9,6 @@ interface Props {
 }
 
 export default function TodoItem({ data, onClick }: Props) {
-  const { t } = useTranslation()
-
   const trimName = (top: boolean, name?: string) => {
     if (!name) return ''
 
@@ -28,28 +24,8 @@ export default function TodoItem({ data, onClick }: Props) {
     )
   }
 
-  const calculateTimeDiff = (modTime?: Date) => {
-    if (!modTime) return t('calendar.minute', { minute: 0 })
-
-    const ago = Math.floor(
-      moment.duration(moment(new Date()).diff(moment(modTime))).asMinutes(),
-    )
-    const hour = Math.floor(ago / 60)
-    const minute = ago % 60
-
-    if (hour > 0 && minute > 0) {
-      return `${t('calendar.hour', { hour })} ${t('calendar.minute', {
-        minute,
-      })}`
-    } else if (hour > 0) {
-      return t('calendar.hour', { hour })
-    } else {
-      return t('calendar.minute', { minute })
-    }
-  }
-
   return (
-    <ScheduleItemStyle.container>
+    <ScheduleItemStyle.container onClick={() => onClick(data)}>
       <i
         style={{ fontSize: '1.5rem', margin: '0.5rem' }}
         className={`xi-${data.done ? 'check-square-o' : 'checkbox-blank'}`}

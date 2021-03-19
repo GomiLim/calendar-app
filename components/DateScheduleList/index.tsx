@@ -9,6 +9,7 @@ import {
   TestIconDataType,
 } from '../../pages/api/testScheduleData'
 import DateScheduleListContainerStyle from '../../styles/components/DateScheduleList/DateScheduleListContainerStyle'
+import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
 import Swipe from '../../utils/helpers/swiper'
 import * as hook from '../../utils/hooks'
@@ -330,7 +331,19 @@ export default function DateScheduleList({
         style={{
           ...DateScheduleListContainerStyle.date,
           ...topLabelStyle,
+          display: 'flex' as const,
+          justifyContent: 'space-between' as const,
+          alignItems: 'center' as const,
+          padding: '0 0.5rem',
         }}>
+        {isMobile ? (
+          <div />
+        ) : (
+          <Icon
+            icon={Icons.ANGLE_RIGHT}
+            style={{ color: theme.palette.mono.darkGray }}
+          />
+        )}
         {t('calendar.yearMonth', {
           year,
           month: t(`calendar.${Months[month]}`),
@@ -340,6 +353,14 @@ export default function DateScheduleList({
               ? t(`calendar.day${day}`, { day })
               : t('calendar.day', { day })
           }`}
+        {isMobile ? (
+          <Icon
+            icon={Icons.ANGLE_DOWN}
+            style={{ color: theme.palette.mono.darkGray }}
+          />
+        ) : (
+          <div />
+        )}
       </div>
       <Box
         id="channel"

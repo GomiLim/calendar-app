@@ -1,9 +1,10 @@
 import moment from 'moment'
+import { GetServerSideProps } from 'next'
 import React from 'react'
 import Recoil from 'recoil'
 import Calendar from '../components/Calendar'
 import DateScheduleList from '../components/DateScheduleList'
-import { loadingState } from '../recoil'
+import { iconDataState, loadingState, scheduleDataState } from '../recoil'
 import CalendarPageStyle from '../styles/pages/CalendarPageStyle'
 import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
@@ -14,8 +15,21 @@ import {
   testScheduleData,
 } from './api/testScheduleData'
 
-export default function Home() {
+interface Props {
+  scheduleData: TestDataType[]
+  iconData: {
+    channels: TestIconDataType[]
+    cards: TestIconDataType[]
+    todos: TestIconDataType[]
+  }
+}
+
+export default function Home({ scheduleData, iconData }: Props) {
   const setLoading = Recoil.useSetRecoilState(loadingState)
+  const [schedulesRaw, setSchedulesRaw] = Recoil.useRecoilState(
+    scheduleDataState,
+  )
+  const [iconsRaw, setIconsRaw] = Recoil.useRecoilState(iconDataState)
 
   const [baseDate, setBaseDate] = React.useState<Date>(new Date())
   const [chosenDate, setChosenDate] = React.useState<Date | undefined>()
@@ -39,11 +53,19 @@ export default function Home() {
 
   const isMounted = hook.useIsMounted()
 
+  React.useEffect(() => {
+    if (isMounted()) {
+      setSchedulesRaw(() => scheduleData)
+      setIconsRaw(() => iconData)
+      setLoading(() => false)
+    }
+  }, [isMounted, scheduleData, iconData])
+
   const onClickDate = (date: Date, doubleClicked?: boolean) => {
     const dateNum = Number(moment(date).format('YYYYMMDD'))
 
     setSchedules(
-      testScheduleData
+      schedulesRaw
         .filter((datum) => {
           const startDate = Number(moment(datum.startDate).format('YYYYMMDD'))
           if (datum.endDate) {
@@ -58,7 +80,7 @@ export default function Home() {
         })
         .map((item) => {
           if (item.type === 'sub') {
-            const found = testScheduleData.find(
+            const found = schedulesRaw.find(
               (testD) => testD.no === item.parentNo,
             )
             if (found) {
@@ -69,7 +91,7 @@ export default function Home() {
         }),
     )
 
-    const { channels, cards, todos } = testIconData
+    const { channels, cards, todos } = iconsRaw
     setEndingChannels(
       channels.filter(
         (channel) =>
@@ -150,6 +172,11 @@ export default function Home() {
   React.useEffect(() => {
     if (isMounted()) {
       if (typeof window === 'undefined') return
+
+      if (showDateSchedule) {
+        setLoading(() => true)
+        setLoading(() => false)
+      }
 
       if (helper.checkIsMobile(window)) {
         setRightContainerStyle(() => ({
@@ -241,4 +268,15 @@ export default function Home() {
       </CalendarPageStyle.rightContainer>
     </CalendarPageStyle.container>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const scheduleData = await testScheduleData(context.params)
+  const iconData = await testIconData(context.params)
+  return {
+    props: {
+      scheduleData,
+      iconData,
+    },
+  }
 }

@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import tw from 'tailwind-styled-components'
 import theme, { StyledPropType } from '../../theme'
 
 const ScheduleItemStyle = {
@@ -72,6 +73,31 @@ const ScheduleItemStyle = {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  `,
+  thumbnailList: tw.div`
+    flex
+    justify-end
+    items-center
+    w-1\/3
+    `,
+  thumbnail: {
+    marginRight: '0.5rem',
+    width: '1.5rem',
+    height: '1.5rem',
+  },
+  thumbnailMore: tw.div`
+    rounded-full
+    border-none
+    bg-main-navy
+    text-mono-white
+    flex
+    justify-center
+    items-center
+    text-sub
+    w-6
+    h-6
+    mr-2
+    pb-0.5
   `,
 }
 

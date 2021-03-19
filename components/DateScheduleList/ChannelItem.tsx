@@ -29,7 +29,7 @@ export default function ChannelItem({ data, onClick }: Props) {
     )
   }
 
-  const calculateTimeDiff = (modTime?: Date) => {
+  const calculateTimeDiff = (modTime?: Date | string) => {
     if (!modTime) return t('calendar.minute', { minute: 0 })
 
     const ago = Math.floor(
@@ -50,7 +50,7 @@ export default function ChannelItem({ data, onClick }: Props) {
   }
 
   return (
-    <ScheduleItemStyle.container>
+    <ScheduleItemStyle.container onClick={() => onClick(data)}>
       <div
         style={{
           ...ScheduleItemStyle.color,

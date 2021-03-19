@@ -1,12 +1,10 @@
 import moment from 'moment'
 import React from 'react'
 import { TFunction, useTranslation } from 'react-i18next'
-import Recoil from 'recoil'
 import Box from '../../foundations/Box'
 import Button from '../../foundations/Button'
 import Icon from '../../foundations/Icon'
 import Text from '../../foundations/Text'
-import { loadingState } from '../../recoil'
 import CalendarContainerStyle from '../../styles/components/Calendar/CalendarContainerStyle'
 import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
@@ -71,8 +69,6 @@ export default function Calendar({
 }: Props) {
   const { t } = useTranslation()
 
-  const setLoading = Recoil.useSetRecoilState(loadingState)
-
   const [year, setYear] = React.useState(
     Number(moment(new Date()).format('YYYY')),
   )
@@ -93,7 +89,6 @@ export default function Calendar({
         setYear(() => Number(moment(baseDate).format('YYYY')))
         setMonth(() => Number(moment(baseDate).format('MM')))
       }
-      setLoading(() => false)
     }
   }, [isMounted, baseDate])
 

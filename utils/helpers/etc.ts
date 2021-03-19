@@ -92,8 +92,8 @@ export const getDiffDayCnt = (day1: Date, day2: Date) => {
 // get first startDate / last endDate (number)
 export const getStartEndDateNum = (
   type: 'start' | 'end',
-  day1?: Date,
-  day2?: Date,
+  day1?: Date | string,
+  day2?: Date | string,
 ): number | undefined => {
   if (!day1 && !day2) {
     return undefined
@@ -118,26 +118,26 @@ export const getStartEndDateNum = (
 // get first startDate / last endDate
 export const getStartEndDate = (
   type: 'start' | 'end',
-  day1?: Date,
-  day2?: Date,
+  day1?: Date | string,
+  day2?: Date | string,
 ): Date | undefined => {
   if (!day1 && !day2) {
     return undefined
   }
   if (!day1) {
-    return day2
+    return moment(day2).toDate()
   }
   if (!day2) {
-    return day1
+    return moment(day1).toDate()
   }
 
   const first = Number(moment(day1).format('YYYYMMDD'))
   const second = Number(moment(day2).format('YYYYMMDD'))
 
   if (type === 'start') {
-    return first < second ? day1 : day2
+    return moment(first < second ? day1 : day2).toDate()
   } else {
-    return first > second ? day1 : day2
+    return moment(first > second ? day1 : day2).toDate()
   }
 }
 

@@ -64,3 +64,7 @@ a {
 .fd-text {
   @apply font-medium text-item text-mono-black bg-transparent m-1 whitespace-pre break-words;
 }
+
+.fd-thumbnail {
+  @apply border-none rounded-full;
+}

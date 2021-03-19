@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import Thumbnail from '../../foundations/Thumbnail'
 import { TestDataType } from '../../pages/api/testScheduleData'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import { Icons } from '../../utils/types'
@@ -13,10 +14,10 @@ interface Props {
 export default function ScheduleItem({ data, onClick }: Props) {
   const { t } = useTranslation()
 
-  const trimName = (top: boolean, name?: string) => {
+  const trimName = (name?: string) => {
     if (!name) return ''
 
-    const maxLen = top ? 13 : 15
+    const maxLen = 13
 
     return name.length > maxLen ? (
       <>
@@ -29,7 +30,7 @@ export default function ScheduleItem({ data, onClick }: Props) {
   }
 
   return (
-    <ScheduleItemStyle.container>
+    <ScheduleItemStyle.container onClick={() => onClick(data)}>
       <div
         style={{
           ...ScheduleItemStyle.color,
@@ -41,7 +42,7 @@ export default function ScheduleItem({ data, onClick }: Props) {
       <div style={ScheduleItemStyle.infoContainer}>
         <div style={ScheduleItemStyle.top}>
           <div style={ScheduleItemStyle.mainLabel}>
-            {trimName(true, `#${data.channel.name} > ${data.writerName}`)}
+            {trimName(`#${data.channel.name} > ${data.writerName}`)}
           </div>
           <div style={ScheduleItemStyle.schedule}>
             {moment(data.startDate)
@@ -56,16 +57,40 @@ export default function ScheduleItem({ data, onClick }: Props) {
                 : '')}
           </div>
         </div>
-        <div style={ScheduleItemStyle.mainLabelArea}>
-          <div style={ScheduleItemStyle.label}>
-            {trimName(false, data.name)}
+        <div style={{ ...ScheduleItemStyle.top, marginTop: '0.5rem' }}>
+          <div style={{ width: '70%' }}>
+            <div style={ScheduleItemStyle.mainLabelArea}>
+              <div style={ScheduleItemStyle.label}>{trimName(data.name)}</div>
+            </div>
+            {data.type === 'sub' && (
+              <div style={ScheduleItemStyle.bottomLabel}>
+                {trimName(data.parentName)}
+              </div>
+            )}
           </div>
+          <ScheduleItemStyle.thumbnailList>
+            {data.members &&
+              (data.members.length > 2 ? (
+                <>
+                  <Thumbnail
+                    email={data.members[0].email}
+                    style={ScheduleItemStyle.thumbnail}
+                  />
+                  <ScheduleItemStyle.thumbnailMore>
+                    {`+${data.members.length - 1}`}
+                  </ScheduleItemStyle.thumbnailMore>
+                </>
+              ) : (
+                data.members.map((member) => (
+                  <Thumbnail
+                    key={member.no}
+                    email={member.email}
+                    style={ScheduleItemStyle.thumbnail}
+                  />
+                ))
+              ))}
+          </ScheduleItemStyle.thumbnailList>
         </div>
-        {data.type === 'sub' && (
-          <div style={ScheduleItemStyle.bottomLabel}>
-            {trimName(true, data.parentName)}
-          </div>
-        )}
       </div>
     </ScheduleItemStyle.container>
   )

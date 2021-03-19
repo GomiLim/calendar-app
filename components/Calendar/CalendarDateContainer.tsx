@@ -1,13 +1,14 @@
 import { throttle } from 'lodash'
 import moment from 'moment'
 import React from 'react'
+import Recoil from 'recoil'
 import smoothscroll from 'smoothscroll-polyfill'
 import Box from '../../foundations/Box'
 import {
   TestDataType,
-  testIconData,
-  testScheduleData,
+  TestIconDataType,
 } from '../../pages/api/testScheduleData'
+import { iconDataState, loadingState, scheduleDataState } from '../../recoil'
 import CalendarDateContainerStyle from '../../styles/components/Calendar/CalendarDateContainerStyle'
 import * as helper from '../../utils/helpers'
 import * as hook from '../../utils/hooks'
@@ -58,6 +59,10 @@ export default function CalendarDateContainer({
   actionProcessing,
   setActionProcessing,
 }: Props) {
+  const schedulesRaw = Recoil.useRecoilValue(scheduleDataState)
+  const iconsRaw = Recoil.useRecoilValue(iconDataState)
+  const loading = Recoil.useRecoilValue(loadingState)
+
   const isMounted = hook.useIsMounted()
 
   const _dateBody = React.createRef<HTMLDivElement>()
@@ -309,6 +314,7 @@ export default function CalendarDateContainer({
   React.useEffect(() => {
     if (isMounted()) {
       if (!init) return
+      if (_dateList.length == 0) return
       if (_dateBody.current && dateRow.length > 0) {
         if (offsetY === 0) {
           setOffsetY(() =>
@@ -325,18 +331,29 @@ export default function CalendarDateContainer({
               return offsetTop
             })(_dateBody?.current),
           )
-        } else {
+        } else if (!loading) {
           setTimeout(() => {
             focusMonth(
               Number(yearMonth.substr(0, 4)),
               Number(yearMonth.substr(4, 2)) - 1,
             )
+            setInit(() => false)
           }, 100)
-          setInit(() => false)
         }
       }
     }
-  }, [isMounted, init, _dateBody.current, dateRow.length, yearMonth, offsetY])
+  }, [
+    isMounted,
+    init,
+    _dateBody.current,
+    _dateList,
+    dateRow.length,
+    yearMonth,
+    offsetY,
+    schedulesRaw,
+    iconsRaw,
+    loading,
+  ])
 
   // 현재 주의 날짜 목록 세팅
   const setRowWeekDates = (
@@ -630,6 +647,11 @@ export default function CalendarDateContainer({
   }
 
   const constructDateRow = (
+    iconData: {
+      channels: TestIconDataType[]
+      cards: TestIconDataType[]
+      todos: TestIconDataType[]
+    },
     scheduleStack: Array<Array<ScheduleStackType>>,
     _date: React.RefObject<HTMLDivElement> | null,
     num: number,
@@ -648,9 +670,11 @@ export default function CalendarDateContainer({
       : month === monthNum
 
     const testData = {
-      endingChannels: testIconData.channels.map((channel) => channel.date),
-      endingCards: testIconData.cards.map((card) => card.date),
-      endingTodos: testIconData.todos.map((todo) => todo.date),
+      endingChannels: iconData.channels.map((channel) =>
+        moment(channel.date).toDate(),
+      ),
+      endingCards: iconData.cards.map((card) => moment(card.date).toDate()),
+      endingTodos: iconData.todos.map((todo) => moment(todo.date).toDate()),
     }
 
     return (
@@ -742,7 +766,7 @@ export default function CalendarDateContainer({
           const scheduleStack = constructWeekRow(
             year,
             monthNum,
-            testScheduleData,
+            schedulesRaw,
             displayDate,
             beforeOrAfter,
           )
@@ -755,6 +779,7 @@ export default function CalendarDateContainer({
             const _date = React.createRef<HTMLDivElement>()
             DateList.push(
               constructDateRow(
+                iconsRaw,
                 scheduleStack,
                 _date,
                 num,
@@ -831,7 +856,7 @@ export default function CalendarDateContainer({
 
     setDateRow(() => DateRow)
     set_dateList(() => _tmpDateList)
-  }, [isMounted, yearMonth, chosenDate])
+  }, [isMounted, yearMonth, chosenDate, schedulesRaw, iconsRaw])
 
   // 스크롤 이벤트
   const onScroll = throttle((e?: Event) => {

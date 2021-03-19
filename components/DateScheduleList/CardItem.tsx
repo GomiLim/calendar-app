@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import Thumbnail from '../../foundations/Thumbnail'
 import { TestIconDataType } from '../../pages/api/testScheduleData'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import theme from '../../styles/theme'
@@ -15,10 +16,10 @@ interface Props {
 export default function CardItem({ type, data, onClick }: Props) {
   const { t } = useTranslation()
 
-  const trimName = (top: boolean, name?: string) => {
+  const trimName = (name?: string) => {
     if (!name) return ''
 
-    const maxLen = top ? 13 : 25
+    const maxLen = 13
 
     return name.length > maxLen ? (
       <>
@@ -30,28 +31,8 @@ export default function CardItem({ type, data, onClick }: Props) {
     )
   }
 
-  const calculateTimeDiff = (modTime?: Date) => {
-    if (!modTime) return t('calendar.minute', { minute: 0 })
-
-    const ago = Math.floor(
-      moment.duration(moment(new Date()).diff(moment(modTime))).asMinutes(),
-    )
-    const hour = Math.floor(ago / 60)
-    const minute = ago % 60
-
-    if (hour > 0 && minute > 0) {
-      return `${t('calendar.hour', { hour })} ${t('calendar.minute', {
-        minute,
-      })}`
-    } else if (hour > 0) {
-      return t('calendar.hour', { hour })
-    } else {
-      return t('calendar.minute', { minute })
-    }
-  }
-
   return (
-    <ScheduleItemStyle.container>
+    <ScheduleItemStyle.container onClick={() => onClick(data)}>
       <div
         style={{
           ...ScheduleItemStyle.color,
@@ -62,7 +43,6 @@ export default function CardItem({ type, data, onClick }: Props) {
         <div style={ScheduleItemStyle.top}>
           <div style={ScheduleItemStyle.mainLabel}>
             {trimName(
-              true,
               `#${data?.channel?.name || ''} > ${data.writerName || ''}`,
             )}
           </div>
@@ -74,10 +54,32 @@ export default function CardItem({ type, data, onClick }: Props) {
             })}
           </div>
         </div>
-        <div style={ScheduleItemStyle.mainLabelArea}>
-          <div style={ScheduleItemStyle.label}>
-            {trimName(false, data.name)}
+        <div style={{ ...ScheduleItemStyle.top, marginTop: '0.5rem' }}>
+          <div style={ScheduleItemStyle.mainLabelArea}>
+            <div style={ScheduleItemStyle.label}>{trimName(data.name)}</div>
           </div>
+          <ScheduleItemStyle.thumbnailList>
+            {data.members &&
+              (data.members.length > 2 ? (
+                <>
+                  <Thumbnail
+                    email={data.members[0].email}
+                    style={ScheduleItemStyle.thumbnail}
+                  />
+                  <ScheduleItemStyle.thumbnailMore>
+                    {`+${data.members.length - 1}`}
+                  </ScheduleItemStyle.thumbnailMore>
+                </>
+              ) : (
+                data.members.map((member) => (
+                  <Thumbnail
+                    key={member.no}
+                    email={member.email}
+                    style={ScheduleItemStyle.thumbnail}
+                  />
+                ))
+              ))}
+          </ScheduleItemStyle.thumbnailList>
         </div>
       </div>
     </ScheduleItemStyle.container>

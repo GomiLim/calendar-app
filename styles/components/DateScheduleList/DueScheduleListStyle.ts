@@ -10,7 +10,7 @@ const DueScheduleListStyle = {
     borderBottom: `0.063rem solid ${theme.palette.mono.paleWhite}`,
     backgroundColor: 'transparent' as const,
     color: theme.palette.mono.gray,
-    ...theme.font.list,
+    ...theme.font.text,
   },
 }
 
