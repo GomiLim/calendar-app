@@ -283,7 +283,7 @@ export default React.memo(
           style={{
             ...CalendarDateStyle.container,
             backgroundColor: isSelecting
-              ? theme.palette.mono.gray
+              ? theme.palette.mono.lightGray
               : selected
               ? polished.lighten(
                   thisMonth ? 0.3 : 0.35,

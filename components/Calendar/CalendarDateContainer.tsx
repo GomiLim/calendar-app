@@ -902,7 +902,7 @@ export default function CalendarDateContainer({
         } = helper.extractValFromId(_date.current.attributes[0].value)
         const num = Number(extractedYear + extractedMonth + extractedDate)
         if (num > min && max > num) {
-          _date.current.style.backgroundColor = theme.palette.mono.gray
+          _date.current.style.backgroundColor = theme.palette.mono.lightGray
         }
       }
     })
