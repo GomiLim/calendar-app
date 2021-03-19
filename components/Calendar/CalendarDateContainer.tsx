@@ -1,6 +1,7 @@
 import { throttle } from 'lodash'
 import moment from 'moment'
 import React from 'react'
+import { SelectableGroup } from 'react-selectable-fast'
 import Recoil from 'recoil'
 import smoothscroll from 'smoothscroll-polyfill'
 import Box from '../../foundations/Box'
@@ -10,6 +11,7 @@ import {
 } from '../../pages/api/testScheduleData'
 import { iconDataState, loadingState, scheduleDataState } from '../../recoil'
 import CalendarDateContainerStyle from '../../styles/components/Calendar/CalendarDateContainerStyle'
+import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
 import * as hook from '../../utils/hooks'
 import CalendarDate from './CalendarDate'
@@ -22,6 +24,16 @@ export type ScheduleStackType = {
   outOfThisWeek?: boolean
   label: string
   color: string
+}
+
+type SelectedPropType = {
+  props: {
+    year: number
+    month: number
+    day: number
+    beforeOrAfter?: 'before' | 'after'
+    thisMonth?: boolean
+  }
 }
 
 const DateRowComponent = React.memo(function DateRowFnc({
@@ -74,186 +86,10 @@ export default function CalendarDateContainer({
   const [offsetY, setOffsetY] = React.useState(0)
   const [lastScrollTop, setLastScrollTop] = React.useState(0)
   const [init, setInit] = React.useState(true)
-  const [mousePosition, setMousePosition] = React.useState({ x: -1, y: -1 })
-  const [mouseDownPosition, setMouseDownPosition] = React.useState({
-    x: -1,
-    y: -1,
-  })
-  const [mouseUp, setMouseUp] = React.useState(true)
-  const [rectangle, setRectangle] = React.useState({
-    startX: -1,
-    startY: -1,
-    stopX: -1,
-    stopY: -1,
-  })
 
   React.useEffect(() => {
     smoothscroll.polyfill()
   }, [])
-
-  // const checkMouseDown = React.useCallback(
-  //   (e: MouseEvent) => {
-  //     e.preventDefault()
-
-  //     if (!isMounted()) return
-
-  //     setMouseUp(() => false)
-
-  //     setMouseDownPosition(() => ({ x: e.clientX, y: e.clientY }))
-  //   },
-  //   [isMounted],
-  // )
-
-  // const recordMousePosition = debounce(
-  //   React.useCallback(
-  //     (e: MouseEvent) => {
-  //       if (!isMounted()) return
-  //       if (mouseUp) return
-
-  //       setMousePosition(() => ({ x: e.clientX, y: e.clientY }))
-
-  //       setRectangle((rec) => ({
-  //         ...rec,
-  //         stopX: e.clientX,
-  //         stopY: e.clientY,
-  //       }))
-  //     },
-  //     [isMounted, mouseUp],
-  //   ),
-  //   25,
-  // )
-
-  // const checkMouseUp = React.useCallback(
-  //   (e: MouseEvent) => {
-  //     e.preventDefault()
-  //     console.log('MOUSEPOSITION', mousePosition)
-  //     console.log('MOUSEDOWNPOSITION', mouseDownPosition)
-
-  //     if (!isMounted()) return
-  //     if (
-  //       mousePosition.x === -1 ||
-  //       mousePosition.y === -1 ||
-  //       mouseDownPosition.x === -1 ||
-  //       mouseDownPosition.y === -1
-  //     ) {
-  //       setMouseUp(() => true)
-  //       setMousePosition(() => ({ x: -1, y: -1 }))
-  //       setMouseDownPosition(() => ({ x: -1, y: -1 }))
-  //       return
-  //     }
-  //     if (
-  //       mouseDownPosition.x === mousePosition.x &&
-  //       mouseDownPosition.y === mousePosition.y
-  //     )
-  //       return
-
-  //     setRectangle(() => ({
-  //       startX: mouseDownPosition.x,
-  //       startY: mouseDownPosition.y,
-  //       stopX: e.clientX,
-  //       stopY: e.clientY,
-  //     }))
-
-  //     setMouseUp(() => true)
-  //   },
-  //   [isMounted, mousePosition, mouseDownPosition],
-  // )
-
-  // React.useEffect(() => {
-  //   if (!isMounted()) return
-  //   if (!_dateBody?.current) return
-
-  //   _dateBody.current.addEventListener('mousedown', checkMouseDown)
-  //   _dateBody.current.addEventListener('mousemove', recordMousePosition)
-  //   _dateBody.current.addEventListener('mouseup', checkMouseUp)
-
-  //   return () => {
-  //     if (!_dateBody?.current) return
-
-  //     _dateBody.current.removeEventListener('mousedown', checkMouseDown)
-  //     _dateBody.current.removeEventListener('mousemove', recordMousePosition)
-  //     _dateBody.current.removeEventListener('mouseup', checkMouseUp)
-  //   }
-  // }, [isMounted, _dateBody, checkMouseDown, recordMousePosition, checkMouseUp])
-
-  // React.useEffect(() => {
-  //   if (!isMounted()) return
-  //   if (_dateList.length === 0) return
-  //   if (mouseDownPosition.x === -1 || mouseDownPosition.y === -1) return
-  //   if (mousePosition.x === -1 || mousePosition.y === -1) return
-  //   if (
-  //     mouseDownPosition.x === mousePosition.x &&
-  //     mouseDownPosition.y === mousePosition.y
-  //   )
-  //     return
-  //   if (
-  //     rectangle.startX === -1 ||
-  //     rectangle.startY === -1 ||
-  //     rectangle.stopX === -1 ||
-  //     rectangle.stopY === -1
-  //   )
-  //     return
-
-  //   console.log('rectangle', rectangle)
-
-  //   _dateList.forEach((_date) => {
-  //     if (_date?.current) {
-  //       if (_date.current.style.backgroundColor) {
-  //         _date.current.style.backgroundColor = 'transparent'
-  //       }
-  //     }
-  //   })
-
-  //   const _selected = _dateList.filter((_date) => {
-  //     if (!_date?.current) return false
-
-  //     const xMin = _date.current.getBoundingClientRect().x
-  //     const xMax =
-  //       _date.current.getBoundingClientRect().x +
-  //       _date.current.getBoundingClientRect().width
-  //     const yMin = _date.current.getBoundingClientRect().y
-  //     const yMax =
-  //       _date.current.getBoundingClientRect().y +
-  //       _date.current.getBoundingClientRect().height
-
-  //     const recXMin =
-  //       rectangle.startX > rectangle.stopX ? rectangle.stopX : rectangle.startX
-  //     const recXMax =
-  //       rectangle.startX < rectangle.stopX ? rectangle.stopX : rectangle.startX
-  //     const recYMin =
-  //       rectangle.startY > rectangle.stopY ? rectangle.stopY : rectangle.startY
-  //     const recYMax =
-  //       rectangle.startY < rectangle.stopY ? rectangle.stopY : rectangle.startY
-
-  //     return (
-  //       (recXMin >= xMin &&
-  //         xMax >= recXMin &&
-  //         recYMin >= yMin &&
-  //         yMax >= recYMin) ||
-  //       (recXMax >= xMin &&
-  //         xMax >= recXMax &&
-  //         recYMax >= yMin &&
-  //         yMax >= recYMax) ||
-  //       (xMin >= recXMin &&
-  //         recXMax >= xMin &&
-  //         yMin >= recYMin &&
-  //         recYMax >= yMin) ||
-  //       (xMax >= recXMin &&
-  //         recXMax >= xMax &&
-  //         yMax >= recYMin &&
-  //         recYMax >= yMax)
-  //     )
-  //   })
-
-  //   _selected.forEach((_date) => {
-  //     if (_date?.current) {
-  //       _date.current.style.backgroundColor = theme.palette.mono.pale
-  //     }
-  //   })
-
-  //   setMouseDownPosition(() => ({ x: -1, y: -1 }))
-  //   setRectangle(() => ({ startX: -1, startY: -1, stopX: -1, stopY: -1 }))
-  // }, [isMounted, mouseDownPosition, mousePosition, rectangle, _dateList])
 
   // 월 포커스 이벤트
   const focusMonth = (focusingYear: number, focusingMonth: number) => {
@@ -1002,9 +838,113 @@ export default function CalendarDateContainer({
     }
   }, [isMounted, _dateBody?.current, onWheel])
 
+  const calculateExactYearMonthFromProp = (param: SelectedPropType) => {
+    const year = param.props.beforeOrAfter
+      ? param.props.beforeOrAfter === 'before'
+        ? !param.props.thisMonth
+          ? param.props.month === 0
+            ? param.props.year - 1
+            : param.props.year
+          : param.props.year
+        : !param.props.thisMonth
+        ? param.props.month === 11
+          ? param.props.year + 1
+          : param.props.year
+        : param.props.year
+      : param.props.year
+    const month = param.props.beforeOrAfter
+      ? param.props.beforeOrAfter === 'before'
+        ? !param.props.thisMonth
+          ? param.props.month === 0
+            ? 11
+            : param.props.month - 1
+          : param.props.month
+        : !param.props.thisMonth
+        ? param.props.month === 11
+          ? 0
+          : param.props.month + 1
+        : param.props.month
+      : param.props.month
+
+    return { year, month }
+  }
+
+  const extractNumaricVal = (param: SelectedPropType) => {
+    const { year, month } = calculateExactYearMonthFromProp(param)
+
+    return Number(
+      String(year) +
+        helper.makeTwoDigits(month) +
+        helper.makeTwoDigits(param.props.day),
+    )
+  }
+
+  const duringSelection = (selections: SelectedPropType[]) => {
+    if (_dateList.length === 0) return
+
+    const min = extractNumaricVal(
+      selections.reduce((prev, next) =>
+        extractNumaricVal(prev) > extractNumaricVal(next) ? next : prev,
+      ),
+    )
+    const max = extractNumaricVal(
+      selections.reduce((prev, next) =>
+        extractNumaricVal(prev) < extractNumaricVal(next) ? next : prev,
+      ),
+    )
+
+    _dateList.forEach((_date) => {
+      if (_date?.current) {
+        const {
+          extractedYear,
+          extractedMonth,
+          extractedDate,
+        } = helper.extractValFromId(_date.current.attributes[0].value)
+        const num = Number(extractedYear + extractedMonth + extractedDate)
+        if (num > min && max > num) {
+          _date.current.style.backgroundColor = theme.palette.mono.gray
+        }
+      }
+    })
+  }
+
+  const onSelectionFinish = (selections: SelectedPropType[]) => {
+    if (selections.length === 0) return
+    if (selections.length === 1) {
+      const { year, month } = calculateExactYearMonthFromProp(selections[0])
+      onClickDate(new Date(year, month, selections[0].props.day))
+      return
+    }
+
+    if (_dateList.length === 0) return
+
+    _dateList.forEach((_date) => {
+      if (_date?.current) {
+        _date.current.style.backgroundColor = 'transparent'
+      }
+    })
+
+    const range = selections.map((selection) => {
+      const { year, month } = calculateExactYearMonthFromProp(selection)
+      return new Date(year, month, selection.props.day)
+    })
+    onRangeSelect(range)
+  }
+
   return (
     <CalendarDateContainerStyle.container ref={_dateBody}>
-      {dateRow}
+      <SelectableGroup
+        allowClickWithoutSelected={false}
+        selectOnClick={false}
+        resetOnStart={true}
+        fixedPosition={true}
+        mixedDeselect={false}
+        enableDeselect={false}
+        duringSelection={duringSelection}
+        onSelectionFinish={onSelectionFinish}
+        className="select-child">
+        {dateRow}
+      </SelectableGroup>
     </CalendarDateContainerStyle.container>
   )
 }

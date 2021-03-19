@@ -8,7 +8,7 @@ interface Props {
   className?: string
   onClick?: (e?: React.MouseEvent<HTMLDivElement>) => void
   onDoubleClick?: (e?: React.MouseEvent<HTMLDivElement>) => void
-  refObj?: React.RefObject<HTMLDivElement> | null
+  refObj?: React.LegacyRef<HTMLDivElement> | null
   id?: string
 }
 
