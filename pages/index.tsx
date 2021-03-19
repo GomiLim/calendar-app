@@ -3,8 +3,14 @@ import { GetServerSideProps } from 'next'
 import React from 'react'
 import Recoil from 'recoil'
 import Calendar from '../components/Calendar'
+import CalendarHeader from '../components/CalendarHeader'
 import DateScheduleList from '../components/DateScheduleList'
-import { iconDataState, loadingState, scheduleDataState } from '../recoil'
+import {
+  filterState,
+  iconDataState,
+  loadingState,
+  scheduleDataState,
+} from '../recoil'
 import CalendarPageStyle from '../styles/pages/CalendarPageStyle'
 import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
@@ -30,6 +36,7 @@ export default function Home({ scheduleData, iconData }: Props) {
     scheduleDataState,
   )
   const [iconsRaw, setIconsRaw] = Recoil.useRecoilState(iconDataState)
+  const filter = Recoil.useRecoilValue(filterState)
 
   const [baseDate, setBaseDate] = React.useState<Date>(new Date())
   const [chosenDate, setChosenDate] = React.useState<Date | undefined>()
@@ -50,8 +57,13 @@ export default function Home({ scheduleData, iconData }: Props) {
   const [rightContainerStyle, setRightContainerStyle] = React.useState<
     React.CSSProperties | undefined
   >()
+  const [isMobile, setIsMobile] = React.useState(false)
 
   const isMounted = hook.useIsMounted()
+
+  React.useEffect(() => {
+    setIsMobile(helper.checkIsMobile(window))
+  }, [])
 
   React.useEffect(() => {
     if (isMounted()) {
@@ -127,6 +139,44 @@ export default function Home({ scheduleData, iconData }: Props) {
   }
 
   React.useEffect(() => {
+    if (!isMounted()) return
+
+    setEndingTodos(() => iconsRaw.todos)
+  }, [isMounted, iconsRaw.todos])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+
+    setEndingCards(() => iconsRaw.cards)
+  }, [isMounted, iconsRaw.cards])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+
+    setEndingChannels(() => iconsRaw.channels)
+  }, [isMounted, iconsRaw.channels])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+
+    setSchedules(() =>
+      schedulesRaw.map((item) => {
+        if (item.type === 'sub') {
+          const found = schedulesRaw.find((testD) => testD.no === item.parentNo)
+          if (found) {
+            return { ...item, parentName: found.name }
+          }
+        }
+        return item
+      }),
+    )
+  }, [isMounted, schedulesRaw])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+  }, [isMounted, filter])
+
+  React.useEffect(() => {
     if (isMounted()) {
       if (typeof window === 'undefined') return
 
@@ -168,6 +218,13 @@ export default function Home({ scheduleData, iconData }: Props) {
     helper.checkIsMobile,
     doubleClicked,
   ])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+    if (!showCreateSchedule) return
+
+    alert('더블클릭시 나오는 일정 생성 화면이 없어요!')
+  }, [isMounted, showCreateSchedule])
 
   React.useEffect(() => {
     if (isMounted()) {
@@ -231,41 +288,48 @@ export default function Home({ scheduleData, iconData }: Props) {
   }
 
   const onDoubleClickSchedule = (scheduleNo: number) => {
-    console.log('CLICKED SCHEDULE NO', scheduleNo)
+    alert('일정 더블클릭시 나오는 일정 수정 화면이 없어요!')
   }
 
   return (
-    <CalendarPageStyle.container
-      style={{
-        display: calendarShow,
-      }}>
-      <div style={containerWidth}>
-        <Calendar
-          baseDate={baseDate}
-          onChangeMonth={onChangeMonth}
-          chosenDate={chosenDate}
-          onClick={onClickDate}
-          onDoubleClickSchedule={onDoubleClickSchedule}
-        />
-      </div>
-      <CalendarPageStyle.rightContainer style={rightContainerStyle}>
-        {showDateSchedule && !!chosenDate && (
-          <DateScheduleList
-            onClickTitle={onClickDate}
-            date={chosenDate || new Date()}
-            schedules={schedules}
-            channels={endingChannels}
-            cards={endingCards}
-            todos={endingTodos}
+    <CalendarPageStyle.container>
+      <CalendarPageStyle.header>
+        <CalendarHeader />
+      </CalendarPageStyle.header>
+      <CalendarPageStyle.content
+        style={{
+          display: calendarShow,
+        }}>
+        <div style={containerWidth}>
+          <Calendar
+            isMobile={isMobile}
+            baseDate={baseDate}
+            onChangeMonth={onChangeMonth}
+            chosenDate={chosenDate}
+            onClick={onClickDate}
+            onDoubleClickSchedule={onDoubleClickSchedule}
           />
-        )}
-        {/* {showCreateSchedule && !!chosenDate && (
+        </div>
+        <CalendarPageStyle.rightContainer style={rightContainerStyle}>
+          {showDateSchedule && !!chosenDate && (
+            <DateScheduleList
+              isMobile={isMobile}
+              onClickTitle={onClickDate}
+              date={chosenDate || new Date()}
+              schedules={schedules}
+              channels={endingChannels}
+              cards={endingCards}
+              todos={endingTodos}
+            />
+          )}
+          {/* {showCreateSchedule && !!chosenDate && (
           <DateScheduleListContainer
             platform={platform}
             date={chosenDate || new Date()}
           />
         )} */}
-      </CalendarPageStyle.rightContainer>
+        </CalendarPageStyle.rightContainer>
+      </CalendarPageStyle.content>
     </CalendarPageStyle.container>
   )
 }

@@ -24,9 +24,14 @@ export default function TodoItem({ data, onClick }: Props) {
     )
   }
 
+  const onClickMore = () => {
+    alert('더보기 클릭시 나오는 UI가 없어요!')
+  }
+
   return (
-    <ScheduleItemStyle.container onClick={() => onClick(data)}>
+    <ScheduleItemStyle.container>
       <i
+        onClick={() => onClick(data)}
         style={{ fontSize: '1.5rem', margin: '0.5rem' }}
         className={`xi-${data.done ? 'check-square-o' : 'checkbox-blank'}`}
       />
@@ -51,6 +56,7 @@ export default function TodoItem({ data, onClick }: Props) {
           </div>
         </div>
         <i
+          onClick={onClickMore}
           style={{ fontSize: '1rem', margin: '0.4rem' }}
           className="xi-ellipsis-h"
         />

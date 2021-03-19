@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import Recoil from 'recoil'
 import Box from '../../foundations/Box'
 import Icon from '../../foundations/Icon'
 import Text from '../../foundations/Text'
@@ -8,9 +9,9 @@ import {
   TestDataType,
   TestIconDataType,
 } from '../../pages/api/testScheduleData'
+import { iconDataState, loadingState } from '../../recoil'
 import DateScheduleListContainerStyle from '../../styles/components/DateScheduleList/DateScheduleListContainerStyle'
 import theme from '../../styles/theme'
-import * as helper from '../../utils/helpers'
 import Swipe from '../../utils/helpers/swiper'
 import * as hook from '../../utils/hooks'
 import { Months } from '../../utils/i18n'
@@ -18,6 +19,7 @@ import { Icons } from '../../utils/types'
 import DueScheduleList from './DueScheduleList'
 
 interface Props {
+  isMobile: boolean
   date: Date
   schedules: TestDataType[]
   channels: TestIconDataType[]
@@ -27,6 +29,7 @@ interface Props {
 }
 
 export default function DateScheduleList({
+  isMobile,
   date,
   schedules,
   channels,
@@ -35,6 +38,9 @@ export default function DateScheduleList({
   onClickTitle,
 }: Props) {
   const { t } = useTranslation()
+
+  const setLoading = Recoil.useSetRecoilState(loadingState)
+  const setIconsRow = Recoil.useSetRecoilState(iconDataState)
 
   const _container: React.RefObject<HTMLDivElement> = React.createRef()
   const _label: React.RefObject<HTMLDivElement> = React.createRef()
@@ -47,7 +53,6 @@ export default function DateScheduleList({
   const [showChannelList, setShowChannelList] = React.useState(true)
   const [showCardList, setShowCardList] = React.useState(true)
   const [showTodoList, setShowTodoList] = React.useState(true)
-  const [isMobile, setIsMobile] = React.useState(false)
   const [topLabelStyle, setTopLabelStyle] = React.useState<
     React.CSSProperties | undefined
   >()
@@ -189,21 +194,18 @@ export default function DateScheduleList({
 
     touch(_label.current)
 
-    const mobileCheck = helper.checkIsMobile(window)
-    setIsMobile(() => mobileCheck)
-
-    if (mobileCheck) {
+    if (isMobile) {
       setTopLabelStyle(() => ({
         width: '100%',
         left: 0,
         top: 'unset',
-        bottom: 'calc(70% - 3rem)',
+        bottom: 'calc(70% - 2.5rem)',
       }))
       setHeaderLabelStyle(() => ({
         width: '100%',
         left: 0,
         top: 'unset',
-        bottom: 'calc(70% - 5.5rem)',
+        bottom: 'calc(70% - 5rem)',
       }))
     } else {
       setTopLabelStyle(() => ({
@@ -219,7 +221,7 @@ export default function DateScheduleList({
         bottom: 'unset',
       }))
     }
-  }, [isMounted, _label?.current, helper.checkIsMobile])
+  }, [isMounted, _label?.current, isMobile])
 
   const onScroll = () => {
     if (!_header?.current) return
@@ -299,19 +301,26 @@ export default function DateScheduleList({
   const onClickTodoShow = () => setShowTodoList(!showTodoList)
 
   const onClickSchedule = (data: TestDataType) => {
-    //
+    alert('클릭시 띄울 카드상세 화면이 없어요!')
   }
 
   const onClickChannel = (data: TestIconDataType) => {
-    //
+    alert('클릭시 띄울 채널상세 화면이 없어요!')
   }
 
   const onClickCard = (data: TestIconDataType) => {
-    //
+    alert('클릭시 띄울 카드상세 화면이 없어요!')
   }
 
   const onClickTodo = (data: TestIconDataType) => {
-    //
+    setLoading(true)
+    setIconsRow((icons) => ({
+      ...icons,
+      todos: icons.todos.map((todo) =>
+        todo.no === data.no ? { ...todo, done: !todo.done } : todo,
+      ),
+    }))
+    setLoading(false)
   }
 
   const year = moment(date).format('YYYY')
@@ -322,7 +331,7 @@ export default function DateScheduleList({
     <DateScheduleListContainerStyle.container
       ref={_container}
       style={{
-        paddingTop: isMobile ? '2.8rem' : '2.063rem',
+        paddingTop: isMobile ? '2.4rem' : '2.063rem',
         paddingBottom: isMobile ? '7rem' : undefined,
       }}>
       <div

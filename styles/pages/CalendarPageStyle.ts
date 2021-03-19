@@ -8,6 +8,15 @@ const CalendarPageStyle = {
   `)`
     justify-center
   `,
+  header: styled.div`
+    width: 100%;
+    height: 5rem;
+    padding: 1rem;
+  `,
+  content: styled.div`
+    height: calc(100% - 5rem);
+    width: 100%;
+  `,
   rightContainer: tw.div`
     bg-mono-white
     border-left

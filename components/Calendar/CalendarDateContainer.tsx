@@ -50,6 +50,7 @@ const DateRowComponent = React.memo(function DateRowFnc({
 
 interface Props {
   startDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6
+  isMobile: boolean
   onChangeMonth: (date: Date) => void
   chosenDate?: Date
   yearMonth: string
@@ -62,6 +63,7 @@ interface Props {
 
 export default function CalendarDateContainer({
   startDay = 0,
+  isMobile,
   onChangeMonth,
   chosenDate,
   yearMonth,
@@ -881,6 +883,7 @@ export default function CalendarDateContainer({
 
   const duringSelection = (selections: SelectedPropType[]) => {
     if (_dateList.length === 0) return
+    if (selections.length === 0) return
 
     const min = extractNumaricVal(
       selections.reduce((prev, next) =>
@@ -933,18 +936,21 @@ export default function CalendarDateContainer({
 
   return (
     <CalendarDateContainerStyle.container ref={_dateBody}>
-      <SelectableGroup
-        allowClickWithoutSelected={false}
-        selectOnClick={false}
-        resetOnStart={true}
-        fixedPosition={true}
-        mixedDeselect={false}
-        enableDeselect={false}
-        duringSelection={duringSelection}
-        onSelectionFinish={onSelectionFinish}
-        className="select-child">
-        {dateRow}
-      </SelectableGroup>
+      {isMobile ? (
+        dateRow
+      ) : (
+        <SelectableGroup
+          allowClickWithoutSelected={false}
+          selectOnClick={false}
+          resetOnStart={true}
+          fixedPosition={true}
+          mixedDeselect={false}
+          enableDeselect={false}
+          duringSelection={duringSelection}
+          onSelectionFinish={onSelectionFinish}>
+          {dateRow}
+        </SelectableGroup>
+      )}
     </CalendarDateContainerStyle.container>
   )
 }

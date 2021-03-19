@@ -1,5 +1,6 @@
 import Recoil from 'recoil'
 import { TestDataType, TestIconDataType } from '../pages/api/testScheduleData'
+import { FilterType } from '../utils/types'
 
 export const scheduleDataState = Recoil.atom<TestDataType[]>({
   key: 'scheduleDataState',
@@ -17,4 +18,16 @@ export const iconDataState = Recoil.atom<{
     cards: [],
     todos: [],
   },
+})
+
+export const initFilter = {
+  channel: { show: true },
+  schedule: { show: true },
+  card: { show: true },
+  todo: { show: true },
+}
+
+export const filterState = Recoil.atom<FilterType>({
+  key: 'filterState',
+  default: initFilter,
 })

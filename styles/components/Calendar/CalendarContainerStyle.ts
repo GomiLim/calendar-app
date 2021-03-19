@@ -15,9 +15,14 @@ const CalendarContainerStyle = {
   `,
   header: {
     width: '100%',
-    height: '7.625',
+    height: '7.625rem',
     borderBottom: `0.063rem solid ${theme.palette.mono.gray}`,
     backgroundColor: theme.palette.mono.white,
+    padding: '1rem',
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
   },
   headerTop: {
     width: '100%',
@@ -55,7 +60,7 @@ const CalendarContainerStyle = {
     backgroundColor: theme.palette.mono.white,
     padding: '1.25rem',
     overflow: 'hidden' as const,
-    height: 'calc(100% - 4.468rem)',
+    height: 'calc(100% - 7.625rem)',
   },
 }
 

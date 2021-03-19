@@ -51,6 +51,7 @@ const createDayLabels = (startDay: number, t: TFunction<string>) => {
 }
 
 interface Props {
+  isMobile: boolean
   baseDate: Date
   onChangeMonth: (date: Date) => void
   chosenDate?: Date
@@ -60,6 +61,7 @@ interface Props {
 }
 
 export default function Calendar({
+  isMobile,
   baseDate,
   onChangeMonth,
   chosenDate,
@@ -144,7 +146,21 @@ export default function Calendar({
   }
 
   const onRangeSelect = (range: Date[]) => {
-    console.log('RANGE1!!!!!', range)
+    const min = moment(
+      range.reduce((prev, next) => {
+        const prevNum = Number(moment(prev).format('YYYYMMDD'))
+        const nextNum = Number(moment(next).format('YYYYMMDD'))
+        return prevNum < nextNum ? prev : next
+      }),
+    ).format('YYYY년 MM월 DD일')
+    const max = moment(
+      range.reduce((prev, next) => {
+        const prevNum = Number(moment(prev).format('YYYYMMDD'))
+        const nextNum = Number(moment(next).format('YYYYMMDD'))
+        return prevNum > nextNum ? prev : next
+      }),
+    ).format('YYYY년 MM월 DD일')
+    alert(`${min}~${max} 기간 동안의 일정 생성 화면이 없어요!`)
   }
 
   return (
@@ -189,6 +205,7 @@ export default function Calendar({
       <div style={CalendarContainerStyle.dateContainer}>
         <CalendarDateContainer
           startDay={startDay}
+          isMobile={isMobile}
           onChangeMonth={onChangeMonth}
           chosenDate={chosenDate}
           yearMonth={yearMonth}

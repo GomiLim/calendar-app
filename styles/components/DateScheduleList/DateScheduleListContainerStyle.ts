@@ -12,6 +12,10 @@ const DateScheduleListContainerStyle = {
     scrollbar-width: none;
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 
     &::-webkit-scrollbar {
       display: none;
