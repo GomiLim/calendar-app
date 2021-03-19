@@ -41,6 +41,7 @@ export default function TodoItem({ data, onClick }: Props) {
           display: 'flex' as const,
           justifyContent: 'space-between' as const,
           alignItems: 'center' as const,
+          cursor: 'default' as const,
         }}>
         <div style={{ maxWidth: 'calc(100% - 4.8rem)' }}>
           <div style={ScheduleItemStyle.mainLabel}>
@@ -57,7 +58,11 @@ export default function TodoItem({ data, onClick }: Props) {
         </div>
         <i
           onClick={onClickMore}
-          style={{ fontSize: '1rem', margin: '0.4rem' }}
+          style={{
+            fontSize: '1rem',
+            margin: '0.4rem',
+            cursor: 'pointer' as const,
+          }}
           className="xi-ellipsis-h"
         />
       </div>

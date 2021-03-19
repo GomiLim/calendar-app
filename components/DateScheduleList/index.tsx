@@ -40,7 +40,7 @@ export default function DateScheduleList({
   const { t } = useTranslation()
 
   const setLoading = Recoil.useSetRecoilState(loadingState)
-  const setIconsRow = Recoil.useSetRecoilState(iconDataState)
+  const setIconsRaw = Recoil.useSetRecoilState(iconDataState)
 
   const _container: React.RefObject<HTMLDivElement> = React.createRef()
   const _label: React.RefObject<HTMLDivElement> = React.createRef()
@@ -79,17 +79,75 @@ export default function DateScheduleList({
     }
   }, [])
 
+  const onScroll = () => {
+    if (!isMounted()) return
+    if (!_header?.current) return
+    if (!_schedule?.current || !_card?.current || !_todo?.current) return
+    console.log('onScroll')
+
+    if (
+      _todo.current.getBoundingClientRect().top +
+        _todo.current.getBoundingClientRect().height / 2 <=
+      _header.current.getBoundingClientRect().bottom
+    ) {
+      _header.current.attributes[0].value = 'todo'
+      setHeaderContent(() => [
+        <Text key="todo-text" value={t('calendar.todo')} />,
+        <Icon
+          key="todo-icon"
+          style={DateScheduleListContainerStyle.toggle}
+          icon={showTodoList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+        />,
+      ])
+    } else if (
+      _card.current.getBoundingClientRect().top +
+        _card.current.getBoundingClientRect().height / 2 <=
+      _header.current.getBoundingClientRect().bottom
+    ) {
+      _header.current.attributes[0].value = 'card'
+      setHeaderContent(() => [
+        <Text key="card-text" value={t('calendar.card')} />,
+        <Icon
+          key="card-icon"
+          style={DateScheduleListContainerStyle.toggle}
+          icon={showCardList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+        />,
+      ])
+    } else if (
+      _schedule.current.getBoundingClientRect().top +
+        _schedule.current.getBoundingClientRect().height / 2 <=
+      _header.current.getBoundingClientRect().bottom
+    ) {
+      _header.current.attributes[0].value = 'schedule'
+      setHeaderContent(() => [
+        <Text key="schedule-text" value={t('calendar.schedule')} />,
+        <Icon
+          key="schedule-icon"
+          style={DateScheduleListContainerStyle.toggle}
+          icon={showScheduleList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+        />,
+      ])
+    } else {
+      _header.current.attributes[0].value = 'channel'
+      setHeaderContent(() => [
+        <Text key="channel-text" value={t('calendar.channel')} />,
+        <Icon
+          key="channel-icon"
+          style={DateScheduleListContainerStyle.toggle}
+          icon={showChannelList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+        />,
+      ])
+    }
+  }
+
   React.useEffect(() => {
     if (!isMounted()) return
     if (!_container?.current) return
 
-    setScrollable(() => {
-      if (_container?.current) {
-        return _container.current.scrollHeight > _container.current.clientHeight
-      } else {
-        return false
-      }
-    })
+    const scrollEnable =
+      _container.current.scrollHeight > _container.current.clientHeight
+
+    setScrollable(() => scrollEnable)
   }, [
     isMounted,
     showChannelList,
@@ -152,10 +210,14 @@ export default function DateScheduleList({
         ? _card.current.getBoundingClientRect().top
         : _todo.current.getBoundingClientRect().top
 
-    _container.current.scrollTo({
-      top,
-      behavior: 'auto',
-    })
+    setTimeout(() => {
+      if (_container?.current) {
+        _container.current.scrollTo({
+          top,
+          behavior: 'auto',
+        })
+      }
+    }, 100)
   }
 
   const onClickHeader = () => {
@@ -211,76 +273,17 @@ export default function DateScheduleList({
       setTopLabelStyle(() => ({
         width: 'calc(30% - 0.063rem)',
         left: 'calc(70% + 0.063rem)',
-        top: 0,
+        top: '4.9rem',
         bottom: 'unset',
       }))
       setHeaderLabelStyle(() => ({
         width: 'calc(30% - 0.063rem)',
         left: 'calc(70% + 0.063rem)',
-        top: '2.5rem',
+        top: '7.4rem',
         bottom: 'unset',
       }))
     }
   }, [isMounted, _label?.current, isMobile])
-
-  const onScroll = () => {
-    if (!_header?.current) return
-    if (!_schedule?.current || !_card?.current || !_todo?.current) return
-
-    if (
-      _todo.current.getBoundingClientRect().top +
-        _todo.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
-    ) {
-      _header.current.attributes[0].value = 'todo'
-      setHeaderContent([
-        <Text key="todo-text" value={t('calendar.todo')} />,
-        <Icon
-          key="todo-icon"
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showTodoList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />,
-      ])
-    } else if (
-      _card.current.getBoundingClientRect().top +
-        _card.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
-    ) {
-      _header.current.attributes[0].value = 'card'
-      setHeaderContent([
-        <Text key="card-text" value={t('calendar.card')} />,
-        <Icon
-          key="card-icon"
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showCardList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />,
-      ])
-    } else if (
-      _schedule.current.getBoundingClientRect().top +
-        _schedule.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
-    ) {
-      _header.current.attributes[0].value = 'schedule'
-      setHeaderContent([
-        <Text key="schedule-text" value={t('calendar.schedule')} />,
-        <Icon
-          key="schedule-icon"
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showScheduleList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />,
-      ])
-    } else {
-      _header.current.attributes[0].value = 'channel'
-      setHeaderContent([
-        <Text key="channel-text" value={t('calendar.channel')} />,
-        <Icon
-          key="channel-icon"
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showChannelList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />,
-      ])
-    }
-  }
 
   React.useEffect(() => {
     if (!isMounted()) return
@@ -314,9 +317,9 @@ export default function DateScheduleList({
 
   const onClickTodo = (data: TestIconDataType) => {
     setLoading(true)
-    setIconsRow((icons) => ({
-      ...icons,
-      todos: icons.todos.map((todo) =>
+    setIconsRaw((iconsRaw) => ({
+      ...iconsRaw,
+      todos: iconsRaw.todos.map((todo) =>
         todo.no === data.no ? { ...todo, done: !todo.done } : todo,
       ),
     }))

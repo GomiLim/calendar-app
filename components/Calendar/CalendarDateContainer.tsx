@@ -176,7 +176,7 @@ export default function CalendarDateContainer({
               Number(yearMonth.substr(4, 2)) - 1,
             )
             setInit(() => false)
-          }, 100)
+          }, 300)
         }
       }
     }

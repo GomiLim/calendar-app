@@ -37,7 +37,7 @@ const CalendarContainerStyle = {
   },
   pickerModal: {
     position: 'absolute' as const,
-    top: '1.25rem',
+    top: '3rem',
     left: 'calc(50% - 8.75rem)',
   },
   topItem: {

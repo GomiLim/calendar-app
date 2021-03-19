@@ -5,7 +5,6 @@ import Text from '../../foundations/Text'
 import Thumbnail from '../../foundations/Thumbnail'
 import { sessionState } from '../../recoil/session'
 import CalendarHeaderStyle from '../../styles/components/CalendarHeader/CalendarHeaderStyle'
-import theme from '../../styles/theme'
 import { Icons } from '../../utils/types'
 
 export default function CalendarHeader() {
@@ -18,7 +17,7 @@ export default function CalendarHeader() {
       <CalendarHeaderStyle.filterContainer>
         <Text
           value={t('calendar.header.title')}
-          style={theme.font.titleLarge}
+          style={CalendarHeaderStyle.title}
         />
       </CalendarHeaderStyle.filterContainer>
       <CalendarHeaderStyle.userContainer>
@@ -28,7 +27,7 @@ export default function CalendarHeader() {
         />
         <Text
           value={t('calendar.header.user')}
-          style={theme.font.titleMedium}
+          style={CalendarHeaderStyle.userName}
         />
         <Icon icon={Icons.CONFIG} style={CalendarHeaderStyle.icon} />
         <Icon icon={Icons.SWITCH_OFF} style={CalendarHeaderStyle.systemIcon} />

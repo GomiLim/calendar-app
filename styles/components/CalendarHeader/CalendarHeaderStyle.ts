@@ -7,6 +7,9 @@ const iconStyle = {
   padding: '0.25rem',
   fontSize: '2rem',
   color: theme.palette.mono.black,
+  margin: 'auto 0',
+  marginRight: '1rem',
+  cursor: 'pointer' as const,
 }
 
 const CalendarHeaderStyle = {
@@ -22,16 +25,20 @@ const CalendarHeaderStyle = {
     justify-start
     item-center
     w-3\/4
-  `,
+    h-full
+    `,
   userContainer: tw.div`
     flex
     justify-end
     item-center
     w-1\/4
+    h-full
   `,
   thumbnail: {
     width: '2rem',
     height: '2rem',
+    margin: 'auto 0',
+    marginRight: '1rem',
   },
   icon: {
     ...iconStyle,
@@ -39,9 +46,20 @@ const CalendarHeaderStyle = {
   },
   systemIcon: {
     ...iconStyle,
+    fontSize: '1.5rem',
     border: 'none' as const,
     backgroundColor: theme.palette.sub.babyPink,
-    borderRadius: '0.1rem',
+    borderRadius: '0.5rem',
+  },
+  title: {
+    margin: 'auto 0',
+    marginRight: '2rem',
+    ...theme.font.titleLarge,
+  },
+  userName: {
+    margin: 'auto 0',
+    marginRight: '1rem',
+    ...theme.font.titleSmall,
   },
 }
 

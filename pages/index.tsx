@@ -140,21 +140,40 @@ export default function Home({ scheduleData, iconData }: Props) {
 
   React.useEffect(() => {
     if (!isMounted()) return
+    if (!chosenDate) return
+    const dateNum = Number(moment(chosenDate).format('YYYYMMDD'))
 
-    setEndingTodos(() => iconsRaw.todos)
-  }, [isMounted, iconsRaw.todos])
+    setEndingTodos(() =>
+      iconsRaw.todos.filter(
+        (todo) => Number(moment(todo.date).format('YYYYMMDD')) === dateNum,
+      ),
+    )
+  }, [isMounted, iconsRaw.todos, chosenDate])
 
   React.useEffect(() => {
     if (!isMounted()) return
+    if (!chosenDate) return
+    const dateNum = Number(moment(chosenDate).format('YYYYMMDD'))
 
-    setEndingCards(() => iconsRaw.cards)
-  }, [isMounted, iconsRaw.cards])
+    setEndingCards(() =>
+      iconsRaw.cards.filter(
+        (card) => Number(moment(card.date).format('YYYYMMDD')) === dateNum,
+      ),
+    )
+  }, [isMounted, iconsRaw.cards, chosenDate])
 
   React.useEffect(() => {
     if (!isMounted()) return
+    if (!chosenDate) return
+    const dateNum = Number(moment(chosenDate).format('YYYYMMDD'))
 
-    setEndingChannels(() => iconsRaw.channels)
-  }, [isMounted, iconsRaw.channels])
+    setEndingChannels(() =>
+      iconsRaw.channels.filter(
+        (channel) =>
+          Number(moment(channel.date).format('YYYYMMDD')) === dateNum,
+      ),
+    )
+  }, [isMounted, iconsRaw.channels, chosenDate])
 
   React.useEffect(() => {
     if (!isMounted()) return
@@ -178,8 +197,6 @@ export default function Home({ scheduleData, iconData }: Props) {
 
   React.useEffect(() => {
     if (isMounted()) {
-      if (typeof window === 'undefined') return
-
       if (doubleClicked) {
         setShowDateSchedule(() => false)
         setContainerWidth(() => ({ width: '100%', height: '100%' }))
@@ -201,7 +218,7 @@ export default function Home({ scheduleData, iconData }: Props) {
         return
       }
 
-      if (helper.checkIsMobile(window)) {
+      if (isMobile) {
         setContainerWidth(() => ({ width: '100%', height: '30%' }))
       } else {
         setContainerWidth(() => ({ width: '70%', height: '100%' }))
@@ -210,12 +227,12 @@ export default function Home({ scheduleData, iconData }: Props) {
     }
   }, [
     isMounted,
+    isMobile,
     schedules.length,
     endingChannels.length,
     endingCards.length,
-    endingTodos.length,
+    endingTodos,
     chosenDate,
-    helper.checkIsMobile,
     doubleClicked,
   ])
 
@@ -235,7 +252,7 @@ export default function Home({ scheduleData, iconData }: Props) {
         setLoading(() => false)
       }
 
-      if (helper.checkIsMobile(window)) {
+      if (isMobile) {
         setRightContainerStyle(() => ({
           transition: 'height 0.5s',
           MozTransition: 'height 0.5s',
@@ -255,7 +272,7 @@ export default function Home({ scheduleData, iconData }: Props) {
         }))
       }
     }
-  }, [isMounted, showDateSchedule, chosenDate])
+  }, [isMounted, showDateSchedule, chosenDate, isMobile])
 
   React.useEffect(() => {
     if (!isMounted()) return
@@ -269,7 +286,7 @@ export default function Home({ scheduleData, iconData }: Props) {
     window.addEventListener('load', setVhProp)
     window.addEventListener('resize', setVhProp)
 
-    if (helper.checkIsMobile(window)) {
+    if (isMobile) {
       setCalendarShow(() => 'block')
     } else {
       setCalendarShow(() => 'flex')
@@ -281,7 +298,7 @@ export default function Home({ scheduleData, iconData }: Props) {
         window.removeEventListener('resize', setVhProp)
       }
     }
-  }, [isMounted, helper.checkIsMobile])
+  }, [isMounted, isMobile])
 
   const onChangeMonth = (date: Date) => {
     setBaseDate(date)
