@@ -89,13 +89,15 @@ export default function CalendarDateContainer({
   const [lastScrollTop, setLastScrollTop] = React.useState(0)
   const [init, setInit] = React.useState(true)
 
+  const minDateCnt = 130
+
   React.useEffect(() => {
     smoothscroll.polyfill()
   }, [])
 
   // 월 포커스 이벤트
   const focusMonth = (focusingYear: number, focusingMonth: number) => {
-    if (!_dateList || _dateList.length === 0) return
+    if (!_dateList || _dateList.length < minDateCnt) return
 
     const _focusTargets = _dateList.filter((_date) => {
       if (_date?.current) {
@@ -152,7 +154,7 @@ export default function CalendarDateContainer({
   React.useEffect(() => {
     if (isMounted()) {
       if (!init) return
-      if (_dateList.length == 0) return
+      if (_dateList.length < minDateCnt) return
       if (_dateBody.current && dateRow.length > 0) {
         if (offsetY === 0) {
           setOffsetY(() =>
@@ -176,7 +178,7 @@ export default function CalendarDateContainer({
               Number(yearMonth.substr(4, 2)) - 1,
             )
             setInit(() => false)
-          }, 300)
+          }, 100)
         }
       }
     }
@@ -700,7 +702,7 @@ export default function CalendarDateContainer({
   const onScroll = throttle((e?: Event) => {
     if (!isMounted()) return
     if (!_dateBody?.current) return
-    if (!_dateList || _dateList.length === 0) return
+    if (!_dateList || _dateList.length < minDateCnt) return
     if (typeof window === 'undefined') return
 
     if (e) {
@@ -882,7 +884,7 @@ export default function CalendarDateContainer({
   }
 
   const duringSelection = (selections: SelectedPropType[]) => {
-    if (_dateList.length === 0) return
+    if (_dateList.length < minDateCnt) return
     if (selections.length === 0) return
 
     const min = extractNumaricVal(
@@ -919,7 +921,7 @@ export default function CalendarDateContainer({
       return
     }
 
-    if (_dateList.length === 0) return
+    if (_dateList.length < minDateCnt) return
 
     _dateList.forEach((_date) => {
       if (_date?.current) {

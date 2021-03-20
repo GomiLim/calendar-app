@@ -25,10 +25,7 @@ export default function CalendarHeader() {
           email={session.email}
           style={CalendarHeaderStyle.thumbnail}
         />
-        <Text
-          value={t('calendar.header.user')}
-          style={CalendarHeaderStyle.userName}
-        />
+        <Text value={session.name} style={CalendarHeaderStyle.userName} />
         <Icon icon={Icons.CONFIG} style={CalendarHeaderStyle.icon} />
         <Icon icon={Icons.SWITCH_OFF} style={CalendarHeaderStyle.systemIcon} />
         <Icon icon={Icons.BELL} style={CalendarHeaderStyle.systemIcon} />
