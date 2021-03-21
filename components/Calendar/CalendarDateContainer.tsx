@@ -178,7 +178,7 @@ export default function CalendarDateContainer({
               Number(yearMonth.substr(4, 2)) - 1,
             )
             setInit(() => false)
-          }, 100)
+          }, 300)
         }
       }
     }
@@ -884,7 +884,6 @@ export default function CalendarDateContainer({
   }
 
   const duringSelection = (selections: SelectedPropType[]) => {
-    if (_dateList.length < minDateCnt) return
     if (selections.length === 0) return
 
     const min = extractNumaricVal(
@@ -920,8 +919,6 @@ export default function CalendarDateContainer({
       onClickDate(new Date(year, month, selections[0].props.day))
       return
     }
-
-    if (_dateList.length < minDateCnt) return
 
     _dateList.forEach((_date) => {
       if (_date?.current) {

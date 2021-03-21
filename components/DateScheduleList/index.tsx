@@ -83,7 +83,6 @@ export default function DateScheduleList({
     if (!isMounted()) return
     if (!_header?.current) return
     if (!_schedule?.current || !_card?.current || !_todo?.current) return
-    console.log('onScroll')
 
     if (
       _todo.current.getBoundingClientRect().top +
