@@ -63,6 +63,21 @@ export default function Home({ scheduleData, iconData }: Props) {
 
   React.useEffect(() => {
     setIsMobile(helper.checkIsMobile(window))
+
+    const setVhProp = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
+
+    window.addEventListener('load', setVhProp)
+    window.addEventListener('resize', setVhProp)
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('load', setVhProp)
+        window.removeEventListener('resize', setVhProp)
+      }
+    }
   }, [])
 
   React.useEffect(() => {
@@ -278,25 +293,10 @@ export default function Home({ scheduleData, iconData }: Props) {
     if (!isMounted()) return
     if (typeof window === 'undefined') return
 
-    const setVhProp = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-    }
-
-    window.addEventListener('load', setVhProp)
-    window.addEventListener('resize', setVhProp)
-
     if (isMobile) {
       setCalendarShow(() => 'block')
     } else {
       setCalendarShow(() => 'flex')
-    }
-
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('load', setVhProp)
-        window.removeEventListener('resize', setVhProp)
-      }
     }
   }, [isMounted, isMobile])
 
