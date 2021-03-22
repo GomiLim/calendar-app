@@ -2,7 +2,7 @@ import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Thumbnail from '../../foundations/Thumbnail'
-import { TestDataType } from '../../pages/api/testScheduleData'
+import { TestDataType } from '../../pages/api'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import { Icons } from '../../utils/types'
 

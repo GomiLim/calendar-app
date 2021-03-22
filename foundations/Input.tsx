@@ -14,7 +14,7 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   value?: number | string
   type?: InputTypes
-  ref?: React.RefObject<HTMLInputElement> | null
+  refObj?: React.RefObject<HTMLInputElement> | null
   name?: string
   placeholder?: string
   onFocus?: (e?: React.FocusEvent<HTMLInputElement>) => void
@@ -29,7 +29,7 @@ export default function Input({
   onChange,
   value,
   type,
-  ref,
+  refObj,
   name,
   placeholder,
   onFocus,
@@ -53,7 +53,7 @@ export default function Input({
   return (
     <input
       type={type}
-      ref={ref}
+      ref={refObj}
       name={name}
       value={value}
       placeholder={placeholder}

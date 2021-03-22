@@ -1,5 +1,5 @@
 import React from 'react'
-import { TestIconDataType } from '../../pages/api/testScheduleData'
+import { TestIconDataType } from '../../pages/api'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import { Icons } from '../../utils/types'
 

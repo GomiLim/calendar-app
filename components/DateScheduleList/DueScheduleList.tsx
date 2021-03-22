@@ -1,9 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  TestDataType,
-  TestIconDataType,
-} from '../../pages/api/testScheduleData'
+import { TestDataType, TestIconDataType } from '../../pages/api'
 import DueScheduleListStyle from '../../styles/components/DateScheduleList/DueScheduleListStyle'
 import CardItem from './CardItem'
 import ChannelItem from './ChannelItem'

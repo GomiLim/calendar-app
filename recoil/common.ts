@@ -1,5 +1,5 @@
 import Recoil from 'recoil'
-import { TestDataType, TestIconDataType } from '../pages/api/testScheduleData'
+import { TestDataType, TestIconDataType } from '../pages/api'
 import { FilterType } from '../utils/types'
 
 export const scheduleDataState = Recoil.atom<TestDataType[]>({

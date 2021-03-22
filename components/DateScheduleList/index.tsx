@@ -5,10 +5,7 @@ import Recoil from 'recoil'
 import Box from '../../foundations/Box'
 import Icon from '../../foundations/Icon'
 import Text from '../../foundations/Text'
-import {
-  TestDataType,
-  TestIconDataType,
-} from '../../pages/api/testScheduleData'
+import { TestDataType, TestIconDataType } from '../../pages/api'
 import { iconDataState, loadingState } from '../../recoil'
 import DateScheduleListContainerStyle from '../../styles/components/DateScheduleList/DateScheduleListContainerStyle'
 import theme from '../../styles/theme'

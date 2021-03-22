@@ -16,10 +16,10 @@ import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
 import {
   TestDataType,
-  testIconData,
+  testIconApi,
   TestIconDataType,
-  testScheduleData,
-} from './api/testScheduleData'
+  testScheduleApi,
+} from './api'
 
 interface Props {
   scheduleData: TestDataType[]
@@ -352,8 +352,8 @@ export default function Home({ scheduleData, iconData }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const scheduleData = await testScheduleData(context.params)
-  const iconData = await testIconData(context.params)
+  const scheduleData = await testScheduleApi(context.params)
+  const iconData = await testIconApi(context.params)
   return {
     props: {
       scheduleData,

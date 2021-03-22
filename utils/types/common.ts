@@ -15,6 +15,8 @@ export enum Icons {
   SWITCH_ON = 'xi-toggle-on',
   BELL = 'xi-bell-o',
   POWER = 'xi-power-off',
+  FILTER = 'xi-tune',
+  FILTER_OPTION = 'xi-filter',
 }
 
 export type FilterType = {
@@ -22,6 +24,7 @@ export type FilterType = {
     show: boolean
     no?: number
     label?: string
+    closed?: boolean
   }
   schedule: {
     show: boolean
@@ -32,11 +35,13 @@ export type FilterType = {
     show: boolean
     no?: number
     label?: string
+    closed?: boolean
   }
   todo: {
     show: boolean
     no?: number
     label?: string
+    done?: boolean
   }
   member?: {
     no?: number

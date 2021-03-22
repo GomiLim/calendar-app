@@ -6,6 +6,7 @@ import Thumbnail from '../../foundations/Thumbnail'
 import { sessionState } from '../../recoil/session'
 import CalendarHeaderStyle from '../../styles/components/CalendarHeader/CalendarHeaderStyle'
 import { Icons } from '../../utils/types'
+import SearchFilter from './SearchFilter'
 
 export default function CalendarHeader() {
   const { t } = useTranslation()
@@ -19,6 +20,7 @@ export default function CalendarHeader() {
           value={t('calendar.header.title')}
           style={CalendarHeaderStyle.title}
         />
+        <SearchFilter />
       </CalendarHeaderStyle.filterContainer>
       <CalendarHeaderStyle.userContainer>
         <Thumbnail

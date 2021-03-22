@@ -1,7 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { TestIconDataType } from '../../pages/api/testScheduleData'
+import { TestIconDataType } from '../../pages/api'
 import theme from '../../styles//theme'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import { Icons } from '../../utils/types'

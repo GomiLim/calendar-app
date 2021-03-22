@@ -75,14 +75,52 @@ export const locales = {
         subSchedule: '보',
         header: {
           title: '캘린더',
-          user: '사용자',
-          placeholder: '검색어를 입력하세요',
-          display: {
-            all: '전체',
-            channel: '채널',
-            schedule: '일정',
-            card: '카드',
-            todo: '할일',
+          filter: {
+            selector: {
+              channel: {
+                inprogress: '진행중인 채널',
+                closed: '종료 보관된 채널',
+                placeholder: '채널 명을 입력하세요',
+              },
+              schedule: {
+                placeholder: '일정을 입력하세요',
+              },
+              card: {
+                inprogress: '진행중인 카드',
+                closed: '종료된 카드',
+                placeholder: '카드 명을 입력하세요',
+              },
+              todo: {
+                inprogress: '진행중인 할일',
+                done: '완료된 할일',
+                placeholder: '할일을 입력하세요',
+              },
+              member: {
+                title: '사용자',
+                name: '사용자 명',
+                email: '사용자 이메일',
+                duty: {
+                  title: '사용자 구분',
+                  manager: '관리자',
+                  creator: '생성자',
+                  assignee: '담당자',
+                },
+                placeholder: {
+                  name: '사용자 명을 입력하세요',
+                  email: '사용자 이메일을 입력하세요',
+                },
+              },
+              autocomplete: {
+                nodata: '검색어에 해당하는 데이터가 없습니다',
+              },
+            },
+            display: {
+              all: '전체',
+              channel: '채널',
+              schedule: '일정',
+              card: '카드',
+              todo: '할일',
+            },
           },
         },
       },
@@ -134,14 +172,50 @@ export const locales = {
         subSchedule: 'S',
         header: {
           title: 'Calendar',
-          user: 'User',
-          placeholder: 'Input search keywords',
-          display: {
-            all: 'All',
-            channel: 'Channels',
-            schedule: 'Schedules',
-            card: 'Cards',
-            todo: 'Tasks',
+          filter: {
+            selector: {
+              channel: {
+                inprogress: 'Channel in progress',
+                closed: 'Closed channel',
+                placeholder: 'Please insert channel name',
+              },
+              schedule: {
+                placeholder: 'Please insert schedule label',
+              },
+              card: {
+                inprogress: 'Card in progress',
+                closed: 'Closed card',
+                placeholder: 'Please insert card name',
+              },
+              todo: {
+                inprogress: 'Task in progress',
+                done: 'Done task',
+                placeholder: 'Please insert task label',
+              },
+              member: {
+                name: 'User name',
+                email: 'User email',
+                duty: {
+                  manager: 'Manager',
+                  creator: 'Creator',
+                  assignee: 'Assignee',
+                },
+                placeholder: {
+                  name: 'Please insert member name',
+                  email: 'Please insert member email',
+                },
+              },
+              autocomplete: {
+                nodata: 'There is no data found along with the keywords',
+              },
+            },
+            display: {
+              all: 'All',
+              channel: 'Channels',
+              schedule: 'Schedules',
+              card: 'Cards',
+              todo: 'Tasks',
+            },
           },
         },
       },
