@@ -12,14 +12,15 @@ import { SelectorType } from './SearchFilter'
 interface Props {
   selected: SelectorType
   data: TestDataType | TestIconDataType | UserType
-  onSelect: (data: TestDataType | TestIconDataType | UserType) => void
+  // onSelect: (data: TestDataType | TestIconDataType | UserType) => void
 }
 
-export default function AutocompleteItem({ selected, data, onSelect }: Props) {
+export default function AutocompleteItem({ selected, data }: Props) {
   const { t } = useTranslation()
 
   return (
-    <KeywordAutocompleteStyle.item onClick={() => onSelect(data)}>
+    // <KeywordAutocompleteStyle.item onClick={() => onSelect(data)}>
+    <KeywordAutocompleteStyle.item>
       {selected === 'channel' ? (
         <div
           style={{

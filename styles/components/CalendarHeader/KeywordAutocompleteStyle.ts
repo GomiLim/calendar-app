@@ -29,7 +29,8 @@ const KeywordAutocompleteStyle = {
     overflow-x-hidden
     overflow-y-scroll
     max-h-60
-    max-w-sm
+    max-w-xs
+    w-52
     `,
   item: tw.div`
     flex

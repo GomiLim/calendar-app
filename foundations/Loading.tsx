@@ -1,11 +1,15 @@
-import Recoil from 'recoil'
-import { loadingState } from '../recoil'
+import React from 'react'
 
-export default function Loading() {
-  const loading = Recoil.useRecoilValue(loadingState)
+interface Props {
+  loading: boolean
+  style?: React.CSSProperties
+}
 
+export default function Loading({ loading, style }: Props) {
   return (
-    <div className={`loading-container ${!loading ? 'hidden' : ''}`}>
+    <div
+      className={`loading-container ${!loading ? 'hidden' : ''}`}
+      style={style}>
       <div className="ic-Spin-cycle--classic">
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -2,11 +2,9 @@ import { debounce } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Recoil from 'recoil'
-import Form from '../../foundations/Form'
 import Icon from '../../foundations/Icon'
-import Input from '../../foundations/Input'
 import { TestDataType, TestIconDataType } from '../../pages/api'
-import { filterState } from '../../recoil'
+import { filterState, loadingState } from '../../recoil'
 import InputKeywordStyle from '../../styles/components/CalendarHeader/InputKeywordStyle'
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
@@ -29,17 +27,14 @@ interface Props {
 export default function InputKeyword({ selected }: Props) {
   const { t } = useTranslation()
 
+  const setLoading = Recoil.useSetRecoilState(loadingState)
   const setFilter = Recoil.useSetRecoilState(filterState)
 
-  const [keyword, setKeyword] = React.useState('')
   const [option, setOption] = React.useState<OptionType>({ input: 'label' })
   const [optionOpen, setOptionOpen] = React.useState(false)
   const [optionStyle, setOptionStyle] = React.useState<
     React.CSSProperties | undefined
   >()
-  const [showAutocomplete, setShowAutocomplete] = React.useState(false)
-
-  const _input: React.RefObject<HTMLInputElement> = React.createRef()
 
   const isMounted = useIsMounted()
 
@@ -50,9 +45,8 @@ export default function InputKeyword({ selected }: Props) {
       } else {
         setOption(() => ({ input: 'label' }))
       }
-      setKeyword(() => '')
+
       setOptionOpen(() => false)
-      setShowAutocomplete(() => false)
     }
   }, [isMounted, selected])
 
@@ -66,107 +60,93 @@ export default function InputKeyword({ selected }: Props) {
         setOptionStyle(() => ({
           backgroundColor: theme.palette.main.turquoise,
         }))
-
-        setFilter((filter) => ({
-          ...filter,
-          channel: {
-            ...filter.channel,
-            closed: selected === 'channel' ? option.closed : undefined,
-          },
-          card: {
-            ...filter.card,
-            closed: selected === 'card' ? option.closed : undefined,
-          },
-          todo: {
-            ...filter.todo,
-            done: selected === 'todo' ? option.done : undefined,
-          },
-          member: {
-            ...filter.member,
-            duty: selected === 'member' ? option.duty : undefined,
-          },
-        }))
       } else {
         setOptionStyle(() => ({
           backgroundColor: 'transparent' as const,
         }))
       }
+
+      setLoading(() => true)
+
+      setFilter((filter) => ({
+        ...filter,
+        channel: {
+          ...filter.channel,
+          closed: selected === 'channel' ? option.closed : undefined,
+        },
+        card: {
+          ...filter.card,
+          closed: selected === 'card' ? option.closed : undefined,
+        },
+        todo: {
+          ...filter.todo,
+          done: selected === 'todo' ? option.done : undefined,
+        },
+        member: {
+          ...filter.member,
+          duty: selected === 'member' ? option.duty : undefined,
+        },
+      }))
     }
   }, [isMounted, option])
 
-  const onSubmitForm = debounce(
-    (
-      e?: React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>,
-    ) => {
-      if (e) {
-        e.preventDefault()
-      }
+  const onSubmitForm = debounce((keyword: string, no?: number) => {
+    setLoading(true)
 
-      if (_input?.current) {
-        _input.current.blur()
-      }
-
-      switch (selected) {
-        case 'channel':
-          setFilter((filter) => ({
-            ...filter,
-            channel: {
-              ...filter.channel,
-              label: keyword,
-            },
-          }))
-          break
-        case 'schedule':
-          setFilter((filter) => ({
-            ...filter,
-            schedule: {
-              ...filter.schedule,
-              label: keyword,
-            },
-          }))
-          break
-        case 'card':
-          setFilter((filter) => ({
-            ...filter,
-            card: {
-              ...filter.card,
-              label: keyword,
-            },
-          }))
-          break
-        case 'todo':
-          setFilter((filter) => ({
-            ...filter,
-            todo: {
-              ...filter.todo,
-              label: keyword,
-            },
-          }))
-          break
-        default:
-          setFilter((filter) => ({
-            ...filter,
-            member: {
-              ...filter.member,
-              name: option.input === 'name' ? keyword : undefined,
-              email: option.input === 'email' ? keyword : undefined,
-            },
-          }))
-          break
-      }
-    },
-    25,
-  )
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setKeyword(e.target.value)
-
-    if (e.target.value.length > 0) {
-      setShowAutocomplete(true)
-    } else {
-      setShowAutocomplete(false)
+    switch (selected) {
+      case 'channel':
+        setFilter((filter) => ({
+          ...filter,
+          channel: {
+            ...filter.channel,
+            no,
+            label: keyword,
+          },
+        }))
+        break
+      case 'schedule':
+        setFilter((filter) => ({
+          ...filter,
+          schedule: {
+            ...filter.schedule,
+            no,
+            label: keyword,
+          },
+        }))
+        break
+      case 'card':
+        setFilter((filter) => ({
+          ...filter,
+          card: {
+            ...filter.card,
+            no,
+            label: keyword,
+          },
+        }))
+        break
+      case 'todo':
+        setFilter((filter) => ({
+          ...filter,
+          todo: {
+            ...filter.todo,
+            no,
+            label: keyword,
+          },
+        }))
+        break
+      default:
+        setFilter((filter) => ({
+          ...filter,
+          member: {
+            ...filter.member,
+            no,
+            name: option.input === 'name' ? keyword : undefined,
+            email: option.input === 'email' ? keyword : undefined,
+          },
+        }))
+        break
     }
-  }
+  }, 25)
 
   const onClickOption = () => {
     setOptionOpen(true)
@@ -177,8 +157,11 @@ export default function InputKeyword({ selected }: Props) {
   }
 
   const onSelectAutocomplete = (
+    value: string,
     data: TestDataType | TestIconDataType | UserType,
   ) => {
+    setLoading(true)
+
     switch (selected) {
       case 'channel':
         setFilter((filter) => ({
@@ -233,19 +216,11 @@ export default function InputKeyword({ selected }: Props) {
         }))
         break
     }
-
-    setKeyword(data.name)
-
-    if (_input?.current) {
-      _input.current.blur()
-    }
-
-    setShowAutocomplete(false)
   }
 
   return (
     <>
-      <Form onSubmit={onSubmitForm} style={InputKeywordStyle.container}>
+      <div style={InputKeywordStyle.container}>
         {selected !== 'schedule' && (
           <Icon
             icon={Icons.FILTER_OPTION}
@@ -256,29 +231,13 @@ export default function InputKeyword({ selected }: Props) {
             onClick={onClickOption}
           />
         )}
-        <Input
-          refObj={_input}
-          type="text"
-          onChange={onChange}
-          style={{
-            ...InputKeywordStyle.input,
-            width: selected === 'schedule' ? '100%' : 'calc(100% - 2rem)',
-            marginLeft: selected === 'schedule' ? undefined : '2rem',
-          }}
-          value={keyword}
-          placeholder={t(
-            `calendar.header.filter.selector.${selected}.placeholder${
-              selected === 'member'
-                ? option.input === 'name'
-                  ? '.name'
-                  : '.email'
-                : ''
-            }`,
-          )}
+        <KeywordAutocomplete
+          selected={selected}
+          input={option.input}
+          onSelect={onSelectAutocomplete}
           onBlur={onSubmitForm}
-          onSubmit={onSubmitForm}
         />
-      </Form>
+      </div>
       {optionOpen && (
         <KeywordOption
           selected={selected}
@@ -287,7 +246,7 @@ export default function InputKeyword({ selected }: Props) {
           onBlur={onBlurOption}
         />
       )}
-      {showAutocomplete && (
+      {/* {showAutocomplete && (
         <KeywordAutocomplete
           selected={selected}
           keyword={keyword}
@@ -295,7 +254,7 @@ export default function InputKeyword({ selected }: Props) {
           onSelect={onSelectAutocomplete}
           onBlur={() => setShowAutocomplete(false)}
         />
-      )}
+      )} */}
     </>
   )
 }

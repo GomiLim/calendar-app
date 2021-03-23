@@ -5,7 +5,6 @@ import 'react-date-picker/dist/DatePicker.css'
 import { I18nextProvider } from 'react-i18next'
 import { RecoilRoot } from 'recoil'
 import { ThemeProvider } from 'styled-components'
-import Loading from '../foundations/Loading'
 import Meta from '../foundations/Meta'
 import '../styles/globals.scss'
 import '../styles/loading-spinner.scss'
@@ -17,7 +16,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <RecoilRoot>
       <ThemeProvider theme={theme}>
         <I18nextProvider i18n={i18n}>
-          <Loading />
           <Meta />
           <Component {...pageProps} />
         </I18nextProvider>
