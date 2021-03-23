@@ -12,13 +12,6 @@ const InputKeywordStyle = {
     height: '2rem',
     padding: '0.25rem',
   },
-  input: {
-    background: 'transparent' as const,
-    border: 'none' as const,
-    height: '1.5rem',
-    padding: 0,
-    ...theme.font.list,
-  },
   filter: {
     ...theme.font.listBold,
     width: '1.7rem',

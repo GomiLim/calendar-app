@@ -15,12 +15,24 @@ import {
 import CalendarPageStyle from '../styles/pages/CalendarPageStyle'
 import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
+import { FilterType } from '../utils/types'
 import {
   TestDataType,
   testIconApi,
   TestIconDataType,
   testScheduleApi,
 } from './api'
+
+const fetchServerData = async (filter?: FilterType) => {
+  const scheduleData = await testScheduleApi(filter)
+  const iconData = await testIconApi(filter)
+  return {
+    props: {
+      scheduleData,
+      iconData,
+    },
+  }
+}
 
 interface Props {
   scheduleData: TestDataType[]
@@ -207,11 +219,21 @@ export default function Home({ scheduleData, iconData }: Props) {
     )
   }, [isMounted, schedulesRaw])
 
-  React.useEffect(() => {
+  const getServerData = React.useCallback(async () => {
     if (!isMounted()) return
+
+    const { props } = await fetchServerData(filter)
+    setSchedulesRaw(() => props.scheduleData)
+    setIconsRaw(() => props.iconData)
 
     setLoading(() => false)
   }, [isMounted, filter])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+
+    void getServerData()
+  }, [isMounted, getServerData])
 
   React.useEffect(() => {
     if (isMounted()) {
@@ -357,13 +379,6 @@ export default function Home({ scheduleData, iconData }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const scheduleData = await testScheduleApi(context.params)
-  const iconData = await testIconApi(context.params)
-  return {
-    props: {
-      scheduleData,
-      iconData,
-    },
-  }
+export const getServerSideProps: GetServerSideProps = async () => {
+  return await fetchServerData()
 }

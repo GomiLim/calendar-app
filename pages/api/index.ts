@@ -1,4 +1,4 @@
-import { UserType } from '../../utils/types'
+import { FilterType, UserType } from '../../utils/types'
 import {
   testIconData,
   testScheduleData,
@@ -49,7 +49,7 @@ export type TestIconDataType = {
   }>
 }
 
-export const testScheduleApi = (params: any) => {
+export const testScheduleApi = (filter?: FilterType) => {
   return new Promise<TestDataType[]>((resolve) => {
     setTimeout(() => {
       resolve(testScheduleData)
@@ -57,7 +57,7 @@ export const testScheduleApi = (params: any) => {
   })
 }
 
-export const testIconApi = (params: any) => {
+export const testIconApi = (filter?: FilterType) => {
   return new Promise<{
     channels: TestIconDataType[]
     cards: TestIconDataType[]
@@ -65,11 +65,11 @@ export const testIconApi = (params: any) => {
   }>((resolve) => {
     setTimeout(() => {
       resolve(testIconData)
-    }, 3000)
+    }, 2000)
   })
 }
 
-export const testUserApi = (keyword: string, filter?: 'name' | 'email') => {
+export const testUserAutoApi = (keyword: string, filter?: 'name' | 'email') => {
   return new Promise<UserType[]>((resolve) => {
     setTimeout(() => {
       resolve(
@@ -81,7 +81,7 @@ export const testUserApi = (keyword: string, filter?: 'name' | 'email') => {
             : true,
         ),
       )
-    }, 2000)
+    }, 1000)
   })
 }
 
@@ -93,7 +93,7 @@ export const testScheduleAutoApi = (keyword: string) => {
           (schedule) => schedule.name.trim().indexOf(keyword.trim()) > -1,
         ),
       )
-    }, 2000)
+    }, 1000)
   })
 }
 
@@ -105,7 +105,7 @@ export const testChannelAutoApi = (keyword: string) => {
           (channel) => channel.name.trim().indexOf(keyword.trim()) > -1,
         ),
       )
-    }, 2000)
+    }, 1000)
   })
 }
 
@@ -117,7 +117,7 @@ export const testCardAutoApi = (keyword: string) => {
           (card) => card.name.trim().indexOf(keyword.trim()) > -1,
         ),
       )
-    }, 2000)
+    }, 1000)
   })
 }
 
@@ -129,6 +129,6 @@ export const testTodoAutoApi = (keyword: string) => {
           (todo) => todo.name.trim().indexOf(keyword.trim()) > -1,
         ),
       )
-    }, 2000)
+    }, 1000)
   })
 }

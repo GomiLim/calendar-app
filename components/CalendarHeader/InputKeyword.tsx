@@ -1,14 +1,12 @@
 import { debounce } from 'lodash'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import Recoil from 'recoil'
 import Icon from '../../foundations/Icon'
-import { TestDataType, TestIconDataType } from '../../pages/api'
 import { filterState, loadingState } from '../../recoil'
 import InputKeywordStyle from '../../styles/components/CalendarHeader/InputKeywordStyle'
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
-import { Icons, UserType } from '../../utils/types'
+import { Icons } from '../../utils/types'
 import KeywordAutocomplete from './KeywordAutocomplete'
 import KeywordOption from './KeywordOption'
 import { SelectorType } from './SearchFilter'
@@ -25,8 +23,6 @@ interface Props {
 }
 
 export default function InputKeyword({ selected }: Props) {
-  const { t } = useTranslation()
-
   const setLoading = Recoil.useSetRecoilState(loadingState)
   const setFilter = Recoil.useSetRecoilState(filterState)
 
@@ -156,68 +152,6 @@ export default function InputKeyword({ selected }: Props) {
     setOptionOpen(false)
   }
 
-  const onSelectAutocomplete = (
-    value: string,
-    data: TestDataType | TestIconDataType | UserType,
-  ) => {
-    setLoading(true)
-
-    switch (selected) {
-      case 'channel':
-        setFilter((filter) => ({
-          ...filter,
-          channel: {
-            ...filter.channel,
-            no: data.no,
-            label: data.name,
-          },
-        }))
-        break
-      case 'schedule':
-        setFilter((filter) => ({
-          ...filter,
-          schedule: {
-            ...filter.schedule,
-            no: data.no,
-            label: data.name,
-          },
-        }))
-        break
-      case 'card':
-        setFilter((filter) => ({
-          ...filter,
-          card: {
-            ...filter.card,
-            no: data.no,
-            label: data.name,
-          },
-        }))
-        break
-      case 'todo':
-        setFilter((filter) => ({
-          ...filter,
-          todo: {
-            ...filter.todo,
-            no: data.no,
-            label: data.name,
-          },
-        }))
-        break
-      default:
-        setFilter((filter) => ({
-          ...filter,
-          channel: {
-            ...filter.channel,
-            no: data.no,
-            name: option.input === 'name' ? data.name : undefined,
-            email:
-              option.input === 'email' ? (data as UserType)?.email : undefined,
-          },
-        }))
-        break
-    }
-  }
-
   return (
     <>
       <div style={InputKeywordStyle.container}>
@@ -234,8 +168,7 @@ export default function InputKeyword({ selected }: Props) {
         <KeywordAutocomplete
           selected={selected}
           input={option.input}
-          onSelect={onSelectAutocomplete}
-          onBlur={onSubmitForm}
+          onSelect={onSubmitForm}
         />
       </div>
       {optionOpen && (

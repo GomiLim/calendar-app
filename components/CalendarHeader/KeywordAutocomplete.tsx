@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React from 'react'
 import Autocomplete from 'react-autocomplete'
 import { useTranslation } from 'react-i18next'
@@ -11,9 +14,8 @@ import {
   TestIconDataType,
   testScheduleAutoApi,
   testTodoAutoApi,
-  testUserApi,
+  testUserAutoApi,
 } from '../../pages/api'
-import InputKeywordStyle from '../../styles/components/CalendarHeader/InputKeywordStyle'
 import KeywordAutocompleteStyle from '../../styles/components/CalendarHeader/KeywordAutocompleteStyle'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import theme from '../../styles/theme'
@@ -24,18 +26,13 @@ import { SelectorType } from './SearchFilter'
 interface Props {
   selected: SelectorType
   input: 'label' | 'name' | 'email'
-  onSelect: (
-    value: string,
-    data: TestDataType | TestIconDataType | UserType,
-  ) => void
-  onBlur: (keyword: string, no?: number) => void
+  onSelect: (keyword: string, no?: number) => void
 }
 
 export default function KeywordAutocomplete({
   selected,
   input,
   onSelect,
-  onBlur,
 }: Props) {
   const { t } = useTranslation()
 
@@ -50,64 +47,68 @@ export default function KeywordAutocomplete({
 
   const isMounted = useIsMounted()
 
-  let _input: Autocomplete | null = null
-
   const getChannelAutocomplete = React.useCallback(async () => {
     if (!isMounted()) return
-    if (keyword === '') return
+    if (keyword === '') {
+      setAutocompleteList(() => [])
+      return
+    }
 
     setAutoLoading(() => true)
     const channelList = await testChannelAutoApi(keyword)
-
     setAutocompleteList(() => channelList)
-    setAutoLoading(() => false)
   }, [isMounted, keyword])
 
   const getScheduleAutocomplete = React.useCallback(async () => {
     if (!isMounted()) return
-    if (keyword === '') return
+    if (keyword === '') {
+      setAutocompleteList(() => [])
+      return
+    }
 
     setAutoLoading(() => true)
     const scheduleList = await testScheduleAutoApi(keyword)
-
     setAutocompleteList(() => scheduleList)
-    setAutoLoading(() => false)
   }, [isMounted, keyword])
 
   const getCardAutocomplete = React.useCallback(async () => {
     if (!isMounted()) return
-    if (keyword === '') return
+    if (keyword === '') {
+      setAutocompleteList(() => [])
+      return
+    }
 
     setAutoLoading(() => true)
     const cardList = await testCardAutoApi(keyword)
-
     setAutocompleteList(() => cardList)
-    setAutoLoading(() => false)
   }, [isMounted, keyword])
 
   const getTodoAutocomplete = React.useCallback(async () => {
     if (!isMounted()) return
-    if (keyword === '') return
+    if (keyword === '') {
+      setAutocompleteList(() => [])
+      return
+    }
 
     setAutoLoading(() => true)
     const todoList = await testTodoAutoApi(keyword)
-
     setAutocompleteList(() => todoList)
-    setAutoLoading(() => false)
   }, [isMounted, keyword])
 
   const getUserAutocomplete = React.useCallback(async () => {
     if (!isMounted()) return
-    if (keyword === '') return
+    if (keyword === '') {
+      setAutocompleteList(() => [])
+      return
+    }
 
     setAutoLoading(() => true)
-    const userList = await testUserApi(
+
+    const userList = await testUserAutoApi(
       keyword,
       input === 'label' ? undefined : input,
     )
-
     setAutocompleteList(() => userList)
-    setAutoLoading(() => false)
   }, [isMounted, keyword])
 
   React.useEffect(() => {
@@ -147,19 +148,14 @@ export default function KeywordAutocomplete({
     setAutoSelectNo(() => undefined)
     setKeyword(() => '')
     setAutoLoading(() => true)
+    setAutocompleteList(() => [])
   }, [isMounted, selected])
 
-  const enter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.stopPropagation()
-
-    if (e.key === 'Enter' && e.shiftKey === false) {
-      e.preventDefault()
-      console.log('entered')
-      // if (onSubmit) {
-      //   onSubmit()
-      // }
+  React.useEffect(() => {
+    if (isMounted()) {
+      setAutoLoading(() => false)
     }
-  }
+  }, [isMounted, autocompleteList])
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value)
@@ -172,51 +168,29 @@ export default function KeywordAutocomplete({
     }
   }
 
-  React.useEffect(() => {
-    if (!isMounted()) return
-    if (!_input?.refs?.input) return
-
-    const keyEvent = (e: KeyboardEvent) => {
-      e.preventDefault()
-
-      if (!showAutocomplete) return
-
-      console.log('????', _input)
-      if (
-        e.key !== 'ArrowLeft' &&
-        e.key !== 'ArrowRight' &&
-        e.key !== 'ArrowUp' &&
-        e.key !== 'ArrowDown'
-      ) {
-        setShowAutocomplete(() => false)
-      }
+  const onBlur = () => {
+    const el = document.getElementById('header-autocomplete-input')
+    if (el) {
+      el.blur()
     }
+    onSelect(keyword, autoSelectNo)
+  }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    _input.refs.input.addEventListener('keyup', keyEvent)
+  const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
 
-    return () => {
-      if (_input?.refs?.input) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        _input?.refs.input.removeEventListener('keyup', keyEvent)
-      }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      setShowAutocomplete(false)
+      onBlur()
     }
-  }, [isMounted, _input])
+  }
 
   return (
     <Autocomplete
-      ref={(el) => {
-        _input = el
-      }}
-      wrapperStyle={{
-        ...InputKeywordStyle.input,
-        width: selected === 'schedule' ? '100%' : 'calc(100% - 2rem)',
-        marginLeft: selected === 'schedule' ? undefined : '2rem',
-      }}
       items={autocompleteList}
       shouldItemRender={(
         item: TestDataType | TestIconDataType | UserType,
-        value,
+        value: string,
       ) =>
         value.trim().length > 0 &&
         item.name.trim().toLowerCase().indexOf(value.trim().toLowerCase()) > -1
@@ -227,14 +201,7 @@ export default function KeywordAutocomplete({
       renderMenu={(items, value, style) => (
         <KeywordAutocompleteStyle.container>
           {autoLoading ? (
-            <Loading
-              loading={true}
-              style={{
-                position: 'initial' as const,
-                backgroundColor: 'transparent' as const,
-                paddingTop: '-2rem',
-              }}
-            />
+            <Loading loading={true} style={KeywordAutocompleteStyle.loading} />
           ) : items.length === 0 ? (
             <Text
               value={t('calendar.header.filter.selector.autocomplete.nodata')}
@@ -304,69 +271,43 @@ export default function KeywordAutocomplete({
       onChange={onChange}
       onSelect={(value, item: TestDataType | TestIconDataType | UserType) => {
         setKeyword(item.name)
-        setAutoSelectNo(item.no)
+        setAutoSelectNo(Number(item.no))
         setShowAutocomplete(false)
-        onSelect(value, item)
+        onSelect(item.name, Number(value))
       }}
-      // renderInput={(props) => (
-      //   <input
-      //     {...props}
-      //     ref={_input}
-      //     type="text"
-      //     onKeyUp={enter}
-      //     style={{
-      //       ...InputKeywordStyle.input,
-      //       width: selected === 'schedule' ? '100%' : 'calc(100% - 2rem)',
-      //       marginLeft: selected === 'schedule' ? undefined : '2rem',
-      //     }}
-      //     className="fd-input"
-      //     value={keyword}
-      //     placeholder={t(
-      //       `calendar.header.filter.selector.${selected}.placeholder${
-      //         selected === 'member'
-      //           ? option.input === 'name'
-      //             ? '.name'
-      //             : '.email'
-      //           : ''
-      //       }`,
-      //     )}
-      //     onBlur={onSubmitForm}
-      //   />
-      // )}
       autoHighlight={false}
       onMenuVisibilityChange={(isOpen) => {
         if (!isOpen) {
           setShowAutocomplete(false)
-          onBlur(keyword, autoSelectNo)
+          onSelect(keyword, autoSelectNo)
         }
       }}
       open={showAutocomplete}
       selectOnBlur={true}
-      sortItems={(
-        itemA: TestDataType | TestIconDataType | UserType,
-        itemB: TestDataType | TestIconDataType | UserType,
-        value: string,
-      ) => {
-        const aNum = Number(
-          itemA.name
-            .trim()
-            .toLowerCase()
-            .split('')
-            .map((str) => String(str.charCodeAt(0)))
-            .join(''),
-        )
-        const bNum = Number(
-          itemB.name
-            .trim()
-            .toLowerCase()
-            .split('')
-            .map((str) => String(str.charCodeAt(0)))
-            .join(''),
-        )
-        if (aNum < bNum) return -1
-        if (aNum > bNum) return 1
-        return 0
-      }}
+      renderInput={(props) => (
+        <input
+          {...props}
+          id="header-autocomplete-input"
+          type="text"
+          style={{
+            ...KeywordAutocompleteStyle.input,
+            width: selected === 'schedule' ? '100%' : 'calc(100% - 2rem)',
+            marginLeft: selected === 'schedule' ? undefined : '2rem',
+          }}
+          className="fd-input"
+          placeholder={t(
+            `calendar.header.filter.selector.${selected}.placeholder${
+              selected === 'member'
+                ? input === 'name'
+                  ? '.name'
+                  : '.email'
+                : ''
+            }`,
+          )}
+          onKeyUp={onKeyUp}
+          onBlur={onBlur}
+        />
+      )}
     />
   )
 }

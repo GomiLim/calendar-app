@@ -2,15 +2,6 @@ import tw from 'tailwind-styled-components'
 import theme from '../../theme'
 
 const KeywordAutocompleteStyle = {
-  exterior: tw.div`
-    z-20
-    bg-transparent
-    fixed
-    h-full
-    w-full
-    top-0
-    left-0
-  `,
   container: tw.div`
     bg-mono-white
     z-30
@@ -42,6 +33,10 @@ const KeywordAutocompleteStyle = {
     bg-transparent
     hover:bg-mono-lightGray
   `,
+  loading: {
+    position: 'initial' as const,
+    backgroundColor: 'transparent' as const,
+  },
   nodata: {
     ...theme.font.list,
     color: theme.palette.mono.darkGray,
@@ -49,6 +44,13 @@ const KeywordAutocompleteStyle = {
   autoData: {
     ...theme.font.list,
     color: theme.palette.mono.black,
+  },
+  input: {
+    background: 'transparent' as const,
+    border: 'none' as const,
+    height: '1.5rem',
+    padding: 0,
+    ...theme.font.list,
   },
 }
 
