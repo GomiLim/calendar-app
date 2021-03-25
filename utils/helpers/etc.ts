@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { TestDataType } from '../../pages/api/testScheduleData'
+import { TestDataType } from '../../pages/api'
 
 // 날짜 입력 유효성체크
 export const dateValidator = (input: string): Date => {
@@ -76,6 +76,51 @@ export const getBaseSeq = (day: number, base: number) => {
       const diff = day - base
       return diff < 0 ? 7 + diff : diff
   }
+}
+
+// compare two months
+export const compareMonth = (day1: Date | string, day2: Date | string) => {
+  return moment(day1).format('YYYYMM') === moment(day2).format('YYYYMM')
+}
+
+// schedule data in month
+export const checkScheduleInMonth = (data: TestDataType, month: Date) => {
+  if (data.endDate) {
+    return (
+      compareMonth(data.endDate, month) || compareMonth(data.startDate, month)
+    )
+  }
+  return compareMonth(data.startDate, month)
+}
+
+// consist 5 months base on baseDate
+export const consistMonthRange = (baseDate: Date) => {
+  const currYear = Number(moment(baseDate).format('YYYY'))
+  const currMonth = Number(moment(baseDate).format('MM')) - 1
+
+  return [
+    new Date(
+      currMonth === 0 ? currYear - 1 : currYear,
+      currMonth - 2 < 0 ? 12 - currMonth - 2 : currMonth - 2,
+      1,
+    ),
+    new Date(
+      currMonth === 0 ? currYear - 1 : currYear,
+      currMonth - 1 < 0 ? 11 : currMonth - 2,
+      1,
+    ),
+    baseDate,
+    new Date(
+      currMonth === 11 ? currYear + 1 : currYear,
+      currMonth + 1 > 11 ? 0 : currMonth + 1,
+      1,
+    ),
+    new Date(
+      currMonth === 11 ? currYear + 1 : currYear,
+      currMonth + 2 > 11 ? currMonth + 2 - 12 : currMonth + 2,
+      1,
+    ),
+  ]
 }
 
 // compare two dates

@@ -193,12 +193,18 @@ export default function KeywordAutocomplete({
         value: string,
       ) =>
         value.trim().length > 0 &&
-        item.name.trim().toLowerCase().indexOf(value.trim().toLowerCase()) > -1
+        (selected === 'member' && input === 'email'
+          ? (item as UserType).email
+          : item.name
+        )
+          .trim()
+          .toLowerCase()
+          .indexOf(value.trim().toLowerCase()) > -1
       }
       getItemValue={(item: TestDataType | TestIconDataType | UserType) =>
         String(item.no)
       }
-      renderMenu={(items, value, style) => (
+      renderMenu={(items) => (
         <KeywordAutocompleteStyle.container>
           {autoLoading ? (
             <Loading loading={true} style={KeywordAutocompleteStyle.loading} />
@@ -257,7 +263,7 @@ export default function KeywordAutocomplete({
             />
           ) : null}
           <Text
-            value={item.name}
+            value={input === 'email' ? (item as UserType).email : item.name}
             style={{
               ...KeywordAutocompleteStyle.autoData,
               color: highlighted

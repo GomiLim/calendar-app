@@ -20,7 +20,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-07', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [{ no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' }],
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+    ],
   },
   {
     type: 'main',
@@ -39,7 +41,7 @@ export const testScheduleData: TestDataType[] = [
     members: [
       { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
       { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -57,8 +59,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
     ],
   },
   {
@@ -77,10 +79,10 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-12', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -114,9 +116,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-14', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
     ],
   },
   {
@@ -135,9 +137,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-14', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
     ],
   },
   {
@@ -154,7 +156,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-08', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [{ no: 4, email: 'surfer@rocket.is', name: '장민희' }],
+    members: [
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -171,9 +175,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-08', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
     ],
   },
   {
@@ -189,7 +193,7 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
       { no: 4, email: 'surfer@rocket.is', name: '장민희' },
     ],
   },
@@ -208,10 +212,10 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-12', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
     ],
   },
   {
@@ -260,8 +264,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-01-27', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-01-29', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
     ],
   },
   {
@@ -280,8 +284,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-01-26', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-02', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
       { no: 4, email: 'surfer@rocket.is', name: '장민희' },
     ],
   },
@@ -300,7 +304,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-01-29', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-03', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [{ no: 4, email: 'surfer@rocket.is', name: '장민희' }],
+    members: [
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -317,8 +323,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
     ],
   },
   {
@@ -337,9 +343,9 @@ export const testScheduleData: TestDataType[] = [
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
       { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -357,10 +363,10 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
     ],
   },
   {
@@ -408,7 +414,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [{ no: 4, email: 'surfer@rocket.is', name: '장민희' }],
+    members: [
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -425,9 +433,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -444,9 +452,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
       { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -462,7 +470,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [{ no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' }],
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+    ],
   },
   {
     type: 'main',
@@ -478,8 +488,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
     ],
   },
   {
@@ -497,9 +507,9 @@ export const testScheduleData: TestDataType[] = [
     endDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
       { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
   {
@@ -517,9 +527,9 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-20', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
 ]
@@ -540,6 +550,7 @@ export const testIconData: {
       curMsg: '한줄 텍스트\n두줄텍스트\n세줄',
       closed: false,
       writerNo: 2,
+      managers: [2],
     },
     {
       no: 2,
@@ -551,6 +562,7 @@ export const testIconData: {
       curMsg: '한줄 텍스트\n두줄텍스트',
       closed: false,
       writerNo: 2,
+      managers: [4, 5, 6],
     },
     {
       no: 3,
@@ -562,6 +574,7 @@ export const testIconData: {
       curMsg: '두줄텍스트 a434 343a3ha34 ha3h areh',
       closed: false,
       writerNo: 3,
+      managers: [10],
     },
     {
       no: 4,
@@ -572,6 +585,7 @@ export const testIconData: {
       newCnt: 0,
       curMsg: '두줄텍스트',
       writerNo: 3,
+      managers: [1, 3],
     },
     {
       no: 5,
@@ -591,6 +605,7 @@ export const testIconData: {
       modTime: moment('2021-02-21', 'YYYY-MM-DD').toDate().toJSON(),
       curMsg: '한줄 텍스트\n두줄텍스트',
       writerNo: 4,
+      managers: [1],
     },
     {
       no: 7,
@@ -623,6 +638,7 @@ export const testIconData: {
       curMsg: '두줄텍스트 a3h3ha rharhaha3herhaerhr',
       closed: false,
       writerNo: 5,
+      managers: [1, 3],
     },
     {
       no: 10,
@@ -633,6 +649,7 @@ export const testIconData: {
       curMsg: '두줄텍스트',
       closed: true,
       writerNo: 5,
+      managers: [1, 3],
     },
   ],
   cards: [
@@ -654,6 +671,7 @@ export const testIconData: {
         { no: 4, email: 'surfer@rocket.is', name: '장민희' },
       ],
       closed: false,
+      managers: [1],
     },
     {
       no: 2,
@@ -667,6 +685,7 @@ export const testIconData: {
       writerNo: 1,
       writerName: '조인효',
       closed: false,
+      managers: [2],
     },
     {
       no: 3,
@@ -701,6 +720,7 @@ export const testIconData: {
         { no: 4, email: 'surfer@rocket.is', name: '장민희' },
       ],
       closed: true,
+      managers: [4],
     },
     {
       no: 5,
@@ -715,6 +735,7 @@ export const testIconData: {
       writerName: '조인효',
       members: [{ no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' }],
       closed: false,
+      managers: [5],
     },
     {
       no: 6,
@@ -728,6 +749,7 @@ export const testIconData: {
       writerNo: 1,
       writerName: '조인효',
       members: [{ no: 4, email: 'surfer@rocket.is', name: '장민희' }],
+      managers: [6],
     },
     {
       no: 7,
@@ -759,6 +781,7 @@ export const testIconData: {
         { no: 3, email: 'bae@rocket.is', name: '배상건' },
         { no: 4, email: 'surfer@rocket.is', name: '장민희' },
       ],
+      managers: [2, 8],
     },
     {
       no: 9,
@@ -774,6 +797,7 @@ export const testIconData: {
         { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
         { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
       ],
+      managers: [9],
     },
     {
       no: 10,
@@ -793,6 +817,7 @@ export const testIconData: {
         { no: 4, email: 'surfer@rocket.is', name: '장민희' },
       ],
       closed: false,
+      managers: [1, 10],
     },
   ],
   todos: [
@@ -808,6 +833,13 @@ export const testIconData: {
       closed: false,
       done: true,
       writerNo: 6,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+        { no: 3, email: 'bae@rocket.is', name: '배상건', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [2],
     },
     {
       no: 2,
@@ -821,6 +853,12 @@ export const testIconData: {
       closed: false,
       done: false,
       writerNo: 6,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [1],
     },
     {
       no: 3,
@@ -834,6 +872,7 @@ export const testIconData: {
       closed: false,
       done: false,
       writerNo: 7,
+      managers: [1, 10],
     },
     {
       no: 4,
@@ -846,6 +885,12 @@ export const testIconData: {
       cardName: '카드9',
       done: true,
       writerNo: 7,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 3, email: 'bae@rocket.is', name: '배상건', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [9],
     },
     {
       no: 5,
@@ -859,6 +904,12 @@ export const testIconData: {
       closed: false,
       done: false,
       writerNo: 8,
+      members: [
+        { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+        { no: 3, email: 'bae@rocket.is', name: '배상건', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [8, 2],
     },
     {
       no: 6,
@@ -872,6 +923,10 @@ export const testIconData: {
       closed: true,
       done: false,
       writerNo: 8,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
     },
     {
       no: 7,
@@ -884,6 +939,11 @@ export const testIconData: {
       cardName: '카드6',
       done: true,
       writerNo: 9,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [6],
     },
     {
       no: 8,
@@ -897,6 +957,10 @@ export const testIconData: {
       closed: false,
       done: false,
       writerNo: 9,
+      members: [
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
+      managers: [5],
     },
     {
       no: 9,
@@ -910,6 +974,7 @@ export const testIconData: {
       closed: true,
       done: false,
       writerNo: 9,
+      managers: [4],
     },
     {
       no: 10,
@@ -923,6 +988,10 @@ export const testIconData: {
       closed: false,
       done: true,
       writerNo: 10,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+        { no: 4, email: 'surfer@rocket.is', name: '장민희', assigned: false },
+      ],
     },
     {
       no: 11,
@@ -936,6 +1005,7 @@ export const testIconData: {
       closed: false,
       done: true,
       writerNo: 10,
+      managers: [2],
     },
     {
       no: 12,
@@ -949,6 +1019,10 @@ export const testIconData: {
       closed: false,
       done: false,
       writerNo: 10,
+      members: [
+        { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', assigned: true },
+      ],
+      managers: [1],
     },
   ],
 }

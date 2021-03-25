@@ -103,7 +103,7 @@ export const locales = {
                   title: '사용자 구분',
                   manager: '관리자',
                   creator: '생성자',
-                  assignee: '담당자',
+                  assignee: '참석자(일정)/담당자(할일)',
                 },
                 placeholder: {
                   name: '사용자 명을 입력하세요',
@@ -198,7 +198,7 @@ export const locales = {
                 duty: {
                   manager: 'Manager',
                   creator: 'Creator',
-                  assignee: 'Assignee',
+                  assignee: 'Attender(for Schedule)/Assignee(for Task)',
                 },
                 placeholder: {
                   name: 'Please insert member name',

@@ -23,9 +23,9 @@ import {
   testScheduleApi,
 } from './api'
 
-const fetchServerData = async (filter?: FilterType) => {
-  const scheduleData = await testScheduleApi(filter)
-  const iconData = await testIconApi(filter)
+const fetchServerData = async (baseDate: Date, filter?: FilterType) => {
+  const scheduleData = await testScheduleApi(baseDate, filter)
+  const iconData = await testIconApi(baseDate, filter)
   return {
     props: {
       scheduleData,
@@ -222,12 +222,12 @@ export default function Home({ scheduleData, iconData }: Props) {
   const getServerData = React.useCallback(async () => {
     if (!isMounted()) return
 
-    const { props } = await fetchServerData(filter)
+    const { props } = await fetchServerData(baseDate, filter)
     setSchedulesRaw(() => props.scheduleData)
     setIconsRaw(() => props.iconData)
 
     setLoading(() => false)
-  }, [isMounted, filter])
+  }, [isMounted, filter, baseDate])
 
   React.useEffect(() => {
     if (!isMounted()) return
@@ -380,5 +380,5 @@ export default function Home({ scheduleData, iconData }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  return await fetchServerData()
+  return await fetchServerData(new Date())
 }

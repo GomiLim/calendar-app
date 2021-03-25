@@ -61,28 +61,6 @@ export default function InputKeyword({ selected }: Props) {
           backgroundColor: 'transparent' as const,
         }))
       }
-
-      setLoading(() => true)
-
-      setFilter((filter) => ({
-        ...filter,
-        channel: {
-          ...filter.channel,
-          closed: selected === 'channel' ? option.closed : undefined,
-        },
-        card: {
-          ...filter.card,
-          closed: selected === 'card' ? option.closed : undefined,
-        },
-        todo: {
-          ...filter.todo,
-          done: selected === 'todo' ? option.done : undefined,
-        },
-        member: {
-          ...filter.member,
-          duty: selected === 'member' ? option.duty : undefined,
-        },
-      }))
     }
   }, [isMounted, option])
 
@@ -97,6 +75,10 @@ export default function InputKeyword({ selected }: Props) {
             ...filter.channel,
             no,
             label: keyword,
+            closed:
+              selected === 'channel' && keyword !== ''
+                ? option.closed
+                : undefined,
           },
         }))
         break
@@ -117,6 +99,8 @@ export default function InputKeyword({ selected }: Props) {
             ...filter.card,
             no,
             label: keyword,
+            closed:
+              selected === 'card' && keyword !== '' ? option.closed : undefined,
           },
         }))
         break
@@ -127,6 +111,8 @@ export default function InputKeyword({ selected }: Props) {
             ...filter.todo,
             no,
             label: keyword,
+            done:
+              selected === 'todo' && keyword !== '' ? option.done : undefined,
           },
         }))
         break
@@ -134,10 +120,11 @@ export default function InputKeyword({ selected }: Props) {
         setFilter((filter) => ({
           ...filter,
           member: {
-            ...filter.member,
             no,
             name: option.input === 'name' ? keyword : undefined,
             email: option.input === 'email' ? keyword : undefined,
+            duty:
+              selected === 'member' && keyword !== '' ? option.duty : undefined,
           },
         }))
         break
