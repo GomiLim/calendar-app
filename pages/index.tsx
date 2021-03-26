@@ -222,6 +222,8 @@ export default function Home({ scheduleData, iconData }: Props) {
   const getServerData = React.useCallback(async () => {
     if (!isMounted()) return
 
+    setLoading(() => true)
+
     const { props } = await fetchServerData(baseDate, filter)
     setSchedulesRaw(() => props.scheduleData)
     setIconsRaw(() => props.iconData)

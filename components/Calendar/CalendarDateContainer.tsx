@@ -58,7 +58,7 @@ interface Props {
   setActionProcessing: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function CalendarDateContainer({
+const CalendarDateContainer = React.memo(({
   startDay = 0,
   isMobile,
   onChangeMonth,
@@ -949,4 +949,6 @@ export default function CalendarDateContainer({
       )}
     </CalendarDateContainerStyle.container>
   )
-}
+})
+
+export default CalendarDateContainer
