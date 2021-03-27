@@ -2,7 +2,7 @@ import { debounce } from 'lodash'
 import React from 'react'
 import Recoil from 'recoil'
 import Icon from '../../foundations/Icon'
-import { filterState, loadingState } from '../../recoil'
+import { filterState } from '../../recoil'
 import InputKeywordStyle from '../../styles/components/CalendarHeader/InputKeywordStyle'
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
@@ -23,7 +23,6 @@ interface Props {
 }
 
 export default function InputKeyword({ selected }: Props) {
-  const setLoading = Recoil.useSetRecoilState(loadingState)
   const setFilter = Recoil.useSetRecoilState(filterState)
 
   const [option, setOption] = React.useState<OptionType>({ input: 'label' })
@@ -65,8 +64,6 @@ export default function InputKeyword({ selected }: Props) {
   }, [isMounted, option])
 
   const onSubmitForm = debounce((keyword: string, no?: number) => {
-    setLoading(true)
-
     switch (selected) {
       case 'channel':
         setFilter((filter) => ({

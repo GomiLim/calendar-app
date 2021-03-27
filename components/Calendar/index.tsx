@@ -139,8 +139,7 @@ export default function Calendar({
 
   const onSelect = (date?: Date | Array<Date | undefined>) => {
     if (date && !Array.isArray(date)) {
-      setYear(Number(moment(date).format('YYYY')))
-      setMonth(Number(moment(date).format('MM')))
+      onChangeMonth(date)
       setShowYearMonthModal(false)
     }
   }

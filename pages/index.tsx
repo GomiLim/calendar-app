@@ -7,15 +7,15 @@ import CalendarHeader from '../components/CalendarHeader'
 import DateScheduleList from '../components/DateScheduleList'
 import Loading from '../foundations/Loading'
 import {
-  filterState,
+  iconDataSelector,
   iconDataState,
   loadingState,
+  scheduleDataSelector,
   scheduleDataState,
 } from '../recoil'
 import CalendarPageStyle from '../styles/pages/CalendarPageStyle'
 import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
-import { FilterType } from '../utils/types'
 import {
   TestDataType,
   testIconApi,
@@ -23,9 +23,9 @@ import {
   testScheduleApi,
 } from './api'
 
-const fetchServerData = async (baseDate: Date, filter?: FilterType) => {
-  const scheduleData = await testScheduleApi(baseDate, filter)
-  const iconData = await testIconApi(baseDate, filter)
+const fetchServerData = async (baseDates: Date[]) => {
+  const scheduleData = await testScheduleApi(baseDates)
+  const iconData = await testIconApi(baseDates)
   return {
     props: {
       scheduleData,
@@ -45,12 +45,15 @@ interface Props {
 
 export default function Home({ scheduleData, iconData }: Props) {
   const [loading, setLoading] = Recoil.useRecoilState(loadingState)
-  const [schedulesRaw, setSchedulesRaw] = Recoil.useRecoilState(
-    scheduleDataState,
-  )
-  const [iconsRaw, setIconsRaw] = Recoil.useRecoilState(iconDataState)
-  const filter = Recoil.useRecoilValue(filterState)
+  const setSchedulesRaw = Recoil.useSetRecoilState(scheduleDataState)
+  const schedulesRaw = Recoil.useRecoilValue(scheduleDataSelector)
+  const setIconsRaw = Recoil.useSetRecoilState(iconDataState)
+  const iconsRaw = Recoil.useRecoilValue(iconDataSelector)
 
+  const [monthRange, setMonthRange] = React.useState(
+    helper.consistMonthRange(new Date()),
+  )
+  const [orgDate, setOrgDate] = React.useState<Date>(new Date())
   const [baseDate, setBaseDate] = React.useState<Date>(new Date())
   const [chosenDate, setChosenDate] = React.useState<Date | undefined>()
   const [showDateSchedule, setShowDateSchedule] = React.useState(false)
@@ -219,23 +222,65 @@ export default function Home({ scheduleData, iconData }: Props) {
     )
   }, [isMounted, schedulesRaw])
 
-  const getServerData = React.useCallback(async () => {
-    if (!isMounted()) return
+  const getServerData = React.useCallback(
+    async (newDates: Date[]) => {
+      if (!isMounted()) return
 
-    setLoading(() => true)
-
-    const { props } = await fetchServerData(baseDate, filter)
-    setSchedulesRaw(() => props.scheduleData)
-    setIconsRaw(() => props.iconData)
-
-    setLoading(() => false)
-  }, [isMounted, filter, baseDate])
+      const { props } = await fetchServerData(newDates)
+      setSchedulesRaw((raw) => [
+        ...raw,
+        ...props.scheduleData.filter(
+          (data) => !raw.some((r) => r.no === data.no),
+        ),
+      ])
+      setIconsRaw((raw) => ({
+        channels: [
+          ...raw.channels,
+          ...props.iconData.channels.filter(
+            (data) => !raw.channels.some((r) => r.no === data.no),
+          ),
+        ],
+        cards: [
+          ...raw.cards,
+          ...props.iconData.cards.filter(
+            (data) => !raw.cards.some((r) => r.no === data.no),
+          ),
+        ],
+        todos: [
+          ...raw.todos,
+          ...props.iconData.todos.filter(
+            (data) => !raw.todos.some((r) => r.no === data.no),
+          ),
+        ],
+      }))
+    },
+    [isMounted],
+  )
 
   React.useEffect(() => {
-    if (!isMounted()) return
+    if (isMounted()) {
+      const orgDt = Number(moment(orgDate).format('YYYYMM'))
+      const baseDt = Number(moment(baseDate).format('YYYYMM'))
 
-    void getServerData()
-  }, [isMounted, getServerData])
+      if (orgDt === baseDt) {
+        return
+      }
+
+      setOrgDate(() => baseDate)
+
+      const neededDateRange = helper
+        .consistMonthRange(baseDate)
+        .filter(
+          (range) =>
+            !monthRange.some((month) => helper.compareMonth(month, range)),
+        )
+      if (neededDateRange.length === 0) return
+
+      setMonthRange(() => [...monthRange, ...neededDateRange])
+
+      void getServerData(neededDateRange)
+    }
+  }, [isMounted, orgDate, baseDate, monthRange, getServerData])
 
   React.useEffect(() => {
     if (isMounted()) {
@@ -289,10 +334,10 @@ export default function Home({ scheduleData, iconData }: Props) {
     if (isMounted()) {
       if (typeof window === 'undefined') return
 
-      if (showDateSchedule) {
-        setLoading(() => true)
-        setLoading(() => false)
-      }
+      // if (showDateSchedule) {
+      //   setLoading(() => true)
+      //   setLoading(() => false)
+      // }
 
       if (isMobile) {
         setRightContainerStyle(() => ({
@@ -382,5 +427,5 @@ export default function Home({ scheduleData, iconData }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  return await fetchServerData(new Date())
+  return await fetchServerData(helper.consistMonthRange(new Date()))
 }

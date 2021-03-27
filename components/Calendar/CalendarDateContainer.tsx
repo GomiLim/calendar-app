@@ -6,7 +6,11 @@ import Recoil from 'recoil'
 import smoothscroll from 'smoothscroll-polyfill'
 import Box from '../../foundations/Box'
 import { TestDataType, TestIconDataType } from '../../pages/api'
-import { iconDataState, loadingState, scheduleDataState } from '../../recoil'
+import {
+  iconDataSelector,
+  loadingState,
+  scheduleDataSelector,
+} from '../../recoil'
 import CalendarDateContainerStyle from '../../styles/components/Calendar/CalendarDateContainerStyle'
 import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
@@ -58,7 +62,7 @@ interface Props {
   setActionProcessing: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CalendarDateContainer = React.memo(({
+export default React.memo(function CalendarDateContainer({
   startDay = 0,
   isMobile,
   onChangeMonth,
@@ -70,8 +74,8 @@ const CalendarDateContainer = React.memo(({
   actionProcessing,
   setActionProcessing,
 }: Props) {
-  const schedulesRaw = Recoil.useRecoilValue(scheduleDataState)
-  const iconsRaw = Recoil.useRecoilValue(iconDataState)
+  const schedulesRaw = Recoil.useRecoilValue(scheduleDataSelector)
+  const iconsRaw = Recoil.useRecoilValue(iconDataSelector)
   const loading = Recoil.useRecoilValue(loadingState)
 
   const isMounted = hook.useIsMounted()
@@ -86,7 +90,7 @@ const CalendarDateContainer = React.memo(({
   const [lastScrollTop, setLastScrollTop] = React.useState(0)
   const [init, setInit] = React.useState(true)
 
-  const minDateCnt = 130
+  const minDateCnt = 100
 
   React.useEffect(() => {
     smoothscroll.polyfill()
@@ -152,6 +156,7 @@ const CalendarDateContainer = React.memo(({
     if (isMounted()) {
       if (!init) return
       if (_dateList.length < minDateCnt) return
+      // if (_dateList.length === 0) return
       if (_dateBody.current && dateRow.length > 0) {
         if (offsetY === 0) {
           setOffsetY(() =>
@@ -699,7 +704,7 @@ const CalendarDateContainer = React.memo(({
   const onScroll = throttle((e?: Event) => {
     if (!isMounted()) return
     if (!_dateBody?.current) return
-    if (!_dateList || _dateList.length < minDateCnt) return
+    if (!_dateList || _dateList.length === 0) return
     if (typeof window === 'undefined') return
 
     if (e) {
@@ -950,5 +955,3 @@ const CalendarDateContainer = React.memo(({
     </CalendarDateContainerStyle.container>
   )
 })
-
-export default CalendarDateContainer

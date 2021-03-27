@@ -1,5 +1,10 @@
 import Recoil from 'recoil'
-import { TestDataType, TestIconDataType } from '../pages/api'
+import {
+  filteredIconData,
+  filteredScheduleData,
+  TestDataType,
+  TestIconDataType,
+} from '../pages/api'
 import { FilterType } from '../utils/types'
 
 export const scheduleDataState = Recoil.atom<TestDataType[]>({
@@ -18,6 +23,17 @@ export const iconDataState = Recoil.atom<{
     cards: [],
     todos: [],
   },
+})
+
+export const scheduleDataSelector = Recoil.selector({
+  key: 'scheduleDataSelector',
+  get: ({ get }) =>
+    filteredScheduleData(get(scheduleDataState), get(filterState)),
+})
+
+export const iconDataSelector = Recoil.selector({
+  key: 'iconDataSelector',
+  get: ({ get }) => filteredIconData(get(iconDataState), get(filterState)),
 })
 
 export const initFilter = {

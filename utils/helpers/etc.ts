@@ -100,13 +100,13 @@ export const consistMonthRange = (baseDate: Date) => {
 
   return [
     new Date(
-      currMonth === 0 ? currYear - 1 : currYear,
-      currMonth - 2 < 0 ? 12 - currMonth - 2 : currMonth - 2,
+      currMonth <= 1 ? currYear - 1 : currYear,
+      currMonth - 2 < 0 ? 12 + currMonth - 2 : currMonth - 2,
       1,
     ),
     new Date(
       currMonth === 0 ? currYear - 1 : currYear,
-      currMonth - 1 < 0 ? 11 : currMonth - 2,
+      currMonth - 1 < 0 ? 11 : currMonth - 1,
       1,
     ),
     baseDate,
@@ -116,7 +116,7 @@ export const consistMonthRange = (baseDate: Date) => {
       1,
     ),
     new Date(
-      currMonth === 11 ? currYear + 1 : currYear,
+      currMonth >= 10 ? currYear + 1 : currYear,
       currMonth + 2 > 11 ? currMonth + 2 - 12 : currMonth + 2,
       1,
     ),
@@ -217,6 +217,20 @@ export const getNewDateUponBeforeOrAfter = (
     }
   }
   return new Date(year, month, day)
+}
+
+// get appropriate yearMonth
+export const getAppropriateYearMonth = (yearMonth: string) => {
+  const year = Number(yearMonth.substr(0, 4))
+  const month = Number(yearMonth.substr(4, 2)) - 1
+
+  if (month < 0) {
+    return String(year - 1) + makeTwoDigits(13 + month)
+  } else if (month > 11) {
+    return String(year + 1) + makeTwoDigits(month - 11)
+  } else {
+    return String(year) + makeTwoDigits(month + 1)
+  }
 }
 
 // Check if current device is mobile
