@@ -65,6 +65,9 @@ const KeywordAutocompleteStyle = {
   delete: {
     ...theme.font.list,
     cursor: 'pointer' as const,
+    zIndex: 1,
+    position: 'absolute' as const,
+    left: '23.3rem',
   },
 }
 
