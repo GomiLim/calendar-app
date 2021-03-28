@@ -6,10 +6,17 @@ import SearchFilterStyle from '../../styles/components/CalendarHeader/SearchFilt
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
 import { Icons } from '../../utils/types'
+import CheckerFilter from './CheckerFilter'
 import InputKeyword from './InputKeyword'
 import SearchSelector from './SearchSelector'
 
-export type SelectorType = 'channel' | 'schedule' | 'card' | 'todo' | 'member'
+export type SelectorType =
+  | 'all'
+  | 'channel'
+  | 'schedule'
+  | 'card'
+  | 'todo'
+  | 'member'
 
 export default function SearchFilter() {
   const [filter, setFilter] = Recoil.useRecoilState(filterState)
@@ -92,6 +99,38 @@ export default function SearchFilter() {
     setSelectorOpened(false)
   }
 
+  const onCheck = (check: SelectorType, value: boolean) => {
+    if (check === 'all') {
+      setFilter((old) => ({
+        ...old,
+        channel: {
+          ...old.channel,
+          show: value,
+        },
+        schedule: {
+          ...old.schedule,
+          show: value,
+        },
+        card: {
+          ...old.card,
+          show: value,
+        },
+        todo: {
+          ...old.todo,
+          show: value,
+        },
+      }))
+    } else {
+      setFilter((old) => ({
+        ...old,
+        [check]: {
+          ...old[check],
+          show: value,
+        },
+      }))
+    }
+  }
+
   return (
     <>
       <SearchFilterStyle.container>
@@ -109,6 +148,7 @@ export default function SearchFilter() {
           onBlur={onSelectorBlur}
         />
       )}
+      <CheckerFilter onCheck={onCheck} />
     </>
   )
 }

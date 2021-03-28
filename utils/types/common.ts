@@ -17,6 +17,8 @@ export enum Icons {
   POWER = 'xi-power-off',
   FILTER = 'xi-tune',
   FILTER_OPTION = 'xi-filter',
+  UNCHECKED = 'xi-checkbox-blank',
+  CHECKED = 'xi-check-square-o',
 }
 
 export type FilterType = {

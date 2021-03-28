@@ -200,22 +200,147 @@ const cardFilter = (
 
 export const filteredScheduleData = (
   baseData: TestDataType[],
-  filter?: FilterType,
+  filter: FilterType,
 ): TestDataType[] =>
-  filter
-    ? filter.schedule.show
-      ? baseData.filter((data) => {
-          if (filter.schedule.no) {
-            return memberFilter(
-              'schedule',
+  filter.schedule.show
+    ? baseData.filter((data) => {
+        if (filter.schedule.no) {
+          return memberFilter(
+            'schedule',
+            filter,
+            data,
+            channelFilter(filter, data, data.no === filter.schedule.no),
+          )
+        }
+        if (filter.schedule.label) {
+          return memberFilter(
+            'schedule',
+            filter,
+            data,
+            channelFilter(
               filter,
               data,
-              channelFilter(filter, data, data.no === filter.schedule.no),
-            )
-          }
-          if (filter.schedule.label) {
-            return memberFilter(
-              'schedule',
+              data.name
+                .trim()
+                .toLowerCase()
+                .indexOf(filter.schedule.label.trim().toLowerCase()) > -1,
+            ),
+          )
+        }
+        return memberFilter(
+          'schedule',
+          filter,
+          data,
+          channelFilter(filter, data, true),
+        )
+      })
+    : []
+
+export const filteredIconData = (
+  baseData: {
+    channels: TestIconDataType[]
+    cards: TestIconDataType[]
+    todos: TestIconDataType[]
+  },
+  filter: FilterType,
+): {
+  channels: TestIconDataType[]
+  cards: TestIconDataType[]
+  todos: TestIconDataType[]
+} => ({
+  channels: filter.channel.show
+    ? baseData.channels.filter((data) => {
+        if (filter.channel.no) {
+          return memberFilter(
+            'channel',
+            filter,
+            data,
+            filter.channel.closed === undefined
+              ? data.no === filter.channel.no
+              : !!data.closed === filter.channel.closed &&
+                  data.no === filter.channel.no,
+          )
+        }
+        if (filter.channel.label) {
+          return memberFilter(
+            'channel',
+            filter,
+            data,
+            filter.channel.closed === undefined
+              ? data.name
+                  .trim()
+                  .toLowerCase()
+                  .indexOf(filter.channel.label.trim().toLowerCase()) > -1
+              : !!data.closed === filter.channel.closed &&
+                  data.name
+                    .trim()
+                    .toLowerCase()
+                    .indexOf(filter.channel.label.trim().toLowerCase()) > -1,
+          )
+        }
+        return memberFilter(
+          'channel',
+          filter,
+          data,
+          filter.channel.closed === undefined
+            ? true
+            : filter.channel.closed === !!data.closed,
+        )
+      })
+    : [],
+  cards: filter.card.show
+    ? baseData.cards.filter((data) => {
+        if (filter.card.no) {
+          return memberFilter(
+            'card',
+            filter,
+            data,
+            channelFilter(filter, data, data.no === filter.card.no),
+          )
+        }
+        if (filter.card.label) {
+          return memberFilter(
+            'card',
+            filter,
+            data,
+            channelFilter(
+              filter,
+              data,
+              data.name
+                .trim()
+                .toLowerCase()
+                .indexOf(filter.card.label.trim().toLowerCase()) > -1,
+            ),
+          )
+        }
+        return memberFilter(
+          'card',
+          filter,
+          data,
+          channelFilter(filter, data, true),
+        )
+      })
+    : [],
+  todos: filter.todo.show
+    ? baseData.todos.filter((data) => {
+        if (filter.todo.no) {
+          return memberFilter(
+            'todo',
+            filter,
+            data,
+            cardFilter(
+              filter,
+              data,
+              channelFilter(filter, data, data.no === filter.todo.no),
+            ),
+          )
+        }
+        if (filter.todo.label) {
+          return memberFilter(
+            'todo',
+            filter,
+            data,
+            cardFilter(
               filter,
               data,
               channelFilter(
@@ -224,152 +349,20 @@ export const filteredScheduleData = (
                 data.name
                   .trim()
                   .toLowerCase()
-                  .indexOf(filter.schedule.label.trim().toLowerCase()) > -1,
+                  .indexOf(filter.todo.label.trim().toLowerCase()) > -1,
               ),
-            )
-          }
-          return memberFilter(
-            'schedule',
-            filter,
-            data,
-            channelFilter(filter, data, true),
+            ),
           )
-        })
-      : []
-    : [...baseData]
-
-export const filteredIconData = (
-  baseData: {
-    channels: TestIconDataType[]
-    cards: TestIconDataType[]
-    todos: TestIconDataType[]
-  },
-  filter?: FilterType,
-): {
-  channels: TestIconDataType[]
-  cards: TestIconDataType[]
-  todos: TestIconDataType[]
-} =>
-  filter
-    ? {
-        ...baseData,
-        channels: filter.channel.show
-          ? baseData.channels.filter((data) => {
-              if (filter.channel.no) {
-                return memberFilter(
-                  'channel',
-                  filter,
-                  data,
-                  filter.channel.closed === undefined
-                    ? data.no === filter.channel.no
-                    : !!data.closed === filter.channel.closed &&
-                        data.no === filter.channel.no,
-                )
-              }
-              if (filter.channel.label) {
-                return memberFilter(
-                  'channel',
-                  filter,
-                  data,
-                  filter.channel.closed === undefined
-                    ? data.name
-                        .trim()
-                        .toLowerCase()
-                        .indexOf(filter.channel.label.trim().toLowerCase()) > -1
-                    : !!data.closed === filter.channel.closed &&
-                        data.name
-                          .trim()
-                          .toLowerCase()
-                          .indexOf(filter.channel.label.trim().toLowerCase()) >
-                          -1,
-                )
-              }
-              return memberFilter(
-                'channel',
-                filter,
-                data,
-                filter.channel.closed === undefined
-                  ? true
-                  : filter.channel.closed === !!data.closed,
-              )
-            })
-          : [],
-        cards: filter.card.show
-          ? baseData.cards.filter((data) => {
-              if (filter.card.no) {
-                return memberFilter(
-                  'card',
-                  filter,
-                  data,
-                  channelFilter(filter, data, data.no === filter.card.no),
-                )
-              }
-              if (filter.card.label) {
-                return memberFilter(
-                  'card',
-                  filter,
-                  data,
-                  channelFilter(
-                    filter,
-                    data,
-                    data.name
-                      .trim()
-                      .toLowerCase()
-                      .indexOf(filter.card.label.trim().toLowerCase()) > -1,
-                  ),
-                )
-              }
-              return memberFilter(
-                'card',
-                filter,
-                data,
-                channelFilter(filter, data, true),
-              )
-            })
-          : [],
-        todos: filter.todo.show
-          ? baseData.todos.filter((data) => {
-              if (filter.todo.no) {
-                return memberFilter(
-                  'todo',
-                  filter,
-                  data,
-                  cardFilter(
-                    filter,
-                    data,
-                    channelFilter(filter, data, data.no === filter.todo.no),
-                  ),
-                )
-              }
-              if (filter.todo.label) {
-                return memberFilter(
-                  'todo',
-                  filter,
-                  data,
-                  cardFilter(
-                    filter,
-                    data,
-                    channelFilter(
-                      filter,
-                      data,
-                      data.name
-                        .trim()
-                        .toLowerCase()
-                        .indexOf(filter.todo.label.trim().toLowerCase()) > -1,
-                    ),
-                  ),
-                )
-              }
-              return memberFilter(
-                'todo',
-                filter,
-                data,
-                cardFilter(filter, data, channelFilter(filter, data, true)),
-              )
-            })
-          : [],
-      }
-    : { ...baseData }
+        }
+        return memberFilter(
+          'todo',
+          filter,
+          data,
+          cardFilter(filter, data, channelFilter(filter, data, true)),
+        )
+      })
+    : [],
+})
 
 export const testScheduleApi = (baseDates: Date[]) => {
   const baseData = testScheduleData.filter((data) =>

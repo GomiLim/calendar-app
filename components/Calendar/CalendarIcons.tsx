@@ -32,31 +32,28 @@ export default React.memo(function CalendarIcons({
 
     const todayStr = moment(today).format('YYYYMMDD')
 
-    if (!!endingChannels && endingChannels.length > 0) {
-      setEndingChannelCnt(
-        () =>
-          endingChannels.filter(
+    setEndingChannelCnt(() =>
+      !!endingChannels && endingChannels.length > 0
+        ? endingChannels.filter(
             (endingChannel) =>
               moment(endingChannel).format('YYYYMMDD') === todayStr,
-          ).length,
-      )
-    }
-    if (!!endingCards && endingCards.length > 0) {
-      setEndingCardCnt(
-        () =>
-          endingCards.filter(
+          ).length
+        : 0,
+    )
+    setEndingCardCnt(() =>
+      !!endingCards && endingCards.length > 0
+        ? endingCards.filter(
             (endingCard) => moment(endingCard).format('YYYYMMDD') === todayStr,
-          ).length,
-      )
-    }
-    if (!!endingTodos && endingTodos.length > 0) {
-      setEndingTodoCnt(
-        () =>
-          endingTodos.filter(
+          ).length
+        : 0,
+    )
+    setEndingTodoCnt(() =>
+      !!endingTodos && endingTodos.length > 0
+        ? endingTodos.filter(
             (endingTodo) => moment(endingTodo).format('YYYYMMDD') === todayStr,
-          ).length,
-      )
-    }
+          ).length
+        : 0,
+    )
   }, [isMounted, endingChannels, endingCards, endingTodos, today])
 
   return (
