@@ -302,9 +302,17 @@ export default function Home({ scheduleData, iconData }: Props) {
       }
 
       if (isMobile) {
-        setContainerWidth(() => ({ width: '100%', height: '30%' }))
+        setContainerWidth(() => ({
+          width: '100%',
+          height: '30%',
+          transition: 'height 0.5s',
+        }))
       } else {
-        setContainerWidth(() => ({ width: '70%', height: '100%' }))
+        setContainerWidth(() => ({
+          width: '70%',
+          height: '100%',
+          transition: 'width 0.5s',
+        }))
       }
       setShowDateSchedule(() => true)
     }
