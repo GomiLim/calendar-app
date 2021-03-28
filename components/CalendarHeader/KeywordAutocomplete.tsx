@@ -5,6 +5,7 @@ import { debounce, throttle } from 'lodash'
 import React from 'react'
 import Autocomplete from 'react-autocomplete'
 import { useTranslation } from 'react-i18next'
+import Icon from '../../foundations/Icon'
 import Loading from '../../foundations/Loading'
 import Text from '../../foundations/Text'
 import Thumbnail from '../../foundations/Thumbnail'
@@ -19,7 +20,12 @@ import KeywordAutocompleteStyle from '../../styles/components/CalendarHeader/Key
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
-import { TestDataType, TestIconDataType, UserType } from '../../utils/types'
+import {
+  Icons,
+  TestDataType,
+  TestIconDataType,
+  UserType,
+} from '../../utils/types'
 import { SelectorType } from './SearchFilter'
 
 interface Props {
@@ -232,154 +238,176 @@ export default function KeywordAutocomplete({
     }
   }
 
+  const onDelete = () => {
+    setShowAutocomplete(false)
+    setAutoSelectNo(undefined)
+    setKeyword('')
+    setAutoLoading(true)
+    setAutocompleteList([])
+    setInitHighlightedNo(undefined)
+    onSelect('')
+  }
+
   return (
-    <Autocomplete
-      items={autocompleteList}
-      shouldItemRender={(
-        item: TestDataType | TestIconDataType | UserType,
-        value: string,
-      ) =>
-        !autoLoading &&
-        value.trim().length > 0 &&
-        (selected === 'member' && input === 'email'
-          ? (item as UserType).email
-          : item.name
-        )
-          .trim()
-          .toLowerCase()
-          .indexOf(value.trim().toLowerCase()) > -1
-      }
-      getItemValue={(item: TestDataType | TestIconDataType | UserType) =>
-        String(item.no)
-      }
-      renderMenu={(items) => (
-        <KeywordAutocompleteStyle.container>
-          {autoLoading ? (
-            <Loading loading={true} style={KeywordAutocompleteStyle.loading} />
-          ) : items.length === 0 ? (
-            <Text
-              value={t('calendar.header.filter.selector.autocomplete.nodata')}
-              style={KeywordAutocompleteStyle.nodata}
-            />
-          ) : (
-            items
-          )}
-        </KeywordAutocompleteStyle.container>
-      )}
-      renderItem={(
-        item: TestDataType | TestIconDataType | UserType,
-        highlight,
-      ) => {
-        const highlighted = initHighlightedNo
-          ? item.no === initHighlightedNo
-          : highlight
-        return (
-          <KeywordAutocompleteStyle.item
-            key={item.no}
-            style={{
-              backgroundColor: highlighted
-                ? theme.palette.main.navy
-                : 'transparent',
-            }}>
-            {selected === 'channel' ? (
-              <div
-                style={{
-                  ...ScheduleItemStyle.color,
-                  display: selected === 'channel' ? 'flex' : 'hidden',
-                  backgroundColor:
-                    (item as TestIconDataType).color || theme.palette.mono.gray,
-                  width: '3rem',
-                  height: '3rem',
-                }}
+    <>
+      <Autocomplete
+        items={autocompleteList}
+        shouldItemRender={(
+          item: TestDataType | TestIconDataType | UserType,
+          value: string,
+        ) =>
+          !autoLoading &&
+          value.trim().length > 0 &&
+          (selected === 'member' && input === 'email'
+            ? (item as UserType).email
+            : item.name
+          )
+            .trim()
+            .toLowerCase()
+            .indexOf(value.trim().toLowerCase()) > -1
+        }
+        getItemValue={(item: TestDataType | TestIconDataType | UserType) =>
+          String(item.no)
+        }
+        renderMenu={(items) => (
+          <KeywordAutocompleteStyle.container>
+            {autoLoading ? (
+              <Loading
+                loading={true}
+                style={KeywordAutocompleteStyle.loading}
               />
-            ) : selected === 'schedule' ? (
-              <div
-                style={{
-                  ...ScheduleItemStyle.color,
-                  backgroundColor: (item as TestDataType).channel.color,
-                  opacity: (item as TestDataType).type === 'main' ? 1 : 0.3,
-                }}>
-                {t(`calendar.${(item as TestDataType).type}Schedule`)}
-              </div>
-            ) : selected === 'card' ? (
-              <div
-                style={{
-                  ...ScheduleItemStyle.color,
-                  backgroundColor:
-                    (item as TestIconDataType).color || theme.palette.mono.gray,
-                }}
-              />
-            ) : selected === 'member' ? (
-              <Thumbnail
-                email={(item as UserType).email}
-                style={ScheduleItemStyle.thumbnail}
-              />
-            ) : null}
-            <div>
+            ) : items.length === 0 ? (
               <Text
-                value={item.name}
-                style={{
-                  ...KeywordAutocompleteStyle.autoData,
-                  color: highlighted
-                    ? theme.palette.mono.white
-                    : theme.palette.mono.darkGray,
-                }}
+                value={t('calendar.header.filter.selector.autocomplete.nodata')}
+                style={KeywordAutocompleteStyle.nodata}
               />
-              {input === 'email' && (
-                <Text
-                  value={(item as UserType).email}
+            ) : (
+              items
+            )}
+          </KeywordAutocompleteStyle.container>
+        )}
+        renderItem={(
+          item: TestDataType | TestIconDataType | UserType,
+          highlight,
+        ) => {
+          const highlighted = initHighlightedNo
+            ? item.no === initHighlightedNo
+            : highlight
+          return (
+            <KeywordAutocompleteStyle.item
+              key={item.no}
+              style={{
+                backgroundColor: highlighted
+                  ? theme.palette.main.navy
+                  : 'transparent',
+              }}>
+              {selected === 'channel' ? (
+                <div
                   style={{
-                    ...KeywordAutocompleteStyle.autoDataSub,
+                    ...ScheduleItemStyle.color,
+                    display: selected === 'channel' ? 'flex' : 'hidden',
+                    backgroundColor:
+                      (item as TestIconDataType).color ||
+                      theme.palette.mono.gray,
+                    width: '3rem',
+                    height: '3rem',
                   }}
                 />
-              )}
-            </div>
-          </KeywordAutocompleteStyle.item>
-        )
-      }}
-      value={keyword}
-      onChange={onChange}
-      onSelect={(value, item: TestDataType | TestIconDataType | UserType) => {
-        setKeyword(item.name)
-        setAutoSelectNo(Number(item.no))
-        setShowAutocomplete(false)
-        onSelect(item.name, Number(value))
-      }}
-      autoHighlight={false}
-      onMenuVisibilityChange={(isOpen) => {
-        if (!isOpen) {
+              ) : selected === 'schedule' ? (
+                <div
+                  style={{
+                    ...ScheduleItemStyle.color,
+                    backgroundColor: (item as TestDataType).channel.color,
+                    opacity: (item as TestDataType).type === 'main' ? 1 : 0.3,
+                  }}>
+                  {t(`calendar.${(item as TestDataType).type}Schedule`)}
+                </div>
+              ) : selected === 'card' ? (
+                <div
+                  style={{
+                    ...ScheduleItemStyle.color,
+                    backgroundColor:
+                      (item as TestIconDataType).color ||
+                      theme.palette.mono.gray,
+                  }}
+                />
+              ) : selected === 'member' ? (
+                <Thumbnail
+                  email={(item as UserType).email}
+                  style={ScheduleItemStyle.thumbnail}
+                />
+              ) : null}
+              <div>
+                <Text
+                  value={item.name}
+                  style={{
+                    ...KeywordAutocompleteStyle.autoData,
+                    color: highlighted
+                      ? theme.palette.mono.white
+                      : theme.palette.mono.darkGray,
+                  }}
+                />
+                {input === 'email' && (
+                  <Text
+                    value={(item as UserType).email}
+                    style={{
+                      ...KeywordAutocompleteStyle.autoDataSub,
+                    }}
+                  />
+                )}
+              </div>
+            </KeywordAutocompleteStyle.item>
+          )
+        }}
+        value={keyword}
+        onChange={onChange}
+        onSelect={(value, item: TestDataType | TestIconDataType | UserType) => {
+          setKeyword(item.name)
+          setAutoSelectNo(Number(item.no))
           setShowAutocomplete(false)
-          onSelect(keyword, autoSelectNo)
-        } else if (keyword.length > 0) {
-          setShowAutocomplete(true)
-        }
-      }}
-      open={showAutocomplete}
-      selectOnBlur={true}
-      renderInput={(props) => (
-        <input
-          {...props}
-          id="header-autocomplete-input"
-          type="text"
-          style={{
-            ...KeywordAutocompleteStyle.input,
-            width: selected === 'schedule' ? '100%' : 'calc(100% - 2rem)',
-            marginLeft: selected === 'schedule' ? undefined : '2rem',
-          }}
-          className="fd-input"
-          placeholder={t(
-            `calendar.header.filter.selector.${selected}.placeholder${
-              selected === 'member'
-                ? input === 'name'
-                  ? '.name'
-                  : '.email'
-                : ''
-            }`,
-          )}
-          onKeyUp={onKeyUp}
-          onBlur={onBlur}
-        />
-      )}
-    />
+          onSelect(item.name, Number(value))
+        }}
+        autoHighlight={false}
+        onMenuVisibilityChange={(isOpen) => {
+          if (!isOpen) {
+            setShowAutocomplete(false)
+            onSelect(keyword, autoSelectNo)
+          } else if (keyword.length > 0) {
+            setShowAutocomplete(true)
+          }
+        }}
+        open={showAutocomplete}
+        selectOnBlur={true}
+        renderInput={(props) => (
+          <input
+            {...props}
+            id="header-autocomplete-input"
+            type="text"
+            style={{
+              ...KeywordAutocompleteStyle.input,
+              width: selected === 'schedule' ? '100%' : 'calc(100% - 2.5rem)',
+              marginLeft: selected === 'schedule' ? undefined : '2rem',
+            }}
+            className="fd-input"
+            placeholder={t(
+              `calendar.header.filter.selector.${selected}.placeholder${
+                selected === 'member'
+                  ? input === 'name'
+                    ? '.name'
+                    : '.email'
+                  : ''
+              }`,
+            )}
+            onKeyUp={onKeyUp}
+            onBlur={onBlur}
+          />
+        )}
+      />
+      <Icon
+        icon={Icons.CLOSE}
+        onClick={onDelete}
+        style={KeywordAutocompleteStyle.delete}
+      />
+    </>
   )
 }

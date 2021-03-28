@@ -55,9 +55,49 @@ export default function InputKeyword({ selected }: Props) {
         setOptionStyle(() => ({
           backgroundColor: theme.palette.main.turquoise,
         }))
+
+        setFilter((old) => ({
+          ...old,
+          channel: {
+            ...old.channel,
+            closed: selected === 'channel' ? option.closed : undefined,
+          },
+          card: {
+            ...old.card,
+            closed: selected === 'card' ? option.closed : undefined,
+          },
+          todo: {
+            ...old.todo,
+            done: selected === 'todo' ? option.done : undefined,
+          },
+          member: {
+            ...old.member,
+            duty: selected === 'member' ? option.duty : undefined,
+          },
+        }))
       } else {
         setOptionStyle(() => ({
           backgroundColor: 'transparent' as const,
+        }))
+
+        setFilter((old) => ({
+          ...old,
+          channel: {
+            ...old.channel,
+            closed: undefined,
+          },
+          card: {
+            ...old.card,
+            closed: undefined,
+          },
+          todo: {
+            ...old.todo,
+            done: undefined,
+          },
+          member: {
+            ...old.member,
+            duty: undefined,
+          },
         }))
       }
     }

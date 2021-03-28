@@ -71,6 +71,7 @@ export enum Icons {
   FILTER_OPTION = 'xi-filter',
   UNCHECKED = 'xi-checkbox-blank',
   CHECKED = 'xi-check-square-o',
+  CLOSE = 'xi-close',
 }
 
 export type FilterType = {

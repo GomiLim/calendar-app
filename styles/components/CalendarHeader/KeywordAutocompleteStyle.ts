@@ -62,6 +62,10 @@ const KeywordAutocompleteStyle = {
     padding: 0,
     ...theme.font.list,
   },
+  delete: {
+    ...theme.font.list,
+    cursor: 'pointer' as const,
+  },
 }
 
 export default KeywordAutocompleteStyle
