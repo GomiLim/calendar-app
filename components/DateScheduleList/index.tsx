@@ -5,15 +5,31 @@ import Recoil from 'recoil'
 import Box from '../../foundations/Box'
 import Icon from '../../foundations/Icon'
 import Text from '../../foundations/Text'
-import { TestDataType, TestIconDataType } from '../../pages/api'
-import { iconDataState, loadingState } from '../../recoil'
+import { filterState, iconDataState, loadingState } from '../../recoil'
 import DateScheduleListContainerStyle from '../../styles/components/DateScheduleList/DateScheduleListContainerStyle'
 import theme from '../../styles/theme'
 import Swipe from '../../utils/helpers/swiper'
 import * as hook from '../../utils/hooks'
 import { Months } from '../../utils/i18n'
-import { Icons } from '../../utils/types'
+import {
+  FilterType,
+  Icons,
+  TestDataType,
+  TestIconDataType,
+} from '../../utils/types'
 import DueScheduleList from './DueScheduleList'
+
+const returnIdByFilterShow = (filter: FilterType) => {
+  return filter.channel.show
+    ? 'channel'
+    : filter.schedule.show
+    ? 'schedule'
+    : filter.card.show
+    ? 'card'
+    : filter.todo.show
+    ? 'todo'
+    : ''
+}
 
 interface Props {
   isMobile: boolean
@@ -38,10 +54,12 @@ export default function DateScheduleList({
 
   const setLoading = Recoil.useSetRecoilState(loadingState)
   const setIconsRaw = Recoil.useSetRecoilState(iconDataState)
+  const filter = Recoil.useRecoilValue(filterState)
 
   const _container: React.RefObject<HTMLDivElement> = React.createRef()
   const _label: React.RefObject<HTMLDivElement> = React.createRef()
   const _header: React.RefObject<HTMLDivElement> = React.createRef()
+  const _channel: React.RefObject<HTMLDivElement> = React.createRef()
   const _schedule: React.RefObject<HTMLDivElement> = React.createRef()
   const _card: React.RefObject<HTMLDivElement> = React.createRef()
   const _todo: React.RefObject<HTMLDivElement> = React.createRef()
@@ -65,26 +83,51 @@ export default function DateScheduleList({
 
   React.useEffect(() => {
     if (isMounted()) {
-      setHeaderContent([
-        <Text key="channel-text" value={t('calendar.channel')} />,
+      if (!_header?.current) return
+
+      const id = returnIdByFilterShow(filter)
+      if (_header.current.attributes[0].value === id) return
+
+      if (id === '') {
+        _header.current.attributes[0].value = ''
+        setHeaderContent(() => [])
+        return
+      }
+
+      _header.current.attributes[0].value = id
+
+      setHeaderContent(() => [
+        <Text key={`${id}-text`} value={t(`calendar.${id}`)} />,
         <Icon
-          key="channel-icon"
+          key={`${id}-icon`}
           style={DateScheduleListContainerStyle.toggle}
-          icon={showChannelList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+          icon={
+            (
+              id === 'channel'
+                ? showChannelList
+                : id === 'schedule'
+                ? showScheduleList
+                : id === 'card'
+                ? showCardList
+                : showTodoList
+            )
+              ? Icons.ANGLE_UP
+              : Icons.ANGLE_DOWN
+          }
         />,
       ])
     }
-  }, [])
+  }, [isMounted, _header?.current, filter])
 
   const onScroll = () => {
     if (!isMounted()) return
     if (!_header?.current) return
-    if (!_schedule?.current || !_card?.current || !_todo?.current) return
 
     if (
+      _todo?.current &&
       _todo.current.getBoundingClientRect().top +
         _todo.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
+        _header.current.getBoundingClientRect().bottom
     ) {
       _header.current.attributes[0].value = 'todo'
       setHeaderContent(() => [
@@ -96,9 +139,10 @@ export default function DateScheduleList({
         />,
       ])
     } else if (
+      _card?.current &&
       _card.current.getBoundingClientRect().top +
         _card.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
+        _header.current.getBoundingClientRect().bottom
     ) {
       _header.current.attributes[0].value = 'card'
       setHeaderContent(() => [
@@ -110,9 +154,10 @@ export default function DateScheduleList({
         />,
       ])
     } else if (
+      _schedule?.current &&
       _schedule.current.getBoundingClientRect().top +
         _schedule.current.getBoundingClientRect().height / 2 <=
-      _header.current.getBoundingClientRect().bottom
+        _header.current.getBoundingClientRect().bottom
     ) {
       _header.current.attributes[0].value = 'schedule'
       setHeaderContent(() => [
@@ -123,7 +168,7 @@ export default function DateScheduleList({
           icon={showScheduleList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
         />,
       ])
-    } else {
+    } else if (_channel?.current) {
       _header.current.attributes[0].value = 'channel'
       setHeaderContent(() => [
         <Text key="channel-text" value={t('calendar.channel')} />,
@@ -158,18 +203,34 @@ export default function DateScheduleList({
     if (!_container?.current) return
     if (!_header?.current) return
     if (scrollable) return
-    if (_header.current.attributes[0].value === 'channel') return
 
-    _header.current.attributes[0].value = 'channel'
+    const id = returnIdByFilterShow(filter)
+    if (id === '') return
+    if (_header.current.attributes[0].value === id) return
+
+    _header.current.attributes[0].value = id
+
     setHeaderContent(() => [
-      <Text key="channel-text" value={t('calendar.channel')} />,
+      <Text key={`${id}-text`} value={t(`calendar.${id}`)} />,
       <Icon
-        key="channel-icon"
+        key={`${id}-icon`}
         style={DateScheduleListContainerStyle.toggle}
-        icon={showChannelList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+        icon={
+          (
+            id === 'channel'
+              ? showChannelList
+              : id === 'schedule'
+              ? showScheduleList
+              : id === 'card'
+              ? showCardList
+              : showTodoList
+          )
+            ? Icons.ANGLE_UP
+            : Icons.ANGLE_DOWN
+        }
       />,
     ])
-  }, [isMounted, scrollable, _container, _header])
+  }, [isMounted, scrollable, _container, _header, filter])
 
   const changeHeaderDisplay = (attrVal: string) => {
     if (!_container?.current) return
@@ -382,71 +443,88 @@ export default function DateScheduleList({
         }}>
         {headerContent}
       </Box>
-      <Box
-        direction="horizontal"
-        onClick={onClickChannelShow}
-        style={DateScheduleListContainerStyle.sectionTitle}
-      />
-      {showChannelList && (
-        <DueScheduleList<TestIconDataType>
-          dataList={channels}
-          type="channel"
-          onClick={onClickChannel}
-        />
+      {filter.channel.show && (
+        <>
+          <Box
+            refObj={_channel}
+            direction="horizontal"
+            onClick={onClickChannelShow}
+            style={DateScheduleListContainerStyle.sectionTitle}
+          />
+          {showChannelList && (
+            <DueScheduleList<TestIconDataType>
+              dataList={channels}
+              type="channel"
+              onClick={onClickChannel}
+            />
+          )}
+        </>
       )}
-      <Box
-        refObj={_schedule}
-        direction="horizontal"
-        onClick={onClickScheduleShow}
-        style={DateScheduleListContainerStyle.sectionTitle}>
-        <Text value={t('calendar.schedule')} />
-        <Icon
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showScheduleList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />
-      </Box>
-      {showScheduleList && (
-        <DueScheduleList<TestDataType>
-          dataList={schedules}
-          type="schedule"
-          onClick={onClickSchedule}
-        />
+      {filter.schedule.show && (
+        <>
+          <Box
+            refObj={_schedule}
+            direction="horizontal"
+            onClick={onClickScheduleShow}
+            style={DateScheduleListContainerStyle.sectionTitle}>
+            <Text value={t('calendar.schedule')} />
+            <Icon
+              style={DateScheduleListContainerStyle.toggle}
+              icon={showScheduleList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+            />
+          </Box>
+          {showScheduleList && (
+            <DueScheduleList<TestDataType>
+              dataList={schedules}
+              type="schedule"
+              onClick={onClickSchedule}
+            />
+          )}
+        </>
       )}
-      <Box
-        refObj={_card}
-        direction="horizontal"
-        onClick={onClickCardShow}
-        style={DateScheduleListContainerStyle.sectionTitle}>
-        <Text value={t('calendar.card')} />
-        <Icon
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showCardList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />
-      </Box>
-      {showCardList && (
-        <DueScheduleList<TestIconDataType>
-          dataList={cards}
-          type="card"
-          onClick={onClickCard}
-        />
+      {filter.card.show && (
+        <>
+          <Box
+            refObj={_card}
+            direction="horizontal"
+            onClick={onClickCardShow}
+            style={DateScheduleListContainerStyle.sectionTitle}>
+            <Text value={t('calendar.card')} />
+            <Icon
+              style={DateScheduleListContainerStyle.toggle}
+              icon={showCardList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+            />
+          </Box>
+          {showCardList && (
+            <DueScheduleList<TestIconDataType>
+              dataList={cards}
+              type="card"
+              onClick={onClickCard}
+            />
+          )}
+        </>
       )}
-      <Box
-        refObj={_todo}
-        direction="horizontal"
-        onClick={onClickTodoShow}
-        style={DateScheduleListContainerStyle.sectionTitle}>
-        <Text value={t('calendar.todo')} />
-        <Icon
-          style={DateScheduleListContainerStyle.toggle}
-          icon={showTodoList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
-        />
-      </Box>
-      {showTodoList && (
-        <DueScheduleList<TestIconDataType>
-          dataList={todos}
-          type="todo"
-          onClick={onClickTodo}
-        />
+      {filter.todo.show && (
+        <>
+          <Box
+            refObj={_todo}
+            direction="horizontal"
+            onClick={onClickTodoShow}
+            style={DateScheduleListContainerStyle.sectionTitle}>
+            <Text value={t('calendar.todo')} />
+            <Icon
+              style={DateScheduleListContainerStyle.toggle}
+              icon={showTodoList ? Icons.ANGLE_UP : Icons.ANGLE_DOWN}
+            />
+          </Box>
+          {showTodoList && (
+            <DueScheduleList<TestIconDataType>
+              dataList={todos}
+              type="todo"
+              onClick={onClickTodo}
+            />
+          )}
+        </>
       )}
     </DateScheduleListContainerStyle.container>
   )

@@ -1,11 +1,13 @@
 import moment from 'moment'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Thumbnail from '../../foundations/Thumbnail'
-import { TestIconDataType } from '../../pages/api'
+import Recoil from 'recoil'
+import { filterState } from '../../recoil'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import theme from '../../styles/theme'
-import { Icons } from '../../utils/types'
+import { useIsMounted } from '../../utils/hooks'
+import { Icons, MemberType, TestIconDataType } from '../../utils/types'
+import MemberThumbnails from './MemberThumbnails'
 
 interface Props {
   type: string
@@ -15,6 +17,42 @@ interface Props {
 
 export default function CardItem({ type, data, onClick }: Props) {
   const { t } = useTranslation()
+
+  const filter = Recoil.useRecoilValue(filterState)
+
+  const [baseMember, setBaseMember] = React.useState<MemberType | undefined>()
+
+  const isMounted = useIsMounted()
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+    if (!data.members) return
+    if (data.members.length < 2) return
+
+    if (
+      !filter.member ||
+      (!filter.member.no && !filter.member.name && !filter.member.email)
+    ) {
+      setBaseMember(() =>
+        data.members && data.members.length > 0 ? data.members[0] : undefined,
+      )
+    } else {
+      const found = data.members.find(
+        (member) =>
+          filter.member?.no === member.no ||
+          String(filter.member?.name)
+            .trim()
+            .toLowerCase()
+            .indexOf(String(member.name).trim().toLocaleLowerCase()) > -1 ||
+          String(filter.member?.email)
+            .trim()
+            .toLowerCase()
+            .indexOf(member.email?.trim().toLocaleLowerCase()) > -1,
+      )
+
+      setBaseMember(() => found)
+    }
+  }, [isMounted, filter.member, data.members])
 
   const trimName = (name?: string) => {
     if (!name) return ''
@@ -58,28 +96,15 @@ export default function CardItem({ type, data, onClick }: Props) {
           <div style={ScheduleItemStyle.mainLabelArea}>
             <div style={ScheduleItemStyle.label}>{trimName(data.name)}</div>
           </div>
-          <ScheduleItemStyle.thumbnailList>
-            {data.members &&
-              (data.members.length > 2 ? (
-                <>
-                  <Thumbnail
-                    email={data.members[0].email}
-                    style={ScheduleItemStyle.thumbnail}
-                  />
-                  <ScheduleItemStyle.thumbnailMore>
-                    {`+${data.members.length - 1}`}
-                  </ScheduleItemStyle.thumbnailMore>
-                </>
-              ) : (
-                data.members.map((member) => (
-                  <Thumbnail
-                    key={member.no}
-                    email={member.email}
-                    style={ScheduleItemStyle.thumbnail}
-                  />
-                ))
-              ))}
-          </ScheduleItemStyle.thumbnailList>
+          <MemberThumbnails
+            members={data.members}
+            baseMember={baseMember}
+            theOtherMember={
+              data.members
+                ? data.members.find((member) => member.no !== baseMember?.no)
+                : undefined
+            }
+          />
         </div>
       </div>
     </ScheduleItemStyle.container>
