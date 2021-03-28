@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { TestDataType } from '../../pages/api'
+import { TestDataType } from '../types'
 
 // 날짜 입력 유효성체크
 export const dateValidator = (input: string): Date => {

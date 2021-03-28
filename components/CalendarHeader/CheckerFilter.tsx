@@ -32,6 +32,8 @@ export default function CheckerFilter({ onCheck }: Props) {
   const isMounted = useIsMounted()
 
   const onSelect = (check: SelectorType, value: boolean) => {
+    onCheck(check, value)
+
     if (check === 'all') {
       setChecks({
         channel: value,
@@ -42,15 +44,13 @@ export default function CheckerFilter({ onCheck }: Props) {
     } else if (check !== 'member') {
       setChecks((old) => ({ ...old, [check]: value }))
     }
-    onCheck(check, value)
   }
 
   React.useEffect(() => {
-    if (!isMounted()) return
-    if (checks.channel && checks.schedule && checks.card && checks.todo) {
-      setAllChecked(() => true)
-    } else {
-      setAllChecked(() => false)
+    if (isMounted()) {
+      setAllChecked(
+        () => checks.channel && checks.schedule && checks.card && checks.todo,
+      )
     }
   }, [isMounted, checks])
 

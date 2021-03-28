@@ -1,11 +1,6 @@
 import Recoil from 'recoil'
-import {
-  filteredIconData,
-  filteredScheduleData,
-  TestDataType,
-  TestIconDataType,
-} from '../pages/api'
-import { FilterType } from '../utils/types'
+import { filteredIconData, filteredScheduleData } from '../pages/api'
+import { FilterType, TestDataType, TestIconDataType } from '../utils/types'
 
 export const scheduleDataState = Recoil.atom<TestDataType[]>({
   key: 'scheduleDataState',

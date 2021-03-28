@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { debounce, throttle } from 'lodash'
 import React from 'react'
 import Autocomplete from 'react-autocomplete'
 import { useTranslation } from 'react-i18next'
@@ -10,8 +11,6 @@ import Thumbnail from '../../foundations/Thumbnail'
 import {
   testCardAutoApi,
   testChannelAutoApi,
-  TestDataType,
-  TestIconDataType,
   testScheduleAutoApi,
   testTodoAutoApi,
   testUserAutoApi,
@@ -20,7 +19,7 @@ import KeywordAutocompleteStyle from '../../styles/components/CalendarHeader/Key
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
 import theme from '../../styles/theme'
 import { useIsMounted } from '../../utils/hooks'
-import { UserType } from '../../utils/types'
+import { TestDataType, TestIconDataType, UserType } from '../../utils/types'
 import { SelectorType } from './SearchFilter'
 
 interface Props {
@@ -40,6 +39,9 @@ export default function KeywordAutocomplete({
   const [keyword, setKeyword] = React.useState('')
   const [showAutocomplete, setShowAutocomplete] = React.useState(false)
   const [autoLoading, setAutoLoading] = React.useState(false)
+  const [initHighlightedNo, setInitHighlightedNo] = React.useState<
+    number | undefined
+  >()
 
   const [autocompleteList, setAutocompleteList] = React.useState<
     TestDataType[] | TestIconDataType[] | UserType[]
@@ -47,69 +49,84 @@ export default function KeywordAutocomplete({
 
   const isMounted = useIsMounted()
 
-  const getChannelAutocomplete = React.useCallback(async () => {
-    if (!isMounted()) return
-    if (keyword === '') {
-      setAutocompleteList(() => [])
-      return
-    }
+  const getChannelAutocomplete = React.useCallback(
+    debounce(async () => {
+      if (!isMounted()) return
+      if (keyword === '') {
+        setAutocompleteList(() => [])
+        return
+      }
 
-    setAutoLoading(() => true)
-    const channelList = await testChannelAutoApi(keyword)
-    setAutocompleteList(() => channelList)
-  }, [isMounted, keyword])
+      setAutoLoading(() => true)
+      const channelList = await testChannelAutoApi(keyword)
+      setAutocompleteList(() => channelList)
+    }, 90),
+    [isMounted, keyword],
+  )
 
-  const getScheduleAutocomplete = React.useCallback(async () => {
-    if (!isMounted()) return
-    if (keyword === '') {
-      setAutocompleteList(() => [])
-      return
-    }
+  const getScheduleAutocomplete = React.useCallback(
+    debounce(async () => {
+      if (!isMounted()) return
+      if (keyword === '') {
+        setAutocompleteList(() => [])
+        return
+      }
 
-    setAutoLoading(() => true)
-    const scheduleList = await testScheduleAutoApi(keyword)
-    setAutocompleteList(() => scheduleList)
-  }, [isMounted, keyword])
+      setAutoLoading(() => true)
+      const scheduleList = await testScheduleAutoApi(keyword)
+      setAutocompleteList(() => scheduleList)
+    }, 90),
+    [isMounted, keyword],
+  )
 
-  const getCardAutocomplete = React.useCallback(async () => {
-    if (!isMounted()) return
-    if (keyword === '') {
-      setAutocompleteList(() => [])
-      return
-    }
+  const getCardAutocomplete = React.useCallback(
+    debounce(async () => {
+      if (!isMounted()) return
+      if (keyword === '') {
+        setAutocompleteList(() => [])
+        return
+      }
 
-    setAutoLoading(() => true)
-    const cardList = await testCardAutoApi(keyword)
-    setAutocompleteList(() => cardList)
-  }, [isMounted, keyword])
+      setAutoLoading(() => true)
+      const cardList = await testCardAutoApi(keyword)
+      setAutocompleteList(() => cardList)
+    }, 90),
+    [isMounted, keyword],
+  )
 
-  const getTodoAutocomplete = React.useCallback(async () => {
-    if (!isMounted()) return
-    if (keyword === '') {
-      setAutocompleteList(() => [])
-      return
-    }
+  const getTodoAutocomplete = React.useCallback(
+    debounce(async () => {
+      if (!isMounted()) return
+      if (keyword === '') {
+        setAutocompleteList(() => [])
+        return
+      }
 
-    setAutoLoading(() => true)
-    const todoList = await testTodoAutoApi(keyword)
-    setAutocompleteList(() => todoList)
-  }, [isMounted, keyword])
+      setAutoLoading(() => true)
+      const todoList = await testTodoAutoApi(keyword)
+      setAutocompleteList(() => todoList)
+    }, 90),
+    [isMounted, keyword],
+  )
 
-  const getUserAutocomplete = React.useCallback(async () => {
-    if (!isMounted()) return
-    if (keyword === '') {
-      setAutocompleteList(() => [])
-      return
-    }
+  const getUserAutocomplete = React.useCallback(
+    debounce(async () => {
+      if (!isMounted()) return
+      if (keyword === '') {
+        setAutocompleteList(() => [])
+        return
+      }
 
-    setAutoLoading(() => true)
+      setAutoLoading(() => true)
 
-    const userList = await testUserAutoApi(
-      keyword,
-      input === 'label' ? undefined : input,
-    )
-    setAutocompleteList(() => userList)
-  }, [isMounted, keyword])
+      const userList = await testUserAutoApi(
+        keyword,
+        input === 'label' ? undefined : input,
+      )
+      setAutocompleteList(() => userList)
+    }, 90),
+    [isMounted, keyword],
+  )
 
   React.useEffect(() => {
     if (!isMounted()) return
@@ -149,15 +166,26 @@ export default function KeywordAutocomplete({
     setKeyword(() => '')
     setAutoLoading(() => true)
     setAutocompleteList(() => [])
+    setInitHighlightedNo(() => undefined)
   }, [isMounted, selected])
 
-  React.useEffect(() => {
-    if (isMounted()) {
-      setAutoLoading(() => false)
-    }
-  }, [isMounted, autocompleteList])
+  React.useEffect(
+    throttle(() => {
+      if (isMounted()) {
+        if (autocompleteList.length === 0) {
+          setInitHighlightedNo(() => undefined)
+          setAutoLoading(() => true)
+          setTimeout(() => setAutoLoading(() => false), 890)
+        } else {
+          setInitHighlightedNo(() => autocompleteList[0].no)
+          setAutoLoading(() => false)
+        }
+      }
+    }, 80),
+    [isMounted, autocompleteList],
+  )
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = throttle((e: React.ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value)
     setAutoSelectNo(undefined)
 
@@ -166,14 +194,27 @@ export default function KeywordAutocomplete({
     } else {
       setShowAutocomplete(false)
     }
-  }
+  }, 100)
 
   const onBlur = () => {
     const el = document.getElementById('header-autocomplete-input')
     if (el) {
       el.blur()
     }
-    onSelect(keyword, autoSelectNo)
+    if (initHighlightedNo) {
+      // @ts-ignore
+      const found = autocompleteList.find(
+        (auto: TestDataType | TestIconDataType | UserType) =>
+          auto.no === initHighlightedNo,
+      )
+      if (found) {
+        setKeyword(found.name)
+      }
+      onSelect(keyword, initHighlightedNo)
+      setInitHighlightedNo(undefined)
+    } else {
+      onSelect(keyword, autoSelectNo)
+    }
   }
 
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -182,6 +223,12 @@ export default function KeywordAutocomplete({
     if (e.key === 'Enter' && !e.shiftKey) {
       setShowAutocomplete(false)
       onBlur()
+    } else if (e.key === 'Esc' && !e.shiftKey) {
+      setShowAutocomplete(false)
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (initHighlightedNo) {
+        setInitHighlightedNo(undefined)
+      }
     }
   }
 
@@ -192,6 +239,7 @@ export default function KeywordAutocomplete({
         item: TestDataType | TestIconDataType | UserType,
         value: string,
       ) =>
+        !autoLoading &&
         value.trim().length > 0 &&
         (selected === 'member' && input === 'email'
           ? (item as UserType).email
@@ -220,59 +268,75 @@ export default function KeywordAutocomplete({
       )}
       renderItem={(
         item: TestDataType | TestIconDataType | UserType,
-        highlighted,
-      ) => (
-        <KeywordAutocompleteStyle.item
-          key={item.no}
-          style={{
-            backgroundColor: highlighted
-              ? theme.palette.main.navy
-              : 'transparent',
-          }}>
-          {selected === 'channel' ? (
-            <div
-              style={{
-                ...ScheduleItemStyle.color,
-                backgroundColor:
-                  (item as TestIconDataType).color || theme.palette.mono.gray,
-                width: '3rem',
-                height: '3rem',
-              }}
-            />
-          ) : selected === 'schedule' ? (
-            <div
-              style={{
-                ...ScheduleItemStyle.color,
-                backgroundColor: (item as TestDataType).channel.color,
-                opacity: (item as TestDataType).type === 'main' ? 1 : 0.3,
-              }}>
-              {t(`calendar.${(item as TestDataType).type}Schedule`)}
-            </div>
-          ) : selected === 'card' ? (
-            <div
-              style={{
-                ...ScheduleItemStyle.color,
-                backgroundColor:
-                  (item as TestIconDataType).color || theme.palette.mono.gray,
-              }}
-            />
-          ) : selected === 'member' ? (
-            <Thumbnail
-              email={(item as UserType).email}
-              style={ScheduleItemStyle.thumbnail}
-            />
-          ) : null}
-          <Text
-            value={input === 'email' ? (item as UserType).email : item.name}
+        highlight,
+      ) => {
+        const highlighted = initHighlightedNo
+          ? item.no === initHighlightedNo
+          : highlight
+        return (
+          <KeywordAutocompleteStyle.item
+            key={item.no}
             style={{
-              ...KeywordAutocompleteStyle.autoData,
-              color: highlighted
-                ? theme.palette.mono.white
-                : theme.palette.mono.darkGray,
-            }}
-          />
-        </KeywordAutocompleteStyle.item>
-      )}
+              backgroundColor: highlighted
+                ? theme.palette.main.navy
+                : 'transparent',
+            }}>
+            {selected === 'channel' ? (
+              <div
+                style={{
+                  ...ScheduleItemStyle.color,
+                  display: selected === 'channel' ? 'flex' : 'hidden',
+                  backgroundColor:
+                    (item as TestIconDataType).color || theme.palette.mono.gray,
+                  width: '3rem',
+                  height: '3rem',
+                }}
+              />
+            ) : selected === 'schedule' ? (
+              <div
+                style={{
+                  ...ScheduleItemStyle.color,
+                  backgroundColor: (item as TestDataType).channel.color,
+                  opacity: (item as TestDataType).type === 'main' ? 1 : 0.3,
+                }}>
+                {t(`calendar.${(item as TestDataType).type}Schedule`)}
+              </div>
+            ) : selected === 'card' ? (
+              <div
+                style={{
+                  ...ScheduleItemStyle.color,
+                  backgroundColor:
+                    (item as TestIconDataType).color || theme.palette.mono.gray,
+                }}
+              />
+            ) : selected === 'member' ? (
+              <Thumbnail
+                email={(item as UserType).email}
+                style={ScheduleItemStyle.thumbnail}
+              />
+            ) : null}
+            <div>
+              <Text
+                value={item.name}
+                style={{
+                  ...KeywordAutocompleteStyle.autoData,
+                  color: highlighted
+                    ? theme.palette.mono.white
+                    : theme.palette.mono.darkGray,
+                }}
+              />
+              {input === 'email' && (
+                <Text
+                  value={(item as UserType).email}
+                  style={{
+                    ...KeywordAutocompleteStyle.autoDataSub,
+                  }}
+                />
+              )}
+            </div>
+          </KeywordAutocompleteStyle.item>
+        )
+      }}
       value={keyword}
       onChange={onChange}
       onSelect={(value, item: TestDataType | TestIconDataType | UserType) => {
@@ -286,6 +350,8 @@ export default function KeywordAutocomplete({
         if (!isOpen) {
           setShowAutocomplete(false)
           onSelect(keyword, autoSelectNo)
+        } else if (keyword.length > 0) {
+          setShowAutocomplete(true)
         }
       }}
       open={showAutocomplete}

@@ -40,10 +40,20 @@ const KeywordAutocompleteStyle = {
   nodata: {
     ...theme.font.list,
     color: theme.palette.mono.darkGray,
+    wordBreak: 'keep-all' as const,
+    whiteSpace: 'pre-line' as const,
   },
   autoData: {
     ...theme.font.list,
     color: theme.palette.mono.black,
+    wordBreak: 'keep-all' as const,
+    whiteSpace: 'pre-line' as const,
+  },
+  autoDataSub: {
+    ...theme.font.sub,
+    color: theme.palette.mono.gray,
+    wordBreak: 'keep-all' as const,
+    whiteSpace: 'pre-line' as const,
   },
   input: {
     background: 'transparent' as const,

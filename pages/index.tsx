@@ -16,12 +16,8 @@ import {
 import CalendarPageStyle from '../styles/pages/CalendarPageStyle'
 import * as helper from '../utils/helpers'
 import * as hook from '../utils/hooks'
-import {
-  TestDataType,
-  testIconApi,
-  TestIconDataType,
-  testScheduleApi,
-} from './api'
+import { TestDataType, TestIconDataType } from '../utils/types'
+import { testIconApi, testScheduleApi } from './api'
 
 const fetchServerData = async (baseDates: Date[]) => {
   const scheduleData = await testScheduleApi(baseDates)

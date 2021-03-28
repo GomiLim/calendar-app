@@ -1,7 +1,6 @@
 import React from 'react'
-import { TestIconDataType } from '../../pages/api'
 import ScheduleItemStyle from '../../styles/components/DateScheduleList/ScheduleItemStyle'
-import { Icons } from '../../utils/types'
+import { Icons, TestIconDataType } from '../../utils/types'
 
 interface Props {
   data: TestIconDataType
@@ -29,11 +28,15 @@ export default function TodoItem({ data, onClick }: Props) {
   }
 
   return (
-    <ScheduleItemStyle.container>
+    <ScheduleItemStyle.container style={{ cursor: 'default' as const }}>
       <i
         onClick={() => onClick(data)}
-        style={{ fontSize: '1.5rem', margin: '0.5rem' }}
-        className={`xi-${data.done ? 'check-square-o' : 'checkbox-blank'}`}
+        style={{
+          fontSize: '1.5rem',
+          margin: '0.5rem',
+          cursor: 'pointer' as const,
+        }}
+        className={data.done ? Icons.CHECKED : Icons.UNCHECKED}
       />
       <div
         style={{
@@ -41,7 +44,6 @@ export default function TodoItem({ data, onClick }: Props) {
           display: 'flex' as const,
           justifyContent: 'space-between' as const,
           alignItems: 'center' as const,
-          cursor: 'default' as const,
         }}>
         <div style={{ maxWidth: 'calc(100% - 4.8rem)' }}>
           <div style={ScheduleItemStyle.mainLabel}>

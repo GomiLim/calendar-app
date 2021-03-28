@@ -92,7 +92,7 @@ export default React.memo(function CalendarIcons({
                 marginRight: '1.25rem',
               }}>
               <Icon
-                icon={Icons.MISSION}
+                icon={Icons.CHECKED}
                 style={{
                   ...CalendarIconsStyle.icon,
                   backgroundColor: theme.palette.main.turquoise,

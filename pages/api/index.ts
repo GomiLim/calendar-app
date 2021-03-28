@@ -1,63 +1,15 @@
 import * as helper from '../../utils/helpers'
-import { FilterType, UserType } from '../../utils/types'
+import {
+  FilterType,
+  TestDataType,
+  TestIconDataType,
+  UserType,
+} from '../../utils/types'
 import {
   testIconData,
   testScheduleData,
   testUserData,
 } from './testScheduleData'
-
-export type MemberType = {
-  no: number
-  name?: string
-  email: string
-  attend?: boolean
-  assigned?: boolean
-}
-
-export type TestDataType = {
-  type: 'sub' | 'main'
-  parentNo?: number
-  parentName?: string
-  subNo?: number[]
-  no: number
-  channel: {
-    no: number
-    name: string
-    color: string
-    closed?: boolean
-  }
-  name: string
-  writerNo: number
-  writerName: string
-  startDate: Date | string
-  endDate?: Date | string
-  subStartDate?: Date | string
-  subEndDate?: Date | string
-  members?: Array<MemberType>
-  managers?: Array<number>
-}
-
-export type TestIconDataType = {
-  no: number
-  name: string
-  date: Date | string
-  newCnt?: number
-  curMsg?: string
-  color?: string
-  modTime?: Date | string
-  channel?: {
-    no: number
-    name: string
-    closed?: boolean
-  }
-  writerNo?: number
-  writerName?: string
-  managers?: Array<number>
-  cardName?: string
-  done?: boolean
-  closed?: boolean
-  members?: Array<MemberType>
-}
 
 const findUserByNo = (no?: number) => {
   if (!no) return undefined

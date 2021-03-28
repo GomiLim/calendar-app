@@ -1,8 +1,7 @@
 import moment from 'moment'
 import * as polished from 'polished'
-import { TestDataType, TestIconDataType } from '.'
 import theme from '../../styles/theme'
-import { UserType } from '../../utils/types'
+import { TestDataType, TestIconDataType, UserType } from '../../utils/types'
 
 export const testScheduleData: TestDataType[] = [
   {

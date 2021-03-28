@@ -5,7 +5,6 @@ import { SelectableGroup } from 'react-selectable-fast'
 import Recoil from 'recoil'
 import smoothscroll from 'smoothscroll-polyfill'
 import Box from '../../foundations/Box'
-import { TestDataType, TestIconDataType } from '../../pages/api'
 import {
   iconDataSelector,
   loadingState,
@@ -15,6 +14,7 @@ import CalendarDateContainerStyle from '../../styles/components/Calendar/Calenda
 import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
 import * as hook from '../../utils/hooks'
+import { TestDataType, TestIconDataType } from '../../utils/types'
 import CalendarDate from './CalendarDate'
 
 export type ScheduleStackType = {
