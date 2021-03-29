@@ -207,20 +207,9 @@ export default function KeywordAutocomplete({
     if (el) {
       el.blur()
     }
-    if (initHighlightedNo) {
-      // @ts-ignore
-      const found = autocompleteList.find(
-        (auto: TestDataType | TestIconDataType | UserType) =>
-          auto.no === initHighlightedNo,
-      )
-      if (found) {
-        setKeyword(found.name)
-      }
-      onSelect(keyword, initHighlightedNo)
-      setInitHighlightedNo(undefined)
-    } else {
-      onSelect(keyword, autoSelectNo)
-    }
+    setShowAutocomplete(false)
+    onSelect(keyword, autoSelectNo)
+    setAutoSelectNo(undefined)
   }
 
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -228,13 +217,25 @@ export default function KeywordAutocomplete({
 
     if (e.key === 'Enter' && !e.shiftKey) {
       setShowAutocomplete(false)
+      if (initHighlightedNo) {
+        // @ts-ignore
+        const found = autocompleteList.find(
+          (auto: TestDataType | TestIconDataType | UserType) =>
+            auto.no === initHighlightedNo,
+        )
+        if (found) {
+          setKeyword(found.name)
+        }
+        setAutoSelectNo(initHighlightedNo)
+        setInitHighlightedNo(undefined)
+      }
       onBlur()
     } else if (e.key === 'Esc' && !e.shiftKey) {
       setShowAutocomplete(false)
+      setInitHighlightedNo(undefined)
+      setAutocompleteList([])
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      if (initHighlightedNo) {
-        setInitHighlightedNo(undefined)
-      }
+      setInitHighlightedNo(undefined)
     }
   }
 
@@ -362,16 +363,19 @@ export default function KeywordAutocomplete({
         value={keyword}
         onChange={onChange}
         onSelect={(value, item: TestDataType | TestIconDataType | UserType) => {
-          setKeyword(item.name)
-          setAutoSelectNo(Number(item.no))
-          setShowAutocomplete(false)
-          onSelect(item.name, Number(value))
+          if (showAutocomplete) {
+            setKeyword(item.name)
+            setAutoSelectNo(Number(item.no))
+            setShowAutocomplete(false)
+            onSelect(item.name, Number(value))
+          }
         }}
         autoHighlight={false}
         onMenuVisibilityChange={(isOpen) => {
           if (!isOpen) {
             setShowAutocomplete(false)
-            onSelect(keyword, autoSelectNo)
+            setAutoSelectNo(undefined)
+            setInitHighlightedNo(undefined)
           } else if (keyword.length > 0) {
             setShowAutocomplete(true)
           }

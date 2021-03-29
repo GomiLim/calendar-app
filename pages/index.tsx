@@ -249,6 +249,8 @@ export default function Home({ scheduleData, iconData }: Props) {
           ),
         ],
       }))
+
+      setLoading(() => false)
     },
     [isMounted],
   )
@@ -271,6 +273,13 @@ export default function Home({ scheduleData, iconData }: Props) {
             !monthRange.some((month) => helper.compareMonth(month, range)),
         )
       if (neededDateRange.length === 0) return
+      if (
+        neededDateRange.some(
+          (month) => Number(moment(month).format('YYYYMM')) === baseDt,
+        )
+      ) {
+        setLoading(() => true)
+      }
 
       setMonthRange(() => [...monthRange, ...neededDateRange])
 
