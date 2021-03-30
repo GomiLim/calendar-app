@@ -7,6 +7,7 @@ import CalendarHeader from '../components/CalendarHeader'
 import DateScheduleList from '../components/DateScheduleList'
 import Loading from '../foundations/Loading'
 import {
+  filterState,
   iconDataSelector,
   iconDataState,
   loadingState,
@@ -30,6 +31,38 @@ const fetchServerData = async (baseDates: Date[]) => {
   }
 }
 
+const sortIconData = (baseDate: Date, data: TestIconDataType[]) =>
+  data.length === 0
+    ? undefined
+    : data.sort((a, b) => {
+        const distanceA = Math.abs(
+          baseDate.getTime() - moment(a.date).toDate().getTime(),
+        )
+        const distanceB = Math.abs(
+          baseDate.getTime() - moment(b.date).toDate().getTime(),
+        )
+        return distanceA - distanceB
+      })[0].date
+
+const getMinimumDistanceDate = (
+  baseDate: Date,
+  ...args: Array<undefined | Date | string>
+) => {
+  return moment(
+    args
+      .filter((arg) => !!arg)
+      .sort((a, b) => {
+        const distanceA = Math.abs(
+          baseDate.getTime() - moment(a).toDate().getTime(),
+        )
+        const distanceB = Math.abs(
+          baseDate.getTime() - moment(b).toDate().getTime(),
+        )
+        return distanceA - distanceB
+      })[0],
+  ).toDate()
+}
+
 interface Props {
   scheduleData: TestDataType[]
   iconData: {
@@ -41,6 +74,7 @@ interface Props {
 
 export default function Home({ scheduleData, iconData }: Props) {
   const [loading, setLoading] = Recoil.useRecoilState(loadingState)
+  const filter = Recoil.useRecoilValue(filterState)
   const setSchedulesRaw = Recoil.useSetRecoilState(scheduleDataState)
   const schedulesRaw = Recoil.useRecoilValue(scheduleDataSelector)
   const setIconsRaw = Recoil.useSetRecoilState(iconDataState)
@@ -347,11 +381,6 @@ export default function Home({ scheduleData, iconData }: Props) {
     if (isMounted()) {
       if (typeof window === 'undefined') return
 
-      // if (showDateSchedule) {
-      //   setLoading(() => true)
-      //   setLoading(() => false)
-      // }
-
       if (isMobile) {
         setRightContainerStyle(() => ({
           transition: 'height 0.5s',
@@ -384,6 +413,99 @@ export default function Home({ scheduleData, iconData }: Props) {
       setCalendarShow(() => 'flex')
     }
   }, [isMounted, isMobile])
+
+  React.useEffect(() => {
+    if (!isMounted()) return
+    if (
+      schedulesRaw.length === 0 &&
+      iconsRaw.channels.length === 0 &&
+      iconsRaw.cards.length === 0 &&
+      iconsRaw.todos.length === 0
+    )
+      return
+
+    const { channel, schedule, card, todo, member } = filter
+    if (
+      !channel.no &&
+      !channel.label &&
+      !channel.closed &&
+      !schedule.no &&
+      !schedule.label &&
+      !card.no &&
+      !card.label &&
+      !card.closed &&
+      !todo.no &&
+      !todo.label &&
+      !todo.done &&
+      (!member || (!member.no && !member.name && !member.email && !member.duty))
+    )
+      return
+
+    const found =
+      schedulesRaw.find((schedule) =>
+        helper.compareMonth(schedule.startDate, baseDate) || schedule.endDate
+          ? helper.compareMonth(schedule.endDate as Date | string, baseDate)
+          : false,
+      ) ||
+      iconsRaw.channels.find((channel) =>
+        helper.compareMonth(channel.date, baseDate),
+      ) ||
+      iconsRaw.cards.find((card) => helper.compareMonth(card.date, baseDate)) ||
+      iconsRaw.todos.find((todo) => helper.compareMonth(todo.date, baseDate))
+    if (found) return
+
+    const schedules = [...schedulesRaw].sort((a, b) => {
+      const distanceAStart = Math.abs(
+        baseDate.getTime() - moment(a.startDate).toDate().getTime(),
+      )
+      const distanceAEnd = Math.abs(
+        baseDate.getTime() -
+          (a.endDate ? moment(a.endDate).toDate().getTime() : 0),
+      )
+      const distanceBStart = Math.abs(
+        baseDate.getTime() - moment(b.startDate).toDate().getTime(),
+      )
+      const distanceBEnd = Math.abs(
+        baseDate.getTime() -
+          (b.endDate ? moment(b.endDate).toDate().getTime() : 0),
+      )
+      if (
+        (distanceAStart > distanceBStart && distanceAStart > distanceBEnd) ||
+        (distanceAEnd > distanceBStart && distanceAEnd > distanceBEnd)
+      ) {
+        return 1
+      } else if (
+        (distanceAStart < distanceBStart && distanceAStart < distanceBEnd) ||
+        (distanceAEnd < distanceBStart && distanceAEnd < distanceBEnd)
+      ) {
+        return -1
+      }
+      return 0
+    })
+    const scheduleClosest =
+      schedules.length === 0
+        ? undefined
+        : schedules[0].endDate
+        ? moment(schedules[0].endDate).toDate().getTime() >
+          moment(schedules[0].startDate).toDate().getTime()
+          ? schedules[0].endDate
+          : schedules[0].startDate
+        : schedules[0].startDate
+
+    const channelClosest = sortIconData(baseDate, [...iconsRaw.channels])
+    const cardClosest = sortIconData(baseDate, [...iconsRaw.cards])
+    const todoClosest = sortIconData(baseDate, [...iconsRaw.todos])
+
+    setBaseDate(() =>
+      getMinimumDistanceDate(
+        baseDate,
+        scheduleClosest,
+        channelClosest,
+        cardClosest,
+        todoClosest,
+      ),
+    )
+  }, [isMounted, filter, schedulesRaw, iconsRaw])
 
   const onChangeMonth = (date: Date) => {
     setBaseDate(date)

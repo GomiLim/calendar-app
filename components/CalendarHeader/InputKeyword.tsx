@@ -104,8 +104,6 @@ export default function InputKeyword({ selected }: Props) {
   }, [isMounted, option])
 
   const onSubmitForm = debounce((keyword: string, no?: number) => {
-    console.log('onsubmit벌써', keyword)
-    console.log('onsubmit벌써', no)
     switch (selected) {
       case 'channel':
         setFilter((filter) => ({
