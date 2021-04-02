@@ -15,282 +15,7 @@ import theme from '../../styles/theme'
 import * as helper from '../../utils/helpers'
 import * as hook from '../../utils/hooks'
 import { TestDataType, TestIconDataType } from '../../utils/types'
-import CalendarDate from './CalendarDate'
-
-// 현재 주의 날짜 목록 세팅
-const setRowWeekDates = (
-  year: number,
-  month: number,
-  day: number,
-  before?: boolean,
-) => {
-  const week: number[] = []
-
-  for (let i = 0; i < 7; i++) {
-    const dt = helper.getNewDateUponBefore(year, month, day, before)
-    dt.setDate(dt.getDate() + i)
-    week.push(Number(moment(dt).format('YYYYMMDD')))
-  }
-  return week
-}
-
-// 현재 주에 해당하는 일정 목록 필터
-const getThisWeekData = (data: TestDataType[], week: number[]) => {
-  let targetData: TestDataType[] = []
-  let subData: TestDataType[] = []
-
-  data
-    .filter((datum) => {
-      const startDate = Number(moment(datum.startDate).format('YYYYMMDD'))
-      if (datum.endDate) {
-        const endDate = Number(moment(datum.endDate).format('YYYYMMDD'))
-        if (endDate === startDate) {
-          return (
-            startDate >= Math.min(...week) && Math.max(...week) >= startDate
-          )
-        }
-        return (
-          (startDate >= Math.min(...week) && Math.max(...week) >= startDate) ||
-          (endDate >= Math.min(...week) && Math.max(...week) >= endDate) ||
-          (Math.min(...week) >= startDate && endDate >= Math.min(...week)) ||
-          (Math.max(...week) >= startDate && endDate >= Math.max(...week))
-        )
-      } else {
-        return startDate >= Math.min(...week) && Math.max(...week) >= startDate
-      }
-    })
-    .forEach((datum) => {
-      if (datum.type === 'main') {
-        targetData.push(datum)
-      } else {
-        const idx = subData.findIndex((sub) => sub.parentNo === datum.parentNo)
-        if (idx === -1) {
-          subData.push(datum)
-        } else {
-          subData = subData.map((sub, index) =>
-            index === idx
-              ? {
-                  ...sub,
-                  startDate: helper.getStartEndDate(
-                    'start',
-                    sub.startDate,
-                    datum.startDate,
-                  ) as Date,
-                  endDate: helper.getStartEndDate(
-                    'end',
-                    sub.endDate,
-                    datum.endDate,
-                  ),
-                }
-              : sub,
-          )
-        }
-      }
-    })
-
-  if (targetData.length > 0) {
-    if (subData.length > 0) {
-      let allCovered = subData.length
-
-      subData.forEach((datum) => {
-        targetData = targetData.map((target) => {
-          if (target.no === datum.parentNo) {
-            allCovered--
-            return {
-              ...target,
-              subNo: target.subNo ? target.subNo.concat(datum.no) : [datum.no],
-              subStartDate: target.subStartDate
-                ? helper.getStartEndDate(
-                    'start',
-                    target.subStartDate,
-                    datum.startDate,
-                  )
-                : datum.startDate,
-              subEndDate: target.subEndDate
-                ? helper.getStartEndDate(
-                    'end',
-                    target.subEndDate,
-                    datum.endDate,
-                  )
-                : datum.endDate,
-            }
-          } else {
-            return target
-          }
-        })
-      })
-
-      // 만일 메인 일정이 해당 주에 발견되지 않았을 때
-      if (allCovered > 0) {
-        const subLefts = subData.filter(
-          (subDatum) =>
-            !targetData.some(
-              (datum) =>
-                datum.subNo && datum.subNo.some((sub) => sub === subDatum.no),
-            ),
-        )
-        targetData = [...targetData, ...subLefts]
-      }
-    }
-  } else {
-    const parents = subData
-      .map((sub) => sub.parentNo as number)
-      .filter((val, idx, self) => self.indexOf(val) === idx)
-
-    parents.forEach((parentNo) => {
-      targetData.push(
-        subData
-          .filter((sub) => sub.parentNo === parentNo)
-          .reduce((sub1, sub2) => ({
-            ...sub1,
-            startDate: helper.getStartEndDate(
-              'start',
-              sub1.startDate,
-              sub2.startDate,
-            ) as Date,
-            endDate: helper.getStartEndDate('end', sub1.endDate, sub2.endDate),
-          })),
-      )
-    })
-  }
-
-  return targetData
-}
-
-// 한 주(행) 별 일정 행 목록 세팅(로딩)
-const constructWeekRow = (
-  year: number,
-  monthNum: number,
-  data: TestDataType[],
-  displayDate?: number[],
-  before?: boolean,
-) => {
-  const month = Number(helper.setMonth(monthNum))
-  const day = displayDate ? displayDate[0] : 1
-  const week = setRowWeekDates(year, month, day, before)
-  const targetData = getThisWeekData(data, week)
-
-  const stack: Array<Array<ScheduleStackType>> = []
-
-  while (targetData.length > 0) {
-    const availableRange = [...week]
-    const queue: Array<ScheduleStackType> = []
-
-    for (let i = 0; i < targetData.length; i++) {
-      const startDate = helper.getStartEndDateNum(
-        'start',
-        targetData[i].startDate,
-        targetData[i].subStartDate,
-      )
-      const endDate = helper.getStartEndDateNum(
-        'end',
-        targetData[i].endDate,
-        targetData[i].subEndDate,
-      )
-
-      if (!startDate) continue
-
-      let added = false
-
-      // 종료일자 존재 시
-      if (endDate && endDate !== startDate) {
-        const dtNums: number[] = []
-        let outOfThisWeek = false
-
-        for (
-          let dtOffset = 0,
-            jj = helper.getDiffDayCnt(
-              helper.getStartEndDate(
-                'start',
-                targetData[i].startDate,
-                targetData[i].subStartDate,
-              ) as Date,
-              helper.getStartEndDate(
-                'end',
-                targetData[i].endDate,
-                targetData[i].subEndDate,
-              ) as Date,
-            );
-          dtOffset <= jj;
-          dtOffset++
-        ) {
-          const dt = moment(
-            helper.getStartEndDate(
-              'start',
-              targetData[i].startDate,
-              targetData[i].subStartDate,
-            ) as Date,
-          ).toDate()
-          dt.setDate(dt.getDate() + dtOffset)
-
-          const dtNum = Number(moment(dt).format('YYYYMMDD'))
-
-          if (dtNum >= Math.min(...week) && Math.max(...week) >= dtNum) {
-            dtNums.push(Number(moment(dt).format('YYYYMMDD')))
-          } else {
-            outOfThisWeek = true
-          }
-        }
-
-        const available = dtNums.every((dtNum) =>
-          availableRange.some((avlRng) => avlRng === dtNum),
-        )
-        if (available) {
-          dtNums.forEach((dtNum) => {
-            queue.push({
-              no: targetData[i].no,
-              subNo: targetData[i].subNo,
-              week: dtNum,
-              mainWeek:
-                targetData[i].type !== 'sub' &&
-                helper.checkMainWeek(targetData[i], dtNum),
-              label: targetData[i].name,
-              color: targetData[i].channel.color,
-              outOfThisWeek,
-            })
-            availableRange.splice(
-              availableRange.findIndex((avlRng) => avlRng === dtNum),
-              1,
-            )
-          })
-          added = true
-        }
-
-        // 종료일자 미 존재 시
-      } else {
-        const available = availableRange.findIndex(
-          (avlRng) => avlRng === startDate,
-        )
-        if (available > -1) {
-          queue.push({
-            no: targetData[i].no,
-            subNo: targetData[i].subNo,
-            week: startDate,
-            mainWeek: helper.checkMainWeek(targetData[i], startDate),
-            label: targetData[i].name,
-            color: targetData[i].channel.color,
-          })
-          availableRange.splice(available, 1)
-          added = true
-        }
-      }
-
-      if (added) {
-        targetData.splice(i, 1)
-        if (targetData.length > 0) {
-          i--
-        }
-      }
-    }
-
-    if (queue.length === 0) {
-      break
-    }
-    stack.push(queue)
-  }
-
-  return stack
-}
+import CalendarDate from './CalendarDate_org'
 
 export type ScheduleStackType = {
   no: number
@@ -429,6 +154,7 @@ export default React.memo(function CalendarDateContainer({
   React.useEffect(() => {
     if (isMounted()) {
       if (_dateList.length < minDateCnt) return
+      // if (_dateList.length === 0) return
       if (chosenDate && moment(chosenDate).format('YYYYMM') === yearMonth)
         return
       if (_dateBody.current && dateRow.length > 0) {
@@ -468,6 +194,297 @@ export default React.memo(function CalendarDateContainer({
     loading,
   ])
 
+  // 현재 주의 날짜 목록 세팅
+  const setRowWeekDates = (
+    year: number,
+    month: number,
+    day: number,
+    beforeOrAfter?: 'before' | 'after',
+  ) => {
+    const week: number[] = []
+
+    for (let i = 0; i < 7; i++) {
+      const dt = helper.getNewDateUponBeforeOrAfter(
+        year,
+        month,
+        day,
+        beforeOrAfter,
+      )
+      dt.setDate(dt.getDate() + i)
+      week.push(Number(moment(dt).format('YYYYMMDD')))
+    }
+    return week
+  }
+
+  // 현재 주에 해당하는 일정 목록 필터
+  const getThisWeekData = (data: TestDataType[], week: number[]) => {
+    let targetData: TestDataType[] = []
+    let subData: TestDataType[] = []
+
+    data
+      .filter((datum) => {
+        const startDate = Number(moment(datum.startDate).format('YYYYMMDD'))
+        if (datum.endDate) {
+          const endDate = Number(moment(datum.endDate).format('YYYYMMDD'))
+          if (endDate === startDate) {
+            return (
+              startDate >= Math.min(...week) && Math.max(...week) >= startDate
+            )
+          }
+          return (
+            (startDate >= Math.min(...week) &&
+              Math.max(...week) >= startDate) ||
+            (endDate >= Math.min(...week) && Math.max(...week) >= endDate) ||
+            (Math.min(...week) >= startDate && endDate >= Math.min(...week)) ||
+            (Math.max(...week) >= startDate && endDate >= Math.max(...week))
+          )
+        } else {
+          return (
+            startDate >= Math.min(...week) && Math.max(...week) >= startDate
+          )
+        }
+      })
+      .forEach((datum) => {
+        if (datum.type === 'main') {
+          targetData.push(datum)
+        } else {
+          const idx = subData.findIndex(
+            (sub) => sub.parentNo === datum.parentNo,
+          )
+          if (idx === -1) {
+            subData.push(datum)
+          } else {
+            subData = subData.map((sub, index) =>
+              index === idx
+                ? {
+                    ...sub,
+                    startDate: helper.getStartEndDate(
+                      'start',
+                      sub.startDate,
+                      datum.startDate,
+                    ) as Date,
+                    endDate: helper.getStartEndDate(
+                      'end',
+                      sub.endDate,
+                      datum.endDate,
+                    ),
+                  }
+                : sub,
+            )
+          }
+        }
+      })
+
+    if (targetData.length > 0) {
+      if (subData.length > 0) {
+        let allCovered = subData.length
+
+        subData.forEach((datum) => {
+          targetData = targetData.map((target) => {
+            if (target.no === datum.parentNo) {
+              allCovered--
+              return {
+                ...target,
+                subNo: target.subNo
+                  ? target.subNo.concat(datum.no)
+                  : [datum.no],
+                subStartDate: target.subStartDate
+                  ? helper.getStartEndDate(
+                      'start',
+                      target.subStartDate,
+                      datum.startDate,
+                    )
+                  : datum.startDate,
+                subEndDate: target.subEndDate
+                  ? helper.getStartEndDate(
+                      'end',
+                      target.subEndDate,
+                      datum.endDate,
+                    )
+                  : datum.endDate,
+              }
+            } else {
+              return target
+            }
+          })
+        })
+
+        // 만일 메인 일정이 해당 주에 발견되지 않았을 때
+        if (allCovered > 0) {
+          const subLefts = subData.filter(
+            (subDatum) =>
+              !targetData.some(
+                (datum) =>
+                  datum.subNo && datum.subNo.some((sub) => sub === subDatum.no),
+              ),
+          )
+          targetData = [...targetData, ...subLefts]
+        }
+      }
+    } else {
+      const parents = subData
+        .map((sub) => sub.parentNo as number)
+        .filter((val, idx, self) => self.indexOf(val) === idx)
+
+      parents.forEach((parentNo) => {
+        targetData.push(
+          subData
+            .filter((sub) => sub.parentNo === parentNo)
+            .reduce((sub1, sub2) => ({
+              ...sub1,
+              startDate: helper.getStartEndDate(
+                'start',
+                sub1.startDate,
+                sub2.startDate,
+              ) as Date,
+              endDate: helper.getStartEndDate(
+                'end',
+                sub1.endDate,
+                sub2.endDate,
+              ),
+            })),
+        )
+      })
+    }
+
+    return targetData
+  }
+
+  // 한 주(행) 별 일정 행 목록 세팅(로딩)
+  const constructWeekRow = (
+    year: number,
+    monthNum: number,
+    data: TestDataType[],
+    displayDate?: number[],
+    beforeOrAfter?: 'before' | 'after',
+  ) => {
+    const month = Number(helper.setMonth(monthNum))
+    const day = displayDate ? displayDate[0] : 1
+    const week = setRowWeekDates(year, month, day, beforeOrAfter)
+    const targetData = getThisWeekData(data, week)
+
+    const stack: Array<Array<ScheduleStackType>> = []
+
+    while (targetData.length > 0) {
+      const availableRange = [...week]
+      const queue: Array<ScheduleStackType> = []
+
+      for (let i = 0; i < targetData.length; i++) {
+        const startDate = helper.getStartEndDateNum(
+          'start',
+          targetData[i].startDate,
+          targetData[i].subStartDate,
+        )
+        const endDate = helper.getStartEndDateNum(
+          'end',
+          targetData[i].endDate,
+          targetData[i].subEndDate,
+        )
+
+        if (!startDate) continue
+
+        let added = false
+
+        // 종료일자 존재 시
+        if (endDate && endDate !== startDate) {
+          const dtNums: number[] = []
+          let outOfThisWeek = false
+
+          for (
+            let dtOffset = 0,
+              jj = helper.getDiffDayCnt(
+                helper.getStartEndDate(
+                  'start',
+                  targetData[i].startDate,
+                  targetData[i].subStartDate,
+                ) as Date,
+                helper.getStartEndDate(
+                  'end',
+                  targetData[i].endDate,
+                  targetData[i].subEndDate,
+                ) as Date,
+              );
+            dtOffset <= jj;
+            dtOffset++
+          ) {
+            const dt = moment(
+              helper.getStartEndDate(
+                'start',
+                targetData[i].startDate,
+                targetData[i].subStartDate,
+              ) as Date,
+            ).toDate()
+            dt.setDate(dt.getDate() + dtOffset)
+
+            const dtNum = Number(moment(dt).format('YYYYMMDD'))
+
+            if (dtNum >= Math.min(...week) && Math.max(...week) >= dtNum) {
+              dtNums.push(Number(moment(dt).format('YYYYMMDD')))
+            } else {
+              outOfThisWeek = true
+            }
+          }
+
+          const available = dtNums.every((dtNum) =>
+            availableRange.some((avlRng) => avlRng === dtNum),
+          )
+          if (available) {
+            dtNums.forEach((dtNum) => {
+              queue.push({
+                no: targetData[i].no,
+                subNo: targetData[i].subNo,
+                week: dtNum,
+                mainWeek:
+                  targetData[i].type !== 'sub' &&
+                  helper.checkMainWeek(targetData[i], dtNum),
+                label: targetData[i].name,
+                color: targetData[i].channel.color,
+                outOfThisWeek,
+              })
+              availableRange.splice(
+                availableRange.findIndex((avlRng) => avlRng === dtNum),
+                1,
+              )
+            })
+            added = true
+          }
+
+          // 종료일자 미 존재 시
+        } else {
+          const available = availableRange.findIndex(
+            (avlRng) => avlRng === startDate,
+          )
+          if (available > -1) {
+            queue.push({
+              no: targetData[i].no,
+              subNo: targetData[i].subNo,
+              week: startDate,
+              mainWeek: helper.checkMainWeek(targetData[i], startDate),
+              label: targetData[i].name,
+              color: targetData[i].channel.color,
+            })
+            availableRange.splice(available, 1)
+            added = true
+          }
+        }
+
+        if (added) {
+          targetData.splice(i, 1)
+          if (targetData.length > 0) {
+            i--
+          }
+        }
+      }
+
+      if (queue.length === 0) {
+        break
+      }
+      stack.push(queue)
+    }
+
+    return stack
+  }
+
   const constructDateRow = (
     iconData: {
       channels: TestIconDataType[]
@@ -482,11 +499,13 @@ export default React.memo(function CalendarDateContainer({
     monthNum: number,
     displayWeekNum: number,
     displayDate?: number[],
-    before?: boolean,
+    beforeOrAfter?: 'before' | 'after',
   ) => {
     const day = displayDate ? displayDate[num] : num
-    const thisMonth = before
-      ? (displayDate ? displayDate[num] : num) < 7
+    const thisMonth = beforeOrAfter
+      ? beforeOrAfter === 'before'
+        ? (displayDate ? displayDate[num] : num) < 7
+        : (displayDate ? displayDate[num] : num) > 6
       : month === monthNum
 
     const testData = {
@@ -514,7 +533,7 @@ export default React.memo(function CalendarDateContainer({
         day={day}
         year={year}
         month={Number(helper.setMonth(monthNum))}
-        before={before}
+        beforeOrAfter={beforeOrAfter}
         thisMonth={thisMonth}
         onClick={onClickDate}
         onDoubleClickSchedule={onDoubleClickSchedule}
@@ -580,13 +599,16 @@ export default React.memo(function CalendarDateContainer({
       ) {
         const DateList: React.ReactNode[] = []
 
-        const constructRow = (displayDate?: number[], before?: boolean) => {
+        const constructRow = (
+          displayDate?: number[],
+          beforeOrAfter?: 'before' | 'after',
+        ) => {
           const scheduleStack = constructWeekRow(
             year,
             monthNum,
             schedulesRaw,
             displayDate,
-            before,
+            beforeOrAfter,
           )
 
           for (
@@ -606,7 +628,7 @@ export default React.memo(function CalendarDateContainer({
                 monthNum,
                 displayWeekNum,
                 displayDate,
-                before,
+                beforeOrAfter,
               ),
             )
             _tmpDateList.push(_date)
@@ -628,7 +650,9 @@ export default React.memo(function CalendarDateContainer({
               displayDate.push(datePointer)
               datePointer++
             }
-            constructRow(displayDate, true)
+            if (month === monthNum) {
+              constructRow(displayDate, 'before')
+            }
           }
 
           // 마지막 주
@@ -644,8 +668,8 @@ export default React.memo(function CalendarDateContainer({
               datePointer++
             }
           }
-          if (displayDate[6] === lastDayOfThisMonth) {
-            constructRow(displayDate)
+          if (month === monthNum) {
+            constructRow(displayDate, 'after')
           }
 
           // 중간 주
@@ -685,12 +709,9 @@ export default React.memo(function CalendarDateContainer({
       e.preventDefault()
     }
 
-    const bodyClientHeight = _dateBody.current.clientHeight + 30
-    const st = _dateBody.current.scrollTop
-
     // 12일 날짜 영역의 최하단을 기준으로 월 포커스 발생
-    const _found = _dateList.find((_date) => {
-      if (_date?.current) {
+    const _foundList = _dateList.filter((_date) => {
+      if (_date?.current && _dateBody?.current) {
         const {
           extractedYear,
           extractedMonth,
@@ -704,8 +725,10 @@ export default React.memo(function CalendarDateContainer({
           extractedDate === '15' &&
           disabled &&
           position.top >= 0 &&
-          position.bottom <= bodyClientHeight
+          position.bottom <= _dateBody.current.clientHeight + 30
         ) {
+          const st = _dateBody?.current ? _dateBody.current.scrollTop : 0
+
           if (st > lastScrollTop) {
             if (
               Number(
@@ -732,7 +755,7 @@ export default React.memo(function CalendarDateContainer({
       return false
     })
 
-    // const _found = _foundList.length > 0 ? _foundList[0] : undefined
+    const _found = _foundList.length > 0 ? _foundList[0] : undefined
 
     if (_found?.current) {
       const { extractedYear, extractedMonth } = helper.extractValFromId(
@@ -752,17 +775,12 @@ export default React.memo(function CalendarDateContainer({
     if (typeof window === 'undefined') return
 
     if (!actionProcessing) {
-      const st = _dateBody.current.scrollTop
-      setLastScrollTop(() => st)
-
       setTimeout(() => {
-        if (_dateBody?.current) {
+        if (_dateBody.current) {
           _dateBody.current.addEventListener('scroll', onScroll)
         }
       }, 100)
     } else {
-      _dateBody.current.removeEventListener('scroll', onScroll)
-
       const year = yearMonth.substr(0, 4)
       const month = helper.makeTwoDigits(Number(yearMonth.substr(4, 2)) - 1)
 
@@ -783,12 +801,21 @@ export default React.memo(function CalendarDateContainer({
         focusMonth(Number(year), Number(month))
       }
     }
+    const st = _dateBody?.current ? _dateBody.current.scrollTop : 0
+    setLastScrollTop(() => st)
+
+    return () => {
+      if (_dateBody?.current) {
+        _dateBody.current.removeEventListener('scroll', onScroll)
+      }
+    }
   }, [
     isMounted,
     actionProcessing,
     onScroll,
     focusMonth,
     yearMonth,
+    offsetY,
     _dateBody.current,
   ])
 

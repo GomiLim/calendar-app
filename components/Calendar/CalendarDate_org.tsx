@@ -21,7 +21,7 @@ interface Props {
   year: number
   holiday?: boolean
   thisMonth?: boolean
-  before?: boolean
+  beforeOrAfter?: 'before' | 'after'
   onClick: (date: Date, doubleClicked?: boolean) => void
   onDoubleClickSchedule: (scheduleNo: number) => void
   _date: React.RefObject<HTMLDivElement> | null
@@ -44,7 +44,7 @@ export default React.memo(
     year, // 년
     holiday, // 휴무일 여부
     thisMonth = true, // 포커스된 월 여부
-    before, // 현재 월에 해당되지 않는 날짜일 시, 이전 월의 날짜인지 여부
+    beforeOrAfter, // 현재 월에 해당되지 않는 날짜일 시, 이전 월의 날짜인지 이후 월의 날짜인지 여부
     onClick, // 일자 클릭 callback
     onDoubleClickSchedule, // 일정 더블 클릭 callback
     _date, // htmlelement ref object
@@ -71,12 +71,36 @@ export default React.memo(
       if (!isMounted()) return
 
       setActualYear(() =>
-        before ? (!thisMonth ? (month === 0 ? year - 1 : year) : year) : year,
+        beforeOrAfter
+          ? beforeOrAfter === 'before'
+            ? !thisMonth
+              ? month === 0
+                ? year - 1
+                : year
+              : year
+            : !thisMonth
+            ? month === 11
+              ? year + 1
+              : year
+            : year
+          : year,
       )
       setActualMonth(() =>
-        before ? (!thisMonth ? (month === 0 ? 11 : month - 1) : month) : month,
+        beforeOrAfter
+          ? beforeOrAfter === 'before'
+            ? !thisMonth
+              ? month === 0
+                ? 11
+                : month - 1
+              : month
+            : !thisMonth
+            ? month === 11
+              ? 0
+              : month + 1
+            : month
+          : month,
       )
-    }, [isMounted, year, month, day, thisMonth, before])
+    }, [isMounted, year, month, day, thisMonth, beforeOrAfter])
 
     React.useEffect(() => {
       if (!isMounted()) return
@@ -292,14 +316,13 @@ export default React.memo(
                       theme.palette.main.red,
                     )
                   : undefined,
-                // color: !thisMonth
-                //   ? theme.palette.mono.gray
-                //   : isToday
-                //   ? theme.palette.mono.white
-                //   : !!isWeekend || !!holiday
-                //   ? theme.palette.main.red
-                //   : theme.palette.mono.black,
-                color: theme.palette.mono.black,
+                color: !thisMonth
+                  ? theme.palette.mono.gray
+                  : isToday
+                  ? theme.palette.mono.white
+                  : !!isWeekend || !!holiday
+                  ? theme.palette.main.red
+                  : theme.palette.mono.black,
               }}
             />
           </Box>

@@ -207,13 +207,26 @@ export const getNewDateUponBeforeOrAfter = (
   day: number,
   beforeOrAfter?: 'before' | 'after',
 ) => {
-  if (beforeOrAfter) {
-    if (beforeOrAfter === 'before') {
-      if (month - 1 < 0) {
-        return new Date(year - 1, 11, day)
-      } else {
-        return new Date(year, month - 1, day)
-      }
+  if (beforeOrAfter === 'before') {
+    if (month - 1 < 0) {
+      return new Date(year - 1, 11, day)
+    } else {
+      return new Date(year, month - 1, day)
+    }
+  }
+  return new Date(year, month, day)
+}
+export const getNewDateUponBefore = (
+  year: number,
+  month: number,
+  day: number,
+  before?: boolean,
+) => {
+  if (before) {
+    if (month - 1 < 0) {
+      return new Date(year - 1, 11, day)
+    } else {
+      return new Date(year, month - 1, day)
     }
   }
   return new Date(year, month, day)

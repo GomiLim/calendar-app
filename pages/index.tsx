@@ -155,7 +155,7 @@ export default function Home({ scheduleData, iconData }: Props) {
   }, [isMounted, isMobile])
 
   // 초기 server fetch 데이터 세팅
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (isMounted()) {
       setSchedulesRaw(() => scheduleData)
       setIconsRaw(() => iconData)
