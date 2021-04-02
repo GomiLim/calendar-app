@@ -42,13 +42,13 @@ interface Props {
 }
 
 export default function DateScheduleList({
-  isMobile,
-  date,
-  schedules,
-  channels,
-  cards,
-  todos,
-  onClickTitle,
+  isMobile, // 사용 디바이스 모바일 여부
+  date, // 선택된 날짜
+  schedules, // 일정 데이터
+  channels, // 채널 데이터
+  cards, // 카드 데이터
+  todos, // 할일 데이터
+  onClickTitle, // 최상단 라벨 클릭 callback
 }: Props) {
   const { t } = useTranslation()
 
@@ -64,23 +64,32 @@ export default function DateScheduleList({
   const _card: React.RefObject<HTMLDivElement> = React.createRef()
   const _todo: React.RefObject<HTMLDivElement> = React.createRef()
 
+  // 일정 목록 표시 여부
   const [showScheduleList, setShowScheduleList] = React.useState(true)
+  // 채널 목록 표시 여부
   const [showChannelList, setShowChannelList] = React.useState(true)
+  // 카드 목록 표시 여부
   const [showCardList, setShowCardList] = React.useState(true)
+  // 할일 목록 표시 여부
   const [showTodoList, setShowTodoList] = React.useState(true)
+  // 사용 디바이스에 따른 최상단 라벨영역 CSS
   const [topLabelStyle, setTopLabelStyle] = React.useState<
     React.CSSProperties | undefined
   >()
+  // 사용 디바이스에 따른 상단 고정헤더 영역 CSS
   const [headerLabelStyle, setHeaderLabelStyle] = React.useState<
     React.CSSProperties | undefined
   >()
+  // 상단 고정 헤더
   const [headerContent, setHeaderContent] = React.useState<React.ReactNode[]>(
     [],
   )
+  // 패널 전체 스크롤 필요 여부
   const [scrollable, setScrollable] = React.useState(false)
 
   const isMounted = hook.useIsMounted()
 
+  // 검색조건 변경시에 표출 불 필요한 영역 감춤
   React.useEffect(() => {
     if (isMounted()) {
       if (!_header?.current) return
@@ -119,6 +128,7 @@ export default function DateScheduleList({
     }
   }, [isMounted, _header?.current, filter])
 
+  // 패널 스크롤 이벤트
   const onScroll = () => {
     if (!isMounted()) return
     if (!_header?.current) return
@@ -181,6 +191,7 @@ export default function DateScheduleList({
     }
   }
 
+  // 패널 전체 스크롤 가능 여부 체크
   React.useEffect(() => {
     if (!isMounted()) return
     if (!_container?.current) return
@@ -198,6 +209,7 @@ export default function DateScheduleList({
     _container,
   ])
 
+  // 스크롤 여부 변경 시 상단 고정 헤더 기본값 세팅
   React.useEffect(() => {
     if (!isMounted()) return
     if (!_container?.current) return
@@ -232,6 +244,7 @@ export default function DateScheduleList({
     ])
   }, [isMounted, scrollable, _container, _header, filter])
 
+  // 상단 고정 헤더 영역 변경
   const changeHeaderDisplay = (attrVal: string) => {
     if (!_container?.current) return
     if (!_schedule?.current || !_card?.current || !_todo?.current) return
@@ -277,6 +290,7 @@ export default function DateScheduleList({
     }, 100)
   }
 
+  // 영역별 헤더 클릭 이벤트
   const onClickHeader = () => {
     if (!_header.current) return
 
@@ -298,6 +312,7 @@ export default function DateScheduleList({
     }
   }
 
+  // 모바일 최상단 헤더 영역 아래 스와이프 이벤트
   const touch = (el: HTMLDivElement) => {
     const swiper = new Swipe(el)
     swiper.onDown(() => {
@@ -306,6 +321,7 @@ export default function DateScheduleList({
     swiper.run()
   }
 
+  // 사용 디바이스에 따라 상단 영역들 CSS 세팅
   hook.useLayoutEffect(() => {
     if (!isMounted()) return
     if (!_label?.current) return
@@ -342,6 +358,7 @@ export default function DateScheduleList({
     }
   }, [isMounted, _label?.current, isMobile])
 
+  // 스크롤 이벤트 등록
   React.useEffect(() => {
     if (!isMounted()) return
     if (!_container?.current) return
@@ -360,18 +377,22 @@ export default function DateScheduleList({
   const onClickCardShow = () => setShowCardList(!showCardList)
   const onClickTodoShow = () => setShowTodoList(!showTodoList)
 
+  // 일정 클릭 이벤트
   const onClickSchedule = (data: TestDataType) => {
-    alert('클릭시 띄울 카드상세 화면이 없어요!')
+    alert('클릭시 띄울 일정상세 화면이 없어요!')
   }
 
+  // 채널 클릭 이벤트
   const onClickChannel = (data: TestIconDataType) => {
     alert('클릭시 띄울 채널상세 화면이 없어요!')
   }
 
+  // 카드 클릭 이벤트
   const onClickCard = (data: TestIconDataType) => {
     alert('클릭시 띄울 카드상세 화면이 없어요!')
   }
 
+  // 할일 클릭 이벤트
   const onClickTodo = (data: TestIconDataType) => {
     setLoading(true)
     setIconsRaw((iconsRaw) => ({

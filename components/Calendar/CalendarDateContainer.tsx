@@ -88,7 +88,6 @@ export default React.memo(function CalendarDateContainer({
   const [dateRow, setDateRow] = React.useState<React.ReactNode[]>([])
   const [offsetY, setOffsetY] = React.useState(0)
   const [lastScrollTop, setLastScrollTop] = React.useState(0)
-  const [init, setInit] = React.useState(true)
 
   const minDateCnt = 100
 
@@ -154,9 +153,10 @@ export default React.memo(function CalendarDateContainer({
   // 현재 포커스된 월 영역화면 최상단 offsetY값 세팅
   React.useEffect(() => {
     if (isMounted()) {
-      if (!init) return
       if (_dateList.length < minDateCnt) return
       // if (_dateList.length === 0) return
+      if (chosenDate && moment(chosenDate).format('YYYYMM') === yearMonth)
+        return
       if (_dateBody.current && dateRow.length > 0) {
         if (offsetY === 0) {
           setOffsetY(() =>
@@ -179,18 +179,17 @@ export default React.memo(function CalendarDateContainer({
               Number(yearMonth.substr(0, 4)),
               Number(yearMonth.substr(4, 2)) - 1,
             )
-            setInit(() => false)
           }, 300)
         }
       }
     }
   }, [
     isMounted,
-    init,
     _dateBody.current,
     _dateList,
     dateRow.length,
     yearMonth,
+    chosenDate,
     offsetY,
     schedulesRaw,
     iconsRaw,

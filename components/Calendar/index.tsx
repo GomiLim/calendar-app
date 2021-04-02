@@ -14,6 +14,7 @@ import { Icons } from '../../utils/types'
 import DateTimePicker from '../DateTimePicker'
 import CalendarDateContainer from './CalendarDateContainer'
 
+// 캘린더 상단 요일 표시
 const createDayLabels = (startDay: number, t: TFunction<string>) => {
   const DayList: React.ReactNode[] = []
 
@@ -61,30 +62,36 @@ interface Props {
 }
 
 export default function Calendar({
-  isMobile,
-  baseDate,
-  onChangeMonth,
-  chosenDate,
-  onClick,
-  onDoubleClickSchedule,
-  startDay = 0,
+  isMobile, // 사용 디바이스의 모바일 여부
+  baseDate, // 포커스 월
+  onChangeMonth, // 월 변경 callback
+  chosenDate, // 선택 일자
+  onClick, // 일자 클릭 callback
+  onDoubleClickSchedule, // 일자 내 일정 더블클릭 callback
+  startDay = 0, // 시작 요일 index
 }: Props) {
   const { t } = useTranslation()
 
+  // 포커스 년
   const [year, setYear] = React.useState(
     Number(moment(new Date()).format('YYYY')),
   )
+  // 포커스 월
   const [month, setMonth] = React.useState(
     Number(moment(new Date()).format('MM')),
   )
+  // 포커스 년일
   const [yearMonth, setYearMonth] = React.useState(
     moment(new Date()).format('YYYYMM'),
   )
+  // 월 선택 모달 표시 여부
   const [showYearMonthModal, setShowYearMonthModal] = React.useState(false)
+  // 사용자 스크롤 감지 여부
   const [actionProcessing, setActionProcessing] = React.useState(false)
 
   const isMounted = useIsMounted()
 
+  // 포커스 월에 따른 년월 세팅
   React.useEffect(() => {
     if (isMounted()) {
       if (baseDate) {
@@ -94,6 +101,7 @@ export default function Calendar({
     }
   }, [isMounted, baseDate])
 
+  // 포커스 월에 따른 년월 세팅
   React.useEffect(() => {
     if (isMounted()) {
       if (yearMonth.substr(4, 2) === helper.makeTwoDigits(month)) return
@@ -107,6 +115,7 @@ export default function Calendar({
     t,
   ])
 
+  // 월 변경 이벤트
   const onChange = (increment: boolean) => {
     setActionProcessing(true)
 
@@ -137,6 +146,7 @@ export default function Calendar({
     onChangeMonth(new Date(changingYear, changingMonth - 1, 1))
   }
 
+  // 월 선택 모달에서 선택 후 이벤트
   const onSelect = (date?: Date | Array<Date | undefined>) => {
     if (date && !Array.isArray(date)) {
       onChangeMonth(date)
@@ -144,6 +154,7 @@ export default function Calendar({
     }
   }
 
+  // 일자 드래그 선택 이벤트
   const onRangeSelect = (range: Date[]) => {
     const min = moment(
       range.reduce((prev, next) => {

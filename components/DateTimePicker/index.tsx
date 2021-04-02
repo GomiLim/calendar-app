@@ -32,35 +32,41 @@ interface Props {
 }
 
 export default function DateTimePicker({
-  date,
-  changeDate,
-  isOpen,
-  selectRange = false,
-  timeDisplay = false,
-  timeRange = false,
-  maxDate,
-  minDate,
-  calculatedTop,
-  calculatedLeft,
-  datePick = true,
+  date, // 날짜 값
+  changeDate, // 날짜 변경 callback
+  isOpen, // 활성화 여부
+  selectRange = false, // 기간 선택 여부
+  timeDisplay = false, // 시간 선택 여부
+  timeRange = false, // 시간 범위 선택 여부
+  maxDate, // 최대 선택 가능 날짜
+  minDate, // 최소 선택 가능 날짜
+  calculatedTop, // 화면상의 컴포넌트 표시 x-axis
+  calculatedLeft, // 화면상의 컴포넌트 표시 y-axis
+  datePick = true, // 일자 선택 가능 여부(false면, 월 선택)
 }: Props) {
   const { t } = useTranslation()
 
+  // 세기/년/월/일 선택 화면 중, 기본화면 모드
   const [viewMode, setViewMode] = React.useState<Detail>(
     datePick ? 'month' : 'year',
   )
+  // 표시영역 높이
   const [containerHeight, setContainerHeight] = React.useState<string>(
     timeDisplay ? '29.375rem' : selectRange ? '26.25rem' : '21.875rem',
   )
+  // 실제 사용 값
   const [value, setValue] = React.useState<
     Date | Array<Date | undefined> | undefined
   >()
+  // 시간 선택 여부
   const [timeSelect, setTimeSelect] = React.useState<boolean | Array<boolean>>(
     selectRange ? [false, false] : false,
   )
+  // 시간 값
   const [timeValue, setTimeValue] = React.useState<
     string | Array<string | undefined> | undefined
   >()
+  // nextJS에서 사용 시, react-date-picker 라이브러리 내 global CSS 규칙을 어기는 css import가 있어서 사용
   const [DatePicker, setDatePicker] = React.useState<
     React.ComponentType<DatePickerProps> | undefined
   >()
@@ -71,6 +77,7 @@ export default function DateTimePicker({
     setDatePicker(dynamic(() => import('react-date-picker')))
   }, [])
 
+  // prop으로 받아온 날짜 값을 세팅
   React.useEffect(() => {
     if (isMounted()) {
       setViewMode(() => (datePick ? 'month' : 'year'))
@@ -143,6 +150,7 @@ export default function DateTimePicker({
     }
   }, [isMounted, isOpen, date, datePick, selectRange])
 
+  // 세기/년/월/일 선택 화면 변경 시 css 레이아웃 조정
   React.useEffect(() => {
     if (isMounted()) {
       switch (viewMode) {
@@ -173,6 +181,7 @@ export default function DateTimePicker({
     setViewMode(props.view)
   }
 
+  // 일자 선택 시, 설정값에 따라 날짜 선택 컴포넌트 표출여부 설정
   const onClickDay = (pickedDate: Date) => {
     if (!selectRange && !timeRange) return
 
@@ -200,12 +209,14 @@ export default function DateTimePicker({
     }
   }
 
+  // 날짜 변경 이벤트
   const onDateChange = (pickedDate: Date | Date[]) => {
     if (selectRange || timeRange) return
 
     setValue(pickedDate)
   }
 
+  // 시간 변경 이벤트
   const onTimeChange = (pickedTime?: string) => {
     setTimeValue(pickedTime)
     setTimeSelect(!!pickedTime)
@@ -221,6 +232,7 @@ export default function DateTimePicker({
     setValue(newDate)
   }
 
+  // 시간 범위 변경 이벤트
   const onTimeRangeChange = (pickedTime: Array<string | undefined>) => {
     setTimeValue(pickedTime)
     setTimeSelect([!!pickedTime[0], !!pickedTime[1]])
@@ -238,6 +250,7 @@ export default function DateTimePicker({
     }
   }
 
+  // 해당 컴포넌트 내 설정된 값 변경 후에 데이터 가공
   const onChange = (pickedDate?: Date | Array<Date | undefined>) => {
     let newDate: Date | Array<Date | undefined> | undefined
 
@@ -349,6 +362,7 @@ export default function DateTimePicker({
     return newDate
   }
 
+  // 해당 컴포넌트 종료 시에 callback 호출
   const onCalendarClose = () => {
     if (!selectRange && !timeDisplay) {
       if (!value && !date) {
@@ -362,12 +376,14 @@ export default function DateTimePicker({
     }
   }
 
+  // 컴포넌트 영역 외부 클릭 시, 종료
   const onClickExterior = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
 
     changeDate(date)
   }
 
+  // 월 선택 이벤트
   const onClickMonth = (date: Date) => {
     setValue(date)
     changeDate(date)
