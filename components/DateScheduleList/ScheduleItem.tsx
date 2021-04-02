@@ -22,6 +22,7 @@ export default function ScheduleItem({ data, onClick }: Props) {
 
   const isMounted = useIsMounted()
 
+  // 우측 사용자 표시에 검색조건에 세팅된 사용자 최우선 표시
   React.useEffect(() => {
     if (!isMounted()) return
     if (!data.members) return

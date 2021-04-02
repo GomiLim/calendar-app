@@ -21,14 +21,18 @@ export type SelectorType =
 export default function SearchFilter() {
   const [filter, setFilter] = Recoil.useRecoilState(filterState)
 
+  // 기본 필터 옵션 선택 컴포넌트 표시 여부
   const [selectorOpened, setSelectorOpened] = React.useState(false)
+  // 기본 필터 옵션
   const [selected, setSelected] = React.useState<SelectorType | undefined>()
+  // 기본 필터 옵션 표시용 버튼 CSS
   const [selectorBtnStyle, setSelectorBtnStyle] = React.useState<
     React.CSSProperties | undefined
   >()
 
   const isMounted = useIsMounted()
 
+  // 기본 필터 선택/취소 시, CSS 변경
   React.useEffect(() => {
     if (isMounted()) {
       setSelectorBtnStyle(() =>
@@ -49,6 +53,7 @@ export default function SearchFilter() {
     }
   }, [isMounted, selected])
 
+  // 기본 필터 선택 버튼 클릭 이벤트
   const onClickSelectorBtn = () => {
     if (selected) {
       setSelected(undefined)
@@ -91,14 +96,17 @@ export default function SearchFilter() {
     }
   }
 
+  // 기본 필터 옵션 선택 이벤트
   const onSelectorSelect = (select: SelectorType) => {
     setSelected(select)
   }
 
+  // 기본 필터 옵션 컴포넌트 포커스 아웃 이벤트
   const onSelectorBlur = () => {
     setSelectorOpened(false)
   }
 
+  // 화면 표시 데이터 체크 이벤트
   const onCheck = (check: SelectorType, value: boolean) => {
     if (check === 'all') {
       setFilter((old) => ({

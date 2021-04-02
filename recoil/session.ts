@@ -7,6 +7,7 @@ const initUser = {
   email: 'ceo@rocket.is',
 }
 
+// 접속 사용자
 export const sessionState = Recoil.atom<UserType>({
   key: 'sessionState',
   default: initUser,

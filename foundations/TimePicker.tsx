@@ -22,10 +22,12 @@ export default function TimePicker({
   style,
   clearIcon,
 }: Props) {
+  // 시간 선택 컴포넌트 활성화 시
   const onOpen = () => {
     onChange(value ? value : '00:00', id)
   }
 
+  // 시간 선택 시
   const onTimeChange = (e: moment.Moment) => {
     if (e === null) {
       onChange(undefined, id)
@@ -36,6 +38,7 @@ export default function TimePicker({
     onChange(e === null ? undefined : e.format('HH:mm'), id)
   }
 
+  // 시간 초기화 버튼 클릭 시
   const clickedClear = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
     e.stopPropagation()

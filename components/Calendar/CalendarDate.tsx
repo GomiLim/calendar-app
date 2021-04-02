@@ -36,23 +36,23 @@ interface Props {
 
 export default React.memo(
   createSelectable(function CalendarDate({
-    chosenDate,
-    startWeekOffset,
-    edgeOfWeek,
-    day,
-    month,
-    year,
-    holiday,
-    thisMonth = true,
-    beforeOrAfter,
-    onClick,
-    onDoubleClickSchedule,
-    _date,
-    scheduleStack,
-    icons,
-    exteriorWidth,
-    selectableRef,
-    isSelecting,
+    chosenDate, // 선택 일자
+    startWeekOffset, // 주 index
+    edgeOfWeek, // 첫째주/마지막 주 여부
+    day, // 일
+    month, // 월
+    year, // 년
+    holiday, // 휴무일 여부
+    thisMonth = true, // 포커스된 월 여부
+    beforeOrAfter, // 현재 월에 해당되지 않는 날짜일 시, 이전 월의 날짜인지 이후 월의 날짜인지 여부
+    onClick, // 일자 클릭 callback
+    onDoubleClickSchedule, // 일정 더블 클릭 callback
+    _date, // htmlelement ref object
+    scheduleStack, // 현재 주 일정 목록
+    icons, // 현재 일자 채널/카드/할일
+    exteriorWidth, // 내부 일정 표시 문구 글자수 계산용 캘린더 영역 전체 가로길이
+    selectableRef, // drag & select library prop
+    isSelecting, // drag & select library prop
   }: Props & TSelectableItemProps) {
     const [actualYear, setActualYear] = React.useState(year)
     const [actualMonth, setActualMonth] = React.useState(month)
@@ -144,107 +144,101 @@ export default React.memo(
       if (!isMounted()) return
 
       setCalendarSchedules(() =>
-        scheduleStack
-          // .filter((stack, idx) => idx < 10)
-          .map((stack) => {
-            const found = stack.find(
-              (schedule) =>
-                schedule.week ===
-                Number(
-                  String(actualYear) +
-                    helper.makeTwoDigits(actualMonth + 1) +
-                    helper.makeTwoDigits(day),
-                ),
-            )
-            if (!found) return null
+        scheduleStack.map((stack) => {
+          const found = stack.find(
+            (schedule) =>
+              schedule.week ===
+              Number(
+                String(actualYear) +
+                  helper.makeTwoDigits(actualMonth + 1) +
+                  helper.makeTwoDigits(day),
+              ),
+          )
+          if (!found) return null
 
-            const stackList = stack.filter(
-              (schedule) => schedule.no === found.no,
-            )
+          const stackList = stack.filter((schedule) => schedule.no === found.no)
 
-            const result: Record<string, unknown> = {
-              no: found.no,
-              week: found.week,
-              type: found.mainWeek ? 'main' : 'sub',
-              sub: !!found.subNo,
-              label:
-                !stackList.some(
-                  (schedule) => schedule.mainWeek && schedule.week < found.week,
-                ) ||
-                (edgeOfWeek === 'start' && found.outOfThisWeek)
-                  ? found.label
-                  : undefined,
-              color: found.color,
-            }
+          const result: Record<string, unknown> = {
+            no: found.no,
+            week: found.week,
+            type: found.mainWeek ? 'main' : 'sub',
+            sub: !!found.subNo,
+            label:
+              !stackList.some(
+                (schedule) => schedule.mainWeek && schedule.week < found.week,
+              ) ||
+              (edgeOfWeek === 'start' && found.outOfThisWeek)
+                ? found.label
+                : undefined,
+            color: found.color,
+          }
 
-            if (result.label && thisWeek.length > 0 && containerWidth !== 0) {
-              const label = result.label as string
+          if (result.label && thisWeek.length > 0 && containerWidth !== 0) {
+            const label = result.label as string
 
-              if (label.length > 10) {
-                const wordLen = Math.round(containerWidth / 14)
+            if (label.length > 10) {
+              const wordLen = Math.round(containerWidth / 14)
 
-                const more = stackList.some(
-                  (schedule) => schedule.mainWeek && schedule.week > found.week,
-                )
+              const more = stackList.some(
+                (schedule) => schedule.mainWeek && schedule.week > found.week,
+              )
 
-                if (edgeOfWeek === 'end' || !more) {
-                  result.label = label.substr(0, wordLen) + '..extra..'
-                } else {
-                  const maxLen =
-                    wordLen *
-                    stackList.filter(
-                      (schedule) =>
-                        schedule.mainWeek &&
-                        schedule.week >= found.week &&
-                        schedule.week <=
-                          Math.max(
-                            ...thisWeek.map((week) =>
-                              Number(moment(week).format('YYYYMMDD')),
-                            ),
+              if (edgeOfWeek === 'end' || !more) {
+                result.label = label.substr(0, wordLen) + '..extra..'
+              } else {
+                const maxLen =
+                  wordLen *
+                  stackList.filter(
+                    (schedule) =>
+                      schedule.mainWeek &&
+                      schedule.week >= found.week &&
+                      schedule.week <=
+                        Math.max(
+                          ...thisWeek.map((week) =>
+                            Number(moment(week).format('YYYYMMDD')),
                           ),
-                    ).length
+                        ),
+                  ).length
 
-                  if (label.length > maxLen) {
-                    result.label = label.substr(0, maxLen) + '..extra..'
-                  }
+                if (label.length > maxLen) {
+                  result.label = label.substr(0, maxLen) + '..extra..'
                 }
               }
             }
+          }
 
-            if (result.type === 'main') {
-              result.start =
-                !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
-                !stackList.some(
-                  (schedule) => schedule.mainWeek && schedule.week < found.week,
-                )
-              result.end =
-                !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
-                !stackList.some(
-                  (schedule) => schedule.mainWeek && schedule.week > found.week,
-                )
-              result.subStart =
-                !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
-                !stackList.some(
-                  (schedule) =>
-                    !schedule.mainWeek && schedule.week < found.week,
-                )
-              result.subEnd =
-                !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
-                !stackList.some(
-                  (schedule) =>
-                    !schedule.mainWeek && schedule.week > found.week,
-                )
-            } else {
-              result.start =
-                !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
-                !stackList.some((schedule) => schedule.week < found.week)
-              result.end =
-                !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
-                !stackList.some((schedule) => schedule.week > found.week)
-            }
+          if (result.type === 'main') {
+            result.start =
+              !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
+              !stackList.some(
+                (schedule) => schedule.mainWeek && schedule.week < found.week,
+              )
+            result.end =
+              !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
+              !stackList.some(
+                (schedule) => schedule.mainWeek && schedule.week > found.week,
+              )
+            result.subStart =
+              !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
+              !stackList.some(
+                (schedule) => !schedule.mainWeek && schedule.week < found.week,
+              )
+            result.subEnd =
+              !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
+              !stackList.some(
+                (schedule) => !schedule.mainWeek && schedule.week > found.week,
+              )
+          } else {
+            result.start =
+              !(edgeOfWeek === 'start' && found.outOfThisWeek) &&
+              !stackList.some((schedule) => schedule.week < found.week)
+            result.end =
+              !(edgeOfWeek === 'end' && found.outOfThisWeek) &&
+              !stackList.some((schedule) => schedule.week > found.week)
+          }
 
-            return result as ScheduleDisplayType
-          }),
+          return result as ScheduleDisplayType
+        }),
       )
     }, [
       isMounted,

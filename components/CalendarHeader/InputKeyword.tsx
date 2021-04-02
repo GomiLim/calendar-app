@@ -25,14 +25,18 @@ interface Props {
 export default function InputKeyword({ selected }: Props) {
   const setFilter = Recoil.useSetRecoilState(filterState)
 
+  // 상세 검색 필터 옵션
   const [option, setOption] = React.useState<OptionType>({ input: 'label' })
+  // 상세 검색 필터 옵션 컴포넌트 표시 여부
   const [optionOpen, setOptionOpen] = React.useState(false)
+  // 상세 검색 필터 옵션 컴포넌트 CSS
   const [optionStyle, setOptionStyle] = React.useState<
     React.CSSProperties | undefined
   >()
 
   const isMounted = useIsMounted()
 
+  // 기본 사용자 필터 선택 시, 상세 필터 세팅
   React.useEffect(() => {
     if (isMounted()) {
       if (selected === 'member') {
@@ -45,6 +49,7 @@ export default function InputKeyword({ selected }: Props) {
     }
   }, [isMounted, selected])
 
+  // 선택된 상세 검색 필터 값 필터에 세팅
   React.useEffect(() => {
     if (isMounted()) {
       if (
@@ -103,6 +108,7 @@ export default function InputKeyword({ selected }: Props) {
     }
   }, [isMounted, option])
 
+  // 검색 호출 이벤트
   const onSubmitForm = debounce((keyword: string, no?: number) => {
     switch (selected) {
       case 'channel':
@@ -168,10 +174,12 @@ export default function InputKeyword({ selected }: Props) {
     }
   }, 25)
 
+  // 상세 검색 필터 오픈
   const onClickOption = () => {
     setOptionOpen(true)
   }
 
+  // 상세 검색 필터 닫기
   const onBlurOption = () => {
     setOptionOpen(false)
   }
@@ -203,15 +211,6 @@ export default function InputKeyword({ selected }: Props) {
           onBlur={onBlurOption}
         />
       )}
-      {/* {showAutocomplete && (
-        <KeywordAutocomplete
-          selected={selected}
-          keyword={keyword}
-          input={option.input}
-          onSelect={onSelectAutocomplete}
-          onBlur={() => setShowAutocomplete(false)}
-        />
-      )} */}
     </>
   )
 }

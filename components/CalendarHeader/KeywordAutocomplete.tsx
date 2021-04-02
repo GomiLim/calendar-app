@@ -41,20 +41,26 @@ export default function KeywordAutocomplete({
 }: Props) {
   const { t } = useTranslation()
 
+  // 자동완성 목록에서 선택한 데이터의 ID값
   const [autoSelectNo, setAutoSelectNo] = React.useState<number | undefined>()
+  // input 입력 텍스트
   const [keyword, setKeyword] = React.useState('')
+  // 자동완성 목록 표출 여부
   const [showAutocomplete, setShowAutocomplete] = React.useState(false)
+  // 자동완성 목록 로딩
   const [autoLoading, setAutoLoading] = React.useState(false)
+  // 자동완성 목록 표출 시, 기본 선택된 데이터의 ID값
   const [initHighlightedNo, setInitHighlightedNo] = React.useState<
     number | undefined
   >()
-
+  // 자동완성 목록
   const [autocompleteList, setAutocompleteList] = React.useState<
     TestDataType[] | TestIconDataType[] | UserType[]
   >([])
 
   const isMounted = useIsMounted()
 
+  // 채널 자동완성 목록
   const getChannelAutocomplete = React.useCallback(
     debounce(async () => {
       if (!isMounted()) return
@@ -70,6 +76,7 @@ export default function KeywordAutocomplete({
     [isMounted, keyword],
   )
 
+  // 일정 자동완성 목록
   const getScheduleAutocomplete = React.useCallback(
     debounce(async () => {
       if (!isMounted()) return
@@ -85,6 +92,7 @@ export default function KeywordAutocomplete({
     [isMounted, keyword],
   )
 
+  // 카드 자동완성 목록
   const getCardAutocomplete = React.useCallback(
     debounce(async () => {
       if (!isMounted()) return
@@ -100,6 +108,7 @@ export default function KeywordAutocomplete({
     [isMounted, keyword],
   )
 
+  // 할일 자동완성 목록
   const getTodoAutocomplete = React.useCallback(
     debounce(async () => {
       if (!isMounted()) return
@@ -115,6 +124,7 @@ export default function KeywordAutocomplete({
     [isMounted, keyword],
   )
 
+  // 사용자 자동완성 목록
   const getUserAutocomplete = React.useCallback(
     debounce(async () => {
       if (!isMounted()) return
@@ -134,6 +144,7 @@ export default function KeywordAutocomplete({
     [isMounted, keyword],
   )
 
+  // 기본 검색 필터에 따른 자동완성 목록 데이터 호출
   React.useEffect(() => {
     if (!isMounted()) return
 
@@ -164,6 +175,7 @@ export default function KeywordAutocomplete({
     getUserAutocomplete,
   ])
 
+  // 기본 검색 필터 변경 시, 초기화
   React.useEffect(() => {
     if (!isMounted()) return
 
@@ -175,6 +187,7 @@ export default function KeywordAutocomplete({
     setInitHighlightedNo(() => undefined)
   }, [isMounted, selected])
 
+  // 자동완성 목록 로드 후, 약간의 시간 텀 후에 로딩 없앰
   React.useEffect(
     throttle(() => {
       if (isMounted()) {
@@ -191,6 +204,7 @@ export default function KeywordAutocomplete({
     [isMounted, autocompleteList],
   )
 
+  // input 텍스트 변경 이벤트
   const onChange = throttle((e: React.ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value)
     setAutoSelectNo(undefined)
@@ -202,6 +216,7 @@ export default function KeywordAutocomplete({
     }
   }, 100)
 
+  // input 텍스트 포커스 아웃 이벤트
   const onBlur = () => {
     const el = document.getElementById('header-autocomplete-input')
     if (el) {
@@ -212,6 +227,7 @@ export default function KeywordAutocomplete({
     setAutoSelectNo(undefined)
   }
 
+  // 키보드 이벤트
   const onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault()
 
@@ -239,6 +255,7 @@ export default function KeywordAutocomplete({
     }
   }
 
+  // input 텍스트 초기화 이벤트
   const onDelete = () => {
     setShowAutocomplete(false)
     setAutoSelectNo(undefined)

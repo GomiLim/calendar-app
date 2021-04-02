@@ -26,11 +26,14 @@ interface Props {
 export default function CheckerFilter({ onCheck }: Props) {
   const { t } = useTranslation()
 
+  // 화면 표시 데이터 별 체크 여부
   const [checks, setChecks] = React.useState<CheckType>(initCheck)
+  // 모두 표시 체크 여부
   const [allChecked, setAllChecked] = React.useState(true)
 
   const isMounted = useIsMounted()
 
+  // 체크 이벤트
   const onSelect = (check: SelectorType, value: boolean) => {
     onCheck(check, value)
 
@@ -46,6 +49,7 @@ export default function CheckerFilter({ onCheck }: Props) {
     }
   }
 
+  // 체크 항목들에 따라 전체 표시 체크
   React.useEffect(() => {
     if (isMounted()) {
       setAllChecked(
