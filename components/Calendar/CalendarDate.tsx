@@ -255,10 +255,7 @@ export default React.memo(
             backgroundColor: isSelecting
               ? theme.palette.mono.lightGray
               : selected
-              ? polished.lighten(
-                  thisMonth ? 0.3 : 0.35,
-                  theme.palette.main.turquoise,
-                )
+              ? polished.lighten(0.3, theme.palette.main.turquoise)
               : undefined,
             borderLeft:
               thisWeek.length === 0
@@ -273,41 +270,31 @@ export default React.memo(
           refObj={_date}
           id={`${actualYear}-${helper.makeTwoDigits(
             actualMonth,
-          )}-${helper.makeTwoDigits(day)}${!thisMonth ? ':disabled' : ''}`}>
+          )}-${helper.makeTwoDigits(day)}`}>
           <Box direction="horizontal" style={CalendarDateStyle.title}>
             <Text
               value={day === 1 ? `${actualMonth + 1}/${day}` : String(day)}
               style={{
-                ...theme.font.sub,
+                ...theme.font[day === 1 ? 'small' : 'sub'],
                 marginRight: '0.625rem',
                 border: 'none' as const,
                 borderRadius: '50%',
-                padding: '0.363rem 0.313rem 0.313rem 0.313rem',
-                width: '1.5rem',
+                padding: `0.363rem 0.313rem 0.313rem ${
+                  actualMonth > 8 ? '0.15rem' : '0.25rem'
+                }`,
+                width: actualMonth > 8 ? '1.6rem' : '1.5rem',
                 height: '1.5rem',
                 textAlign: 'center' as const,
                 backgroundColor: isToday
-                  ? polished.lighten(
-                      thisMonth ? 0 : 0.3,
-                      theme.palette.main.red,
-                    )
+                  ? theme.palette.main.red
+                  : day === 1
+                  ? theme.palette.mono.gray
                   : undefined,
-                // color: !thisMonth
-                //   ? theme.palette.mono.gray
-                //   : isToday
-                //   ? theme.palette.mono.white
-                //   : !!isWeekend || !!holiday
-                //   ? theme.palette.main.red
-                //   : theme.palette.mono.black,
                 color: theme.palette.mono.black,
               }}
             />
           </Box>
-          <div
-            style={{
-              ...CalendarDateStyle.contents,
-              opacity: !thisMonth ? 0.2 : undefined,
-            }}>
+          <div style={CalendarDateStyle.contents}>
             {scheduleStack.length > 0 && (
               <CalendarSchedules
                 schedules={calendarSchedules}
@@ -320,7 +307,6 @@ export default React.memo(
             style={{
               ...CalendarDateStyle.contents,
               marginTop: '0.313rem',
-              opacity: !thisMonth ? 0.2 : undefined,
               position:
                 scheduleStack.length > 0 ? 'relative' : ('absolute' as const),
               left: 0,

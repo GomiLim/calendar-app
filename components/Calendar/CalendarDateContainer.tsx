@@ -695,14 +695,12 @@ export default React.memo(function CalendarDateContainer({
           extractedYear,
           extractedMonth,
           extractedDate,
-          disabled,
         } = helper.extractValFromId(_date.current.attributes[0].value)
 
         const position = _date.current.getBoundingClientRect()
 
         if (
           extractedDate === '15' &&
-          disabled &&
           position.top >= 0 &&
           position.bottom <= bodyClientHeight
         ) {
@@ -770,10 +768,7 @@ export default React.memo(function CalendarDateContainer({
         if (_date?.current) {
           const val = _date.current.attributes[0].value
 
-          if (
-            val.indexOf(year + '-' + month) > -1 &&
-            val.indexOf(':disabled') > -1
-          ) {
+          if (val.indexOf(year + '-' + month) > -1) {
             return true
           }
         }
