@@ -2,35 +2,60 @@ import moment from 'moment'
 import { TestDataType } from '../types'
 
 // 날짜 입력 유효성체크
-export const dateValidator = (input: string): Date => {
-  const tmp = input.split('.')
+const setValidDateTime = (year: number, month: number, day: number) => {
+  const tmpDateStr = `${String(year)}.${makeTwoDigits(
+    month + 1,
+  )}.${makeTwoDigits(day)}`
+  let resultYear = year,
+    resultMonth = month,
+    resultDay = day
 
-  if (Number(tmp[0]) < 2000) tmp[0] = '2000'
+  if (year < 0) resultYear = 1
 
-  if (Number(tmp[1]) === 0) tmp[1] = '01'
-  else if (Number(tmp[1]) > 12) tmp[1] = '12'
+  if (month < 0) resultMonth = 0
+  else if (month > 11) resultMonth = 11
 
-  if (Number(tmp[2]) === 0) tmp[2] = '01'
-  else if (
-    Number(tmp[2]) > 26 &&
-    !moment(tmp.join('.'), 'YYYY.MM.DD', true).isValid()
-  ) {
+  if (day < 0) resultDay = 1
+  else if (day > 26 && !moment(tmpDateStr, 'YYYY.MM.DD', true).isValid()) {
     let dt = 31
-    let text = `${tmp[0]}.${tmp[1]}.${String(dt)}`
+    let text = `${resultYear}.${makeTwoDigits(resultMonth + 1)}.${String(dt)}`
     while (!moment(text, 'YYYY.MM.DD', true).isValid()) {
       dt--
-      text = `${tmp[0]}.${tmp[1]}.${String(dt)}`
+      text = `${resultYear}.${makeTwoDigits(resultMonth + 1)}.${String(dt)}`
     }
-    tmp[2] = String(dt)
+    resultDay = dt
   }
-  return new Date(Number(tmp[0]), Number(tmp[1]) - 1, Number(tmp[2]), 0, 0, 0)
+  return { year: resultYear, month: resultMonth, day: resultDay }
+}
+export const dateValidator = (input: string): Date | null => {
+  const tmp = input.split('.')
+
+  if (tmp.some((t) => isNaN(Number(t))) || tmp.length < 3) return null
+
+  const { year, month, day } = setValidDateTime(
+    Number(tmp[0]),
+    Number(tmp[1]) - 1,
+    Number(tmp[2]),
+  )
+  return new Date(year, month, day, 0, 0, 0)
 }
 
 // Convert integrated formatted string to Date
-export const convertToDate = (input: string) => {
+export const convertToDate = (input: string): Date | null => {
   const strings: string[] = input.split(/[- :]/)
   const arr: number[] = strings.map((str) => Number(str))
-  return new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5])
+  if (arr.some((a) => isNaN(Number(a))) || arr.length < 3) return null
+
+  const { year, month, day } = setValidDateTime(arr[0], arr[1] - 1, arr[2])
+
+  if (arr.length < 6) {
+    return new Date(year, month, day, 0, 0, 0)
+  }
+
+  const hour = arr[3] > 23 ? 23 : arr[3] < 0 ? 0 : arr[3]
+  const min = arr[4] > 59 ? 59 : arr[4] < 0 ? 0 : arr[4]
+  const sec = arr[5] > 59 ? 59 : arr[5] < 0 ? 0 : arr[5]
+  return new Date(year, month, day, hour, min, sec)
 }
 
 // Date class object with integrated format
@@ -38,7 +63,7 @@ export const getToday = moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
 
 // Add zero for 1 digit number to string
 export const makeTwoDigits = (num: number) => {
-  return num < 0 ? '00' : num < 10 ? `0${num}` : String(num)
+  return num < 0 ? '00' : num < 10 ? `0${num}` : String(num).substr(0, 2)
 }
 
 // extract year, month, date, disability from calendar date id
@@ -64,6 +89,8 @@ export const setYear = (year: number, month: number) => {
 
 // change month based on month seq
 export const setMonth = (month: number) => {
+  if (month < -12) return '00'
+  else if (month > 12) return '11'
   return makeTwoDigits(month < 0 ? 12 + month : month > 11 ? month - 12 : month)
 }
 
@@ -236,6 +263,8 @@ export const getNewDateUponBefore = (
 export const getAppropriateYearMonth = (yearMonth: string) => {
   const year = Number(yearMonth.substr(0, 4))
   const month = Number(yearMonth.substr(4, 2)) - 1
+
+  if (month < -13 || month > 24) return ''
 
   if (month < 0) {
     return String(year - 1) + makeTwoDigits(13 + month)

@@ -64,11 +64,11 @@
     "foundations",
     "recoil",
     "styles",
-    "utils",
-    "__tests__"
+    "utils"
   ],
   "exclude": [
     "node_modules",
-    "public"
+    "public",
+    "__tests__"
   ]
 }

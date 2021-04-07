@@ -276,11 +276,12 @@ export default React.memo(
               value={day === 1 ? `${actualMonth + 1}/${day}` : String(day)}
               style={{
                 ...theme.font[day === 1 ? 'small' : 'sub'],
+                fontWeight: day === 1 ? 900 : 500,
                 marginRight: '0.625rem',
                 border: 'none' as const,
                 borderRadius: '50%',
                 padding: `0.363rem 0.313rem 0.313rem ${
-                  actualMonth > 8 ? '0.15rem' : '0.25rem'
+                  actualMonth > 8 ? '0.1rem' : '0.25rem'
                 }`,
                 width: actualMonth > 8 ? '1.6rem' : '1.5rem',
                 height: '1.5rem',

@@ -224,12 +224,16 @@ export default function DateTimePicker({
     const dtStr = helper.dateValidator(
       moment(value as Date).format('YYYY.MM.DD'),
     )
-    const newDate = helper.convertToDate(
-      moment(dtStr).format('YYYY-MM-DD') +
-        (pickedTime ? ` ${pickedTime}:00` : ' 00:00:00'),
-    )
+    if (dtStr) {
+      const newDate = helper.convertToDate(
+        moment(dtStr).format('YYYY-MM-DD') +
+          (pickedTime ? ` ${pickedTime}:00` : ' 00:00:00'),
+      )
 
-    setValue(newDate)
+      if (newDate) {
+        setValue(newDate)
+      }
+    }
   }
 
   // 시간 범위 변경 이벤트
@@ -237,7 +241,7 @@ export default function DateTimePicker({
     setTimeValue(pickedTime)
     setTimeSelect([!!pickedTime[0], !!pickedTime[1]])
     if (timeRange && !Array.isArray(value)) {
-      setValue([
+      const result = [
         helper.convertToDate(
           moment(value).format('YYYY-MM-DD') +
             (pickedTime[0] ? ` ${pickedTime[0]}:00` : ' 00:00:00'),
@@ -246,7 +250,10 @@ export default function DateTimePicker({
           moment(value).format('YYYY-MM-DD') +
             (pickedTime[1] ? ` ${pickedTime[1]}:00` : ' 00:00:00'),
         ),
-      ])
+      ]
+      if (result.some((r) => r === null)) return
+
+      setValue(result as Date[])
     }
   }
 
@@ -263,13 +270,13 @@ export default function DateTimePicker({
                   ? helper.convertToDate(
                       moment(pickedDate[0]).format('YYYY-MM-DD') +
                         (timeValue[0] ? ` ${timeValue[0]}:00` : ' 00:00:00'),
-                    )
+                    ) || undefined
                   : undefined,
                 pickedDate[1]
                   ? helper.convertToDate(
                       moment(pickedDate[1]).format('YYYY-MM-DD') +
                         (timeValue[1] ? ` ${timeValue[1]}:00` : ' 00:00:00'),
-                    )
+                    ) || undefined
                   : undefined,
               ]
             : pickedDate
@@ -278,19 +285,19 @@ export default function DateTimePicker({
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') +
                       (timeValue[0] ? ` ${timeValue[0]}:00` : ' 00:00:00'),
-                  ),
+                  ) || undefined,
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') +
                       (timeValue[1] ? ` ${timeValue[1]}:00` : ' 00:00:00'),
-                  ),
+                  ) || undefined,
                 ]
               : [
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') + ' 00:00:00',
-                  ),
+                  ) || undefined,
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') + ' 00:00:00',
-                  ),
+                  ) || undefined,
                 ]
             : undefined
         } else {
@@ -300,13 +307,13 @@ export default function DateTimePicker({
                   ? helper.convertToDate(
                       moment(pickedDate[0]).format('YYYY-MM-DD') +
                         (timeValue ? ` ${timeValue}:00` : ' 00:00:00'),
-                    )
+                    ) || undefined
                   : undefined,
                 pickedDate[1]
                   ? helper.convertToDate(
                       moment(pickedDate[1]).format('YYYY-MM-DD') +
                         (timeValue ? ` ${timeValue}:00` : ' 00:00:00'),
-                    )
+                    ) || undefined
                   : undefined,
               ]
             : pickedDate
@@ -315,19 +322,19 @@ export default function DateTimePicker({
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') +
                       (timeValue ? ` ${timeValue}:00` : ' 00:00:00'),
-                  ),
+                  ) || undefined,
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') +
                       (timeValue ? ` ${timeValue}:00` : ' 00:00:00'),
-                  ),
+                  ) || undefined,
                 ]
               : [
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') + ' 00:00:00',
-                  ),
+                  ) || undefined,
                   helper.convertToDate(
                     moment(pickedDate).format('YYYY-MM-DD') + ' 00:00:00',
-                  ),
+                  ) || undefined,
                 ]
             : undefined
         }
@@ -339,14 +346,14 @@ export default function DateTimePicker({
                 ? pickedDate[0] || pickedDate[1]
                 : pickedDate,
             ).format('YYYY-MM-DD') + ' 00:00:00',
-          ),
+          ) || undefined,
           helper.convertToDate(
             moment(
               Array.isArray(pickedDate)
                 ? pickedDate[1] || pickedDate[0]
                 : pickedDate,
             ).format('YYYY-MM-DD') + ' 00:00:00',
-          ),
+          ) || undefined,
         ]
       }
     } else {
@@ -354,7 +361,7 @@ export default function DateTimePicker({
         ? helper.convertToDate(
             moment(pickedDate as Date).format('YYYY-MM-DD') +
               (timeValue ? ` ${timeValue as string}:00` : ' 00:00:00'),
-          )
+          ) || undefined
         : undefined
     }
     setValue(newDate)
