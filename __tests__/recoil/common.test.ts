@@ -564,13 +564,13 @@ describe('State Data Selector 테스트', () => {
         it('자동완성 목록에서 선택 시', () => {
           const selectedNo = 4
           const expected = testIconData.cards.filter(
-            (channel) => channel.no === selectedNo && !channel.closed,
+            (card) => card.no === selectedNo && !card.closed,
           )
           expect(expected).toStrictEqual([])
           const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
             set(filterState, {
               ...initFilter,
-              channel: { ...initFilter.card, no: selectedNo, closed: false },
+              card: { ...initFilter.card, no: selectedNo, closed: false },
             }),
           )
           expect(
@@ -619,26 +619,7 @@ describe('State Data Selector 테스트', () => {
           const expected = testIconData.cards.filter(
             (card) => card.no === selectedNo && !!card.closed,
           )
-          expect(expected).toStrictEqual([
-            {
-              no: 8,
-              name: '카드8',
-              date: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
-              channel: {
-                no: 3,
-                name: '채널3',
-                closed: false,
-              },
-              writerNo: 1,
-              writerName: '조인효',
-              members: [
-                { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-                { no: 3, email: 'bae@rocket.is', name: '배상건' },
-                { no: 4, email: 'surfer@rocket.is', name: '장민희' },
-              ],
-              managers: [2, 8],
-            },
-          ])
+          expect(expected).toStrictEqual([])
           const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
             set(filterState, {
               ...initFilter,
@@ -668,6 +649,249 @@ describe('State Data Selector 테스트', () => {
           )
           expect(
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expected)
+        })
+      })
+    })
+
+    context('할일 데이터 테스트', () => {
+      context('모든 할일', () => {
+        it('모든 데이터 출력', () => {
+          const initialSnapshot = Recoil.snapshot_UNSTABLE()
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(testIconData.todos)
+        })
+        it('감출 시', () => {
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, show: false },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual([])
+        })
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 3
+          const expected = testIconData.todos.filter(
+            (todo) => todo.no === selectedNo,
+          )
+          expect(expected).toStrictEqual([
+            {
+              no: 3,
+              name: '할일3',
+              date: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
+              channel: {
+                no: 1,
+                name: '채널1',
+              },
+              cardName: '카드10',
+              closed: false,
+              done: false,
+              writerNo: 7,
+              managers: [1, 10],
+            },
+          ])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, no: selectedNo },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+        it('제목 입력 시', () => {
+          const keyword = '일4'
+          const expected = testIconData.todos.filter(
+            (todo) =>
+              todo.name
+                .replace(/ /g, '')
+                .toLowerCase()
+                .indexOf(keyword.replace(/ /g, '').toLowerCase()) > -1,
+          )
+          expect(expected).toStrictEqual([
+            {
+              no: 4,
+              name: '할일4',
+              date: moment('2021-02-21', 'YYYY-MM-DD').toDate().toJSON(),
+              channel: {
+                no: 2,
+                name: '채널2',
+              },
+              cardName: '카드9',
+              done: true,
+              writerNo: 7,
+              members: [
+                {
+                  no: 1,
+                  email: 'cho.inhyo@rocket.is',
+                  name: '조인효',
+                  assigned: true,
+                },
+                {
+                  no: 3,
+                  email: 'bae@rocket.is',
+                  name: '배상건',
+                  assigned: true,
+                },
+                {
+                  no: 4,
+                  email: 'surfer@rocket.is',
+                  name: '장민희',
+                  assigned: false,
+                },
+              ],
+              managers: [9],
+            },
+          ])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, label: keyword },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+      })
+      context('진행 중 할일', () => {
+        it('모든 데이터 출력', () => {
+          const expected = testIconData.todos.filter((todo) => !todo.done)
+          expect(expected.length).toBe(7)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, done: false },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 4
+          const expected = testIconData.todos.filter(
+            (todo) => todo.no === selectedNo && !todo.done,
+          )
+          expect(expected).toStrictEqual([])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, no: selectedNo, done: false },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+        it('제목 입력 시', () => {
+          const keyword = '일5'
+          const expected = testIconData.todos.filter(
+            (todo) =>
+              todo.name
+                .replace(/ /g, '')
+                .toLowerCase()
+                .indexOf(keyword.replace(/ /g, '').toLowerCase()) > -1 &&
+              !todo.done,
+          )
+          expect(expected).toStrictEqual([
+            {
+              no: 5,
+              name: '할일5',
+              date: moment('2021-02-25', 'YYYY-MM-DD').toDate().toJSON(),
+              channel: {
+                no: 2,
+                name: '채널2',
+              },
+              cardName: '카드8',
+              closed: false,
+              done: false,
+              writerNo: 8,
+              members: [
+                { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+                {
+                  no: 3,
+                  email: 'bae@rocket.is',
+                  name: '배상건',
+                  assigned: true,
+                },
+                {
+                  no: 4,
+                  email: 'surfer@rocket.is',
+                  name: '장민희',
+                  assigned: false,
+                },
+              ],
+              managers: [8, 2],
+            },
+          ])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, label: keyword, done: false },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+      })
+      context('완료된 할일', () => {
+        it('모든 데이터 출력', () => {
+          const expected = testIconData.todos.filter((todo) => !!todo.done)
+          expect(expected.length).toBe(5)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, done: true },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 8
+          const expected = testIconData.todos.filter(
+            (todo) => todo.no === selectedNo && !!todo.done,
+          )
+          expect(expected).toStrictEqual([])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, no: selectedNo, done: true },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expected)
+        })
+        it('제목 입력 시', () => {
+          const keyword = '9'
+          const expected = testIconData.todos.filter(
+            (todo) =>
+              todo.name
+                .replace(/ /g, '')
+                .toLowerCase()
+                .indexOf(keyword.replace(/ /g, '').toLowerCase()) > -1 &&
+              !!todo.done,
+          )
+          expect(expected).toStrictEqual([])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              todo: { ...initFilter.todo, label: keyword, done: true },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
           ).toStrictEqual(expected)
         })
       })

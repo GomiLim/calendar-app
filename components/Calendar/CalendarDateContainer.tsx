@@ -730,8 +730,6 @@ export default React.memo(function CalendarDateContainer({
       return false
     })
 
-    // const _found = _foundList.length > 0 ? _foundList[0] : undefined
-
     if (_found?.current) {
       const { extractedYear, extractedMonth } = helper.extractValFromId(
         _found.current.attributes[0].value,
