@@ -40,13 +40,15 @@ export default function ScheduleItem({ data, onClick }: Props) {
         (member) =>
           filter.member?.no === member.no ||
           String(filter.member?.name)
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(String(member.name).trim().toLocaleLowerCase()) > -1 ||
+            .indexOf(
+              String(member.name).replace(/ /g, '').toLocaleLowerCase(),
+            ) > -1 ||
           String(filter.member?.email)
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(member.email?.trim().toLocaleLowerCase()) > -1,
+            .indexOf(member.email?.replace(/ /g, '').toLocaleLowerCase()) > -1,
       )
 
       setBaseMember(() => found)

@@ -275,14 +275,14 @@ export default function KeywordAutocomplete({
           value: string,
         ) =>
           !autoLoading &&
-          value.trim().length > 0 &&
+          value.replace(/ /g, '').length > 0 &&
           (selected === 'member' && input === 'email'
             ? (item as UserType).email
             : item.name
           )
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(value.trim().toLowerCase()) > -1
+            .indexOf(value.replace(/ /g, '').toLowerCase()) > -1
         }
         getItemValue={(item: TestDataType | TestIconDataType | UserType) =>
           String(item.no)

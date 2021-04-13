@@ -32,17 +32,17 @@ const memberFilter = <T extends TestDataType | TestIconDataType>(
     ? data.members?.some(
         (member) =>
           String(member.name)
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(name.trim().toLowerCase()) > -1,
+            .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
       ) && baseFilter
     : email
     ? data.members?.some(
         (member) =>
           member.email
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(email.trim().toLowerCase()) > -1,
+            .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
       ) && baseFilter
     : baseFilter
 
@@ -61,50 +61,50 @@ const memberFilter = <T extends TestDataType | TestIconDataType>(
     if (name) {
       return duty === 'creator'
         ? String(findUserByNo(data.writerNo)?.name)
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(name.trim().toLowerCase()) > -1 && result
+            .indexOf(name.replace(/ /g, '').toLowerCase()) > -1 && result
         : duty === 'manager'
         ? data.managers?.some(
             (manager) =>
               String(findUserByNo(manager)?.name)
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(name.trim().toLowerCase()) > -1,
+                .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
           ) && result
         : type === 'schedule' || type === 'todo'
         ? data.members?.find(
             (user) =>
               (!!user.attend || !!user.assigned) &&
               String(user.name)
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(name.trim().toLowerCase()) > -1,
+                .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
           ) && result
         : result
     }
     if (email) {
       return duty === 'creator'
         ? String(findUserByNo(data.writerNo)?.email)
-            .trim()
+            .replace(/ /g, '')
             .toLowerCase()
-            .indexOf(email.trim().toLowerCase()) > -1 && result
+            .indexOf(email.replace(/ /g, '').toLowerCase()) > -1 && result
         : duty === 'manager'
         ? data.managers?.some(
             (manager) =>
               String(findUserByNo(manager)?.email)
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(email.trim().toLowerCase()) > -1,
+                .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
           ) && result
         : type === 'schedule' || type === 'todo'
         ? data.members?.find(
             (user) =>
               (!!user.attend || !!user.assigned) &&
               String(user.email)
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(email.trim().toLowerCase()) > -1,
+                .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
           ) && result
         : result
     }
@@ -121,9 +121,10 @@ const channelFilter = <T extends TestDataType | TestIconDataType>(
     ? data.channel?.no === filter.channel.no && baseFilter
     : filter.channel.label
     ? String(data.channel?.name)
-        .trim()
+        .replace(/ /g, '')
         .toLowerCase()
-        .indexOf(filter.channel.label.trim().toLowerCase()) > -1 && baseFilter
+        .indexOf(filter.channel.label.replace(/ /g, '').toLowerCase()) > -1 &&
+      baseFilter
     : baseFilter
 
   return filter.channel.closed === undefined
@@ -140,9 +141,10 @@ const cardFilter = (
     ? data.no === filter.card.no && baseFilter
     : filter.card.label
     ? String(data.name)
-        .trim()
+        .replace(/ /g, '')
         .toLowerCase()
-        .indexOf(filter.card.label.trim().toLowerCase()) > -1 && baseFilter
+        .indexOf(filter.card.label.replace(/ /g, '').toLowerCase()) > -1 &&
+      baseFilter
     : baseFilter
 
   return filter.card.closed === undefined
@@ -173,9 +175,11 @@ export const filteredScheduleData = (
               filter,
               data,
               data.name
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(filter.schedule.label.trim().toLowerCase()) > -1,
+                .indexOf(
+                  filter.schedule.label.replace(/ /g, '').toLowerCase(),
+                ) > -1,
             ),
           )
         }
@@ -220,14 +224,18 @@ export const filteredIconData = (
             data,
             filter.channel.closed === undefined
               ? data.name
-                  .trim()
+                  .replace(/ /g, '')
                   .toLowerCase()
-                  .indexOf(filter.channel.label.trim().toLowerCase()) > -1
+                  .indexOf(
+                    filter.channel.label.replace(/ /g, '').toLowerCase(),
+                  ) > -1
               : !!data.closed === filter.channel.closed &&
                   data.name
-                    .trim()
+                    .replace(/ /g, '')
                     .toLowerCase()
-                    .indexOf(filter.channel.label.trim().toLowerCase()) > -1,
+                    .indexOf(
+                      filter.channel.label.replace(/ /g, '').toLowerCase(),
+                    ) > -1,
           )
         }
         return memberFilter(
@@ -259,9 +267,10 @@ export const filteredIconData = (
               filter,
               data,
               data.name
-                .trim()
+                .replace(/ /g, '')
                 .toLowerCase()
-                .indexOf(filter.card.label.trim().toLowerCase()) > -1,
+                .indexOf(filter.card.label.replace(/ /g, '').toLowerCase()) >
+                -1,
             ),
           )
         }
@@ -299,9 +308,10 @@ export const filteredIconData = (
                 filter,
                 data,
                 data.name
-                  .trim()
+                  .replace(/ /g, '')
                   .toLowerCase()
-                  .indexOf(filter.todo.label.trim().toLowerCase()) > -1,
+                  .indexOf(filter.todo.label.replace(/ /g, '').toLowerCase()) >
+                  -1,
               ),
             ),
           )
@@ -358,9 +368,11 @@ export const testUserAutoApi = (keyword: string, filter?: 'name' | 'email') => {
       resolve(
         testUserData.filter((user) =>
           filter === 'name'
-            ? user.name.trim().indexOf(keyword.trim()) > -1
+            ? user.name.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) >
+              -1
             : filter === 'email'
-            ? user.email.trim().indexOf(keyword.trim()) > -1
+            ? user.email.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) >
+              -1
             : true,
         ),
       )
@@ -373,7 +385,9 @@ export const testScheduleAutoApi = (keyword: string) => {
     setTimeout(() => {
       resolve(
         testScheduleData.filter(
-          (schedule) => schedule.name.trim().indexOf(keyword.trim()) > -1,
+          (schedule) =>
+            schedule.name.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) >
+            -1,
         ),
       )
     }, 1000)
@@ -385,7 +399,9 @@ export const testChannelAutoApi = (keyword: string) => {
     setTimeout(() => {
       resolve(
         testIconData.channels.filter(
-          (channel) => channel.name.trim().indexOf(keyword.trim()) > -1,
+          (channel) =>
+            channel.name.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) >
+            -1,
         ),
       )
     }, 1000)
@@ -397,7 +413,8 @@ export const testCardAutoApi = (keyword: string) => {
     setTimeout(() => {
       resolve(
         testIconData.cards.filter(
-          (card) => card.name.trim().indexOf(keyword.trim()) > -1,
+          (card) =>
+            card.name.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) > -1,
         ),
       )
     }, 1000)
@@ -409,7 +426,8 @@ export const testTodoAutoApi = (keyword: string) => {
     setTimeout(() => {
       resolve(
         testIconData.todos.filter(
-          (todo) => todo.name.trim().indexOf(keyword.trim()) > -1,
+          (todo) =>
+            todo.name.replace(/ /g, '').indexOf(keyword.replace(/ /g, '')) > -1,
         ),
       )
     }, 1000)
