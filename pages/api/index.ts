@@ -26,90 +26,96 @@ const memberFilter = <T extends TestDataType | TestIconDataType>(
   const { no, name, email, duty } = filter.member
   if (!no && !name && !email && !duty) return baseFilter
 
-  const result = no
-    ? data.members?.some((member) => member.no === no) && baseFilter
-    : name
-    ? data.members?.some(
-        (member) =>
-          String(member.name)
-            .replace(/ /g, '')
-            .toLowerCase()
-            .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
-      ) && baseFilter
-    : email
-    ? data.members?.some(
-        (member) =>
-          member.email
-            .replace(/ /g, '')
-            .toLowerCase()
-            .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
-      ) && baseFilter
-    : baseFilter
-
-  if (duty) {
-    if (no) {
-      return duty === 'creator'
-        ? data.writerNo === no && result
-        : duty === 'manager'
-        ? data.managers?.find((managerNo) => managerNo === no) && result
-        : type === 'schedule' || type === 'todo'
-        ? data.members?.find(
-            (user) => (!!user.attend || !!user.assigned) && user.no === no,
-          ) && result
-        : result
-    }
-    if (name) {
-      return duty === 'creator'
-        ? String(findUserByNo(data.writerNo)?.name)
-            .replace(/ /g, '')
-            .toLowerCase()
-            .indexOf(name.replace(/ /g, '').toLowerCase()) > -1 && result
-        : duty === 'manager'
-        ? data.managers?.some(
-            (manager) =>
-              String(findUserByNo(manager)?.name)
+  switch (duty) {
+    case 'manager':
+      return no
+        ? data.managers?.some((manager) => manager === no) && baseFilter
+        : name
+        ? data.managers
+            ?.map((manager) => testUserData.find((user) => user.no === manager))
+            .some(
+              (manager) =>
+                manager &&
+                manager.name
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(name.replace(/ /g, '').toLowerCase()),
+            ) && baseFilter
+        : email
+        ? data.managers
+            ?.map((manager) => testUserData.find((user) => user.no === manager))
+            .some(
+              (manager) =>
+                manager &&
+                manager.email
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(email.replace(/ /g, '').toLowerCase()),
+            ) && baseFilter
+        : baseFilter
+    case 'creator':
+      return no
+        ? data.writerNo === no && baseFilter
+        : name
+        ? testUserData.find((user) => user.no === data.writerNo)
+          ? String(testUserData.find((user) => user.no === data.writerNo)?.name)
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(name.replace(/ /g, '').toLowerCase()) && baseFilter
+          : baseFilter
+        : email
+        ? testUserData.find((user) => user.no === data.writerNo)
+          ? String(
+              testUserData.find((user) => user.no === data.writerNo)?.email,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(email.replace(/ /g, '').toLowerCase()) && baseFilter
+          : baseFilter
+        : baseFilter
+    case 'assignee':
+      return type === 'schedule' || type === 'todo'
+        ? no
+          ? data.members?.some((member) => member.no === no) && baseFilter
+          : name
+          ? data.members?.some(
+              (member) =>
+                String(member.name)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
+            ) && baseFilter
+          : email
+          ? data.members?.some(
+              (member) =>
+                member.email
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
+            ) && baseFilter
+          : baseFilter
+        : false
+    default:
+      return no
+        ? data.members?.some((member) => member.no === no) && baseFilter
+        : name
+        ? data.members?.some(
+            (member) =>
+              String(member.name)
                 .replace(/ /g, '')
                 .toLowerCase()
                 .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
-          ) && result
-        : type === 'schedule' || type === 'todo'
-        ? data.members?.find(
-            (user) =>
-              (!!user.attend || !!user.assigned) &&
-              String(user.name)
-                .replace(/ /g, '')
-                .toLowerCase()
-                .indexOf(name.replace(/ /g, '').toLowerCase()) > -1,
-          ) && result
-        : result
-    }
-    if (email) {
-      return duty === 'creator'
-        ? String(findUserByNo(data.writerNo)?.email)
-            .replace(/ /g, '')
-            .toLowerCase()
-            .indexOf(email.replace(/ /g, '').toLowerCase()) > -1 && result
-        : duty === 'manager'
-        ? data.managers?.some(
-            (manager) =>
-              String(findUserByNo(manager)?.email)
+          ) && baseFilter
+        : email
+        ? data.members?.some(
+            (member) =>
+              member.email
                 .replace(/ /g, '')
                 .toLowerCase()
                 .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
-          ) && result
-        : type === 'schedule' || type === 'todo'
-        ? data.members?.find(
-            (user) =>
-              (!!user.attend || !!user.assigned) &&
-              String(user.email)
-                .replace(/ /g, '')
-                .toLowerCase()
-                .indexOf(email.replace(/ /g, '').toLowerCase()) > -1,
-          ) && result
-        : result
-    }
+          ) && baseFilter
+        : baseFilter
   }
-  return result
 }
 
 const channelFilter = <T extends TestDataType | TestIconDataType>(
@@ -127,9 +133,11 @@ const channelFilter = <T extends TestDataType | TestIconDataType>(
       baseFilter
     : baseFilter
 
-  return filter.channel.closed === undefined
-    ? result
-    : filter.channel.closed === !!data.channel?.closed && result
+  return (
+    (filter.channel.closed === undefined
+      ? result
+      : filter.channel.closed === !!data.channel?.closed) && result
+  )
 }
 
 const cardFilter = (

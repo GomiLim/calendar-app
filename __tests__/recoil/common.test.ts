@@ -7,6 +7,7 @@ import { FilterType, TestDataType, TestIconDataType } from '../../utils/types'
 import {
   testIconData,
   testScheduleData,
+  testUserData,
 } from '../../__mocks__/testScheduleData'
 
 describe('State Data Selector 테스트', () => {
@@ -76,8 +77,18 @@ describe('State Data Selector 테스트', () => {
           startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
           endDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
           members: [
-            { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-            { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+            {
+              no: 1,
+              email: 'cho.inhyo@rocket.is',
+              name: '조인효',
+              attend: false,
+            },
+            {
+              no: 2,
+              email: 'ceo@w-coms.com',
+              name: 'hyuksu choi',
+              attend: false,
+            },
             { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
           ],
         },
@@ -176,6 +187,14 @@ describe('State Data Selector 테스트', () => {
           writerName: '조인효',
           startDate: moment('2021-02-05', 'YYYY-MM-DD').toDate().toJSON(),
           endDate: moment('2021-02-15', 'YYYY-MM-DD').toDate().toJSON(),
+          members: [
+            {
+              no: 1,
+              email: 'cho.inhyo@rocket.is',
+              name: '조인효',
+              attend: true,
+            },
+          ],
         },
         {
           type: 'sub',
@@ -222,6 +241,37 @@ describe('State Data Selector 테스트', () => {
   })
   describe('iconDataSelector 테스트', () => {
     context('채널 데이터 테스트', () => {
+      const checkDependableData = (
+        initialSnapshot: Recoil.Snapshot,
+        expected: TestIconDataType[],
+      ) => {
+        const filter = initialSnapshot.getLoadable(filterState).valueOrThrow()
+        const expectedSchedules = testScheduleData.filter((schedule) =>
+          expected.some(
+            (channel) =>
+              channel.no === schedule.channel.no &&
+              (filter.channel.closed === undefined
+                ? true
+                : !!schedule.channel.closed === filter.channel.closed),
+          ),
+        )
+        expect(
+          initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+        ).toStrictEqual(expectedSchedules)
+        // const expectedCards = testIconData.cards.filter((card) =>
+        //   expected.some((channel) => channel.no === card.channel.no),
+        // )
+        // expect(
+        //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+        // ).toStrictEqual(expectedCards)
+        // const expectedTodos = testIconData.todos.filter((todo) =>
+        //   expected.some((channel) => channel.no === todo.channel.no),
+        // )
+        // expect(
+        //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+        // ).toStrictEqual(expectedTodos)
+      }
+
       context('모든 채널', () => {
         it('모든 데이터 출력', () => {
           const initialSnapshot = Recoil.snapshot_UNSTABLE()
@@ -269,6 +319,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '널4'
@@ -302,6 +354,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
       })
       context('진행 중 채널', () => {
@@ -338,6 +392,11 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+          console.log(
+            'expected',
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          )
+          checkDependableData(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '널1'
@@ -893,6 +952,639 @@ describe('State Data Selector 테스트', () => {
           expect(
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
           ).toStrictEqual(expected)
+        })
+      })
+    })
+    context('사용자 필터 테스트', () => {
+      context('권한 전체', () => {
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 1
+          const expectedUsers = testUserData.filter(
+            (user) => user.no === selectedNo,
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter(
+            (schedule) =>
+              schedule.members &&
+              schedule.members.some((member) => member.no === selectedNo),
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.members &&
+              channel.members?.some((member) => member.no === selectedNo),
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.members &&
+              card.members?.some((member) => member.no === selectedNo),
+          )
+          expect(expectedCards.length).toBe(6)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.members &&
+              todo.members?.some((member) => member.no === selectedNo),
+          )
+          expect(expectedTodos.length).toBe(7)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { no: selectedNo },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이름 입력 시', () => {
+          const keyword = '인효'
+          const expectedUsers = testUserData.filter((user) =>
+            user.name
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter(
+            (schedule) =>
+              schedule.members &&
+              schedule.members.some((member) =>
+                String(member.name)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.members &&
+              channel.members?.some((member) =>
+                String(member.name)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.members &&
+              card.members?.some((member) =>
+                String(member.name)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedCards.length).toBe(6)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.members &&
+              todo.members?.some((member) =>
+                String(member.name)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedTodos.length).toBe(7)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { name: keyword },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이메일 입력 시', () => {
+          const keyword = 'cho.inhyo'
+          const expectedUsers = testUserData.filter((user) =>
+            user.email
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter(
+            (schedule) =>
+              schedule.members &&
+              schedule.members.some((member) =>
+                String(member.email)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.members &&
+              channel.members?.some((member) =>
+                String(member.email)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.members &&
+              card.members?.some((member) =>
+                String(member.email)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedCards.length).toBe(6)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.members &&
+              todo.members?.some((member) =>
+                String(member.email)
+                  .replace(/ /g, '')
+                  .toLowerCase()
+                  .includes(keyword.replace(/ /g, '').toLowerCase()),
+              ),
+          )
+          expect(expectedTodos.length).toBe(7)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { email: keyword },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+      })
+      context('관리자', () => {
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 1
+          const expectedUsers = testUserData.filter(
+            (user) => user.no === selectedNo,
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = []
+          expect(expectedSchedules.length).toBe(0)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.managers &&
+              channel.managers?.some((member) => member === selectedNo),
+          )
+          expect(expectedChannels.length).toBe(4)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.managers &&
+              card.managers?.some((member) => member === selectedNo),
+          )
+          expect(expectedCards.length).toBe(2)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.managers &&
+              todo.managers?.some((member) => member === selectedNo),
+          )
+          expect(expectedTodos.length).toBe(3)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { no: selectedNo, duty: 'manager' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이름 입력 시', () => {
+          const keyword = '인효'
+          const expectedUsers = testUserData.filter((user) =>
+            user.name
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = []
+          expect(expectedSchedules.length).toBe(0)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.managers &&
+              channel.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.name)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedChannels.length).toBe(4)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.managers &&
+              card.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.name)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedCards.length).toBe(2)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.managers &&
+              todo.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.name)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedTodos.length).toBe(3)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { name: keyword, duty: 'manager' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이메일 입력 시', () => {
+          const keyword = 'cho.inhyo'
+          const expectedUsers = testUserData.filter((user) =>
+            user.email
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = []
+          expect(expectedSchedules.length).toBe(0)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) =>
+              channel.managers &&
+              channel.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.email)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedChannels.length).toBe(4)
+          const expectedCards = testIconData.cards.filter(
+            (card) =>
+              card.managers &&
+              card.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.email)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedCards.length).toBe(2)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) =>
+              todo.managers &&
+              todo.managers
+                ?.map((member) =>
+                  testUserData.find((user) => user.no === member),
+                )
+                .some((member) =>
+                  String(member.email)
+                    .replace(/ /g, '')
+                    .toLowerCase()
+                    .includes(keyword.replace(/ /g, '').toLowerCase()),
+                ),
+          )
+          expect(expectedTodos.length).toBe(3)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { email: keyword, duty: 'manager' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+      })
+      context('생성자', () => {
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 1
+          const expectedUsers = testUserData.filter(
+            (user) => user.no === selectedNo,
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter(
+            (schedule) => schedule.writerNo === selectedNo,
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter(
+            (channel) => channel.writerNo === selectedNo,
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter(
+            (card) => card.writerNo === selectedNo,
+          )
+          expect(expectedCards.length).toBe(10)
+          const expectedTodos = testIconData.todos.filter(
+            (todo) => todo.writerNo === selectedNo,
+          )
+          expect(expectedTodos.length).toBe(0)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { no: selectedNo, duty: 'creator' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이름 입력 시', () => {
+          const keyword = '인효'
+          const expectedUsers = testUserData.filter((user) =>
+            user.name
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter((schedule) =>
+            String(
+              testUserData.find((user) => user.no === schedule.writerNo)?.name,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter((channel) =>
+            String(
+              testUserData.find((user) => user.no === channel.writerNo)?.name,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter((card) =>
+            String(testUserData.find((user) => user.no === card.writerNo)?.name)
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedCards.length).toBe(10)
+          const expectedTodos = testIconData.todos.filter((todo) =>
+            String(testUserData.find((user) => user.no === todo.writerNo)?.name)
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedTodos.length).toBe(0)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { name: keyword, duty: 'creator' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
+        })
+        it('이메일 입력 시', () => {
+          const keyword = 'cho.inhyo'
+          const expectedUsers = testUserData.filter((user) =>
+            user.email
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedUsers).toStrictEqual([
+            {
+              no: 1,
+              name: '조인효',
+              email: 'cho.inhyo@rocket.is',
+            },
+          ])
+
+          const expectedSchedules = testScheduleData.filter((schedule) =>
+            String(
+              testUserData.find((user) => user.no === schedule.writerNo)?.email,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedSchedules.length).toBe(22)
+          const expectedChannels = testIconData.channels.filter((channel) =>
+            String(
+              testUserData.find((user) => user.no === channel.writerNo)?.email,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedChannels.length).toBe(0)
+          const expectedCards = testIconData.cards.filter((card) =>
+            String(
+              testUserData.find((user) => user.no === card.writerNo)?.email,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedCards.length).toBe(10)
+          const expectedTodos = testIconData.todos.filter((todo) =>
+            String(
+              testUserData.find((user) => user.no === todo.writerNo)?.email,
+            )
+              .replace(/ /g, '')
+              .toLowerCase()
+              .includes(keyword.replace(/ /g, '').toLowerCase()),
+          )
+          expect(expectedTodos.length).toBe(0)
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              member: { email: keyword, duty: 'creator' },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          ).toStrictEqual(expectedSchedules)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expectedChannels)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+          ).toStrictEqual(expectedCards)
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+          ).toStrictEqual(expectedTodos)
         })
       })
     })

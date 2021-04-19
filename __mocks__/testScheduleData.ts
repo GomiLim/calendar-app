@@ -38,8 +38,8 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
-      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
       { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
@@ -98,6 +98,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-05', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-15', 'YYYY-MM-DD').toDate().toJSON(),
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
+    ],
   },
   {
     type: 'sub',
@@ -151,8 +154,8 @@ export const testScheduleData: TestDataType[] = [
       closed: false,
     },
     name: '노란 채널의 다른 새로운 긴 일정 substar 43argy ㅜ무ㅏ자딤수ㅏㅣㄷ',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 4,
+    writerName: '장민희',
     startDate: moment('2021-02-08', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
@@ -188,12 +191,12 @@ export const testScheduleData: TestDataType[] = [
       color: theme.palette.main.pink,
     },
     name: '다른 새로운 일정',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 3,
+    writerName: '배상건',
     startDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
       { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
     ],
   },
   {
@@ -227,11 +230,13 @@ export const testScheduleData: TestDataType[] = [
       color: theme.palette.main.pink,
     },
     name: '다른 새로운 일정 sub2',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 2,
+    writerName: 'hyuksu choi',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [],
+    members: [
+      { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -247,6 +252,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -285,7 +293,7 @@ export const testScheduleData: TestDataType[] = [
     members: [
       { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: true },
       { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: true },
-      { no: 4, email: 'surfer@rocket.is', name: '장민희' },
+      { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: false },
     ],
   },
   {
@@ -299,8 +307,8 @@ export const testScheduleData: TestDataType[] = [
       closed: true,
     },
     name: '테스트 일정 sub2',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 4,
+    writerName: '장민희',
     startDate: moment('2021-01-29', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-03', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
@@ -341,7 +349,7 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
       { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
       { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
       { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
@@ -382,6 +390,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -397,7 +408,9 @@ export const testScheduleData: TestDataType[] = [
     writerName: '조인효',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
-    members: [],
+    members: [
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
+    ],
   },
   {
     type: 'main',
@@ -409,8 +422,8 @@ export const testScheduleData: TestDataType[] = [
       closed: true,
     },
     name: '테스트 일정 etc6',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 4,
+    writerName: '장민희',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-28', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
@@ -427,8 +440,8 @@ export const testScheduleData: TestDataType[] = [
       closed: true,
     },
     name: '테스트 일정 etc7',
-    writerNo: 1,
-    writerName: '조인효',
+    writerNo: 2,
+    writerName: 'hyuksu choi',
     startDate: moment('2021-02-09', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-10', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
@@ -452,7 +465,7 @@ export const testScheduleData: TestDataType[] = [
     endDate: moment('2021-02-11', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
       { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
-      { no: 3, email: 'bae@rocket.is', name: '배상건' },
+      { no: 3, email: 'bae@rocket.is', name: '배상건', attend: false },
       { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
     ],
   },
@@ -505,7 +518,7 @@ export const testScheduleData: TestDataType[] = [
     startDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     endDate: moment('2021-02-13', 'YYYY-MM-DD').toDate().toJSON(),
     members: [
-      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효' },
+      { no: 1, email: 'cho.inhyo@rocket.is', name: '조인효', attend: false },
       { no: 2, email: 'ceo@w-coms.com', name: 'hyuksu choi', attend: false },
       { no: 3, email: 'bae@rocket.is', name: '배상건', attend: true },
       { no: 4, email: 'surfer@rocket.is', name: '장민희', attend: true },
