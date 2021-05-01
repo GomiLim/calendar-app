@@ -230,8 +230,8 @@ void i18n.use(initReactI18next).init({
   },
   lng: endpoint.systemLocale,
   fallbackLng: 'ko',
-  // ns: ['translations'],
-  // defaultNS: 'translations',
+  ns: ['translations'],
+  defaultNS: 'translations',
   interpolation: {
     escapeValue: false,
   },

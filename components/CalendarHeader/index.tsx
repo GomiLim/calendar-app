@@ -19,6 +19,7 @@ export default function CalendarHeader() {
         <Text
           value={t('calendar.header.title')}
           style={CalendarHeaderStyle.title}
+          dataTestId="calendar-header"
         />
         <SearchFilter />
       </CalendarHeaderStyle.filterContainer>

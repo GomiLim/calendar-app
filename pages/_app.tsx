@@ -1,5 +1,6 @@
 import { AppProps } from 'next/app'
 import 'rc-time-picker/assets/index.css'
+import React from 'react'
 import 'react-calendar/dist/Calendar.css'
 import 'react-date-picker/dist/DatePicker.css'
 import { I18nextProvider } from 'react-i18next'

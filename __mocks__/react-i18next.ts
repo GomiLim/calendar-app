@@ -1,9 +1,39 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
-import endpoint from '../../endpoints.config'
+import React from 'react'
 
-export const Months = [
+const hasChildren = (node) =>
+  node && (node.children || (node.props && node.props.children))
+
+const getChildren = (node) =>
+  node && node.children ? node.children : node.props && node.props.children
+
+const renderNodes = (reactNodes) => {
+  if (typeof reactNodes === 'string') {
+    return reactNodes
+  }
+
+  return Object.keys(reactNodes).map((key, i) => {
+    const child = reactNodes[key]
+    const isElement = React.isValidElement(child)
+
+    if (typeof child === 'string') {
+      return child
+    }
+    if (hasChildren(child)) {
+      const inner = renderNodes(getChildren(child))
+      return React.cloneElement(child, { ...child.props, key: i }, inner)
+    }
+    if (typeof child === 'object' && !isElement) {
+      return Object.keys(child).reduce(
+        (str, childKey) => `${str}${child[childKey]}`,
+        '',
+      )
+    }
+
+    return child
+  })
+}
+
+const Months = [
   'january',
   'february',
   'march',
@@ -18,7 +48,7 @@ export const Months = [
   'december',
 ]
 
-export const Days = [
+const Days = [
   'sunday',
   'monday',
   'tuesday',
@@ -28,7 +58,7 @@ export const Days = [
   'saturday',
 ]
 
-export const locales = {
+const locales = {
   ko: {
     translation: {
       datetime: {
@@ -223,18 +253,10 @@ export const locales = {
   },
 }
 
-void i18n.use(initReactI18next).init({
-  debug: true,
-  resources: {
-    ...locales,
-  },
-  lng: endpoint.systemLocale,
-  fallbackLng: 'ko',
-  // ns: ['translations'],
-  // defaultNS: 'translations',
-  interpolation: {
-    escapeValue: false,
-  },
-})
+const useMock: any = [(k) => k, {}]
+useMock.t = (k) => (k) => k
+useMock.i18n = { lng: 'ko', fallbackLng: 'ko', resources: { ...locales } }
 
-export default i18n
+module.exports = {
+  useTranslation: () => useMock,
+}
