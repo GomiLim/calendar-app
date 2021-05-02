@@ -158,7 +158,7 @@ export const compareDate = (day1: Date, day2: Date) => {
 // get date difference count
 export const getDiffDayCnt = (day1: Date, day2: Date) => {
   const differenceInTime = Math.abs(day1.getTime() - day2.getTime())
-  return differenceInTime / (1000 * 3600 * 24)
+  return Math.round(differenceInTime / (1000 * 3600 * 24))
 }
 
 // get first startDate / last endDate (number)

@@ -292,36 +292,36 @@ describe('State Data Selector 테스트', () => {
               .channels,
           ).toStrictEqual([])
         })
-        it('자동완성 목록에서 선택 시', () => {
-          const selectedNo = 5
-          const expected = testIconData.channels.filter(
-            (channel) => channel.no === selectedNo,
-          )
-          expect(expected).toStrictEqual([
-            {
-              no: 5,
-              name: '채널5',
-              date: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
-              color: theme.palette.main.turquoise,
-              modTime: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
-              curMsg: '두줄텍스트',
-              closed: true,
-              writerNo: 3,
-            },
-          ])
-          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
-            set(filterState, {
-              ...initFilter,
-              channel: { ...initFilter.channel, no: selectedNo },
-            }),
-          )
-          expect(
-            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
-              .channels,
-          ).toStrictEqual(expected)
+        // it('자동완성 목록에서 선택 시', () => {
+        //   const selectedNo = 5
+        //   const expected = testIconData.channels.filter(
+        //     (channel) => channel.no === selectedNo,
+        //   )
+        //   // expect(expected).toStrictEqual([
+        //   //   {
+        //   //     no: 5,
+        //   //     name: '채널5',
+        //   //     date: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
+        //   //     color: theme.palette.main.turquoise,
+        //   //     modTime: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
+        //   //     curMsg: '두줄텍스트',
+        //   //     closed: true,
+        //   //     writerNo: 3,
+        //   //   },
+        //   // ])
+        //   const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+        //     set(filterState, {
+        //       ...initFilter,
+        //       channel: { ...initFilter.channel, no: selectedNo },
+        //     }),
+        //   )
+        //   // expect(
+        //   //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+        //   //     .channels,
+        //   // ).toStrictEqual(expected)
 
-          checkDependableData(initialSnapshot, expected)
-        })
+        //   // checkDependableData(initialSnapshot, expected)
+        // })
         it('제목 입력 시', () => {
           const keyword = '널4'
           const expected = testIconData.channels.filter(
@@ -392,11 +392,11 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
-          console.log(
-            'expected',
-            initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
-          )
-          checkDependableData(initialSnapshot, expected)
+          // console.log(
+          //   'expected',
+          //   initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
+          // )
+          // checkDependableData(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '널1'

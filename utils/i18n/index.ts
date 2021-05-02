@@ -229,11 +229,12 @@ void i18n.use(initReactI18next).init({
     ...locales,
   },
   lng: endpoint.systemLocale,
-  fallbackLng: 'ko',
-  // ns: ['translations'],
-  // defaultNS: 'translations',
+  defaultNS: 'translations',
   interpolation: {
     escapeValue: false,
+  },
+  react: {
+    wait: true,
   },
 })
 
