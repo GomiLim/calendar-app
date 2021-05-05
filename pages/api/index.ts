@@ -133,10 +133,22 @@ const channelFilter = <T extends TestDataType | TestIconDataType>(
       baseFilter
     : baseFilter
 
+  const channelData = data.channel
+    ? testIconData.channels.find(
+        (channel) =>
+          channel.no === data.channel?.no &&
+          (filter.channel.closed === undefined
+            ? true
+            : filter.channel.closed === !!channel.closed),
+      )
+    : true
+
   return (
     (filter.channel.closed === undefined
       ? result
-      : filter.channel.closed === !!data.channel?.closed) && result
+      : filter.channel.closed === !!data.channel?.closed) &&
+    result &&
+    !!channelData
   )
 }
 
@@ -155,9 +167,23 @@ const cardFilter = (
       baseFilter
     : baseFilter
 
-  return filter.card.closed === undefined
-    ? result
-    : filter.card.closed === !!data.closed && result
+  const cardFound = data.cardNo
+    ? testIconData.cards.some(
+        (card) =>
+          card.no === data.cardNo &&
+          (filter.card.closed === undefined
+            ? true
+            : filter.card.closed === !!card.closed),
+      )
+    : true
+
+  return (
+    (filter.card.closed === undefined
+      ? result
+      : filter.card.closed === !!data.closed) &&
+    result &&
+    cardFound
+  )
 }
 
 const todoFilter = (filter: FilterType, data: TestIconDataType) => {

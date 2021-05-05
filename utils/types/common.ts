@@ -45,6 +45,7 @@ export type TestIconDataType = {
   writerNo?: number
   writerName?: string
   managers?: Array<number>
+  cardNo?: number
   cardName?: string
   done?: boolean
   closed?: boolean

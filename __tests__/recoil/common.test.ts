@@ -241,35 +241,51 @@ describe('State Data Selector 테스트', () => {
   })
   describe('iconDataSelector 테스트', () => {
     context('채널 데이터 테스트', () => {
+      const filterSome = (
+        filter: FilterType,
+        expected: TestIconDataType[],
+        no: number,
+        closed?: boolean,
+      ) => {
+        return expected.some(
+          (channel) =>
+            channel.no === no &&
+            (filter.channel.closed === undefined
+              ? true
+              : !!closed === filter.channel.closed),
+        )
+      }
       const checkDependableData = (
         initialSnapshot: Recoil.Snapshot,
         expected: TestIconDataType[],
       ) => {
         const filter = initialSnapshot.getLoadable(filterState).valueOrThrow()
         const expectedSchedules = testScheduleData.filter((schedule) =>
-          expected.some(
-            (channel) =>
-              channel.no === schedule.channel.no &&
-              (filter.channel.closed === undefined
-                ? true
-                : !!schedule.channel.closed === filter.channel.closed),
+          filterSome(
+            filter,
+            expected,
+            schedule.channel.no,
+            schedule.channel.closed,
           ),
         )
         expect(
           initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
         ).toStrictEqual(expectedSchedules)
-        // const expectedCards = testIconData.cards.filter((card) =>
-        //   expected.some((channel) => channel.no === card.channel.no),
-        // )
-        // expect(
-        //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
-        // ).toStrictEqual(expectedCards)
-        // const expectedTodos = testIconData.todos.filter((todo) =>
-        //   expected.some((channel) => channel.no === todo.channel.no),
-        // )
-        // expect(
-        //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
-        // ).toStrictEqual(expectedTodos)
+        const expectedCards = testIconData.cards.filter((card) =>
+          filterSome(filter, expected, card.channel.no, card.channel.closed),
+        )
+        expect(
+          initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
+        ).toStrictEqual(expectedCards)
+        const todos = testIconData.todos.filter((todo) =>
+          filterSome(filter, expected, todo.channel.no, todo.channel.closed),
+        )
+        const expectedTodos = todos.filter((todo) =>
+          testIconData.cards.some((card) => card.no === todo.cardNo),
+        )
+        expect(
+          initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+        ).toStrictEqual(expectedTodos)
       }
 
       context('모든 채널', () => {
@@ -292,36 +308,36 @@ describe('State Data Selector 테스트', () => {
               .channels,
           ).toStrictEqual([])
         })
-        // it('자동완성 목록에서 선택 시', () => {
-        //   const selectedNo = 5
-        //   const expected = testIconData.channels.filter(
-        //     (channel) => channel.no === selectedNo,
-        //   )
-        //   // expect(expected).toStrictEqual([
-        //   //   {
-        //   //     no: 5,
-        //   //     name: '채널5',
-        //   //     date: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
-        //   //     color: theme.palette.main.turquoise,
-        //   //     modTime: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
-        //   //     curMsg: '두줄텍스트',
-        //   //     closed: true,
-        //   //     writerNo: 3,
-        //   //   },
-        //   // ])
-        //   const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
-        //     set(filterState, {
-        //       ...initFilter,
-        //       channel: { ...initFilter.channel, no: selectedNo },
-        //     }),
-        //   )
-        //   // expect(
-        //   //   initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
-        //   //     .channels,
-        //   // ).toStrictEqual(expected)
+        it('자동완성 목록에서 선택 시', () => {
+          const selectedNo = 5
+          const expected = testIconData.channels.filter(
+            (channel) => channel.no === selectedNo,
+          )
+          expect(expected).toStrictEqual([
+            {
+              no: 5,
+              name: '채널5',
+              date: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
+              color: theme.palette.main.turquoise,
+              modTime: moment('2021-02-06', 'YYYY-MM-DD').toDate().toJSON(),
+              curMsg: '두줄텍스트',
+              closed: true,
+              writerNo: 3,
+            },
+          ])
+          const initialSnapshot = Recoil.snapshot_UNSTABLE(({ set }) =>
+            set(filterState, {
+              ...initFilter,
+              channel: { ...initFilter.channel, no: selectedNo },
+            }),
+          )
+          expect(
+            initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
+              .channels,
+          ).toStrictEqual(expected)
 
-        //   // checkDependableData(initialSnapshot, expected)
-        // })
+          checkDependableData(initialSnapshot, expected)
+        })
         it('제목 입력 시', () => {
           const keyword = '널4'
           const expected = testIconData.channels.filter(
@@ -374,6 +390,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
 
         it('자동완성 목록에서 선택 시', () => {
@@ -392,11 +410,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
-          // console.log(
-          //   'expected',
-          //   initialSnapshot.getLoadable(scheduleDataSelector).valueOrThrow(),
-          // )
-          // checkDependableData(initialSnapshot, expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '널1'
@@ -432,6 +447,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
       })
       context('종료된 채널', () => {
@@ -450,6 +467,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
 
         it('자동완성 목록에서 선택 시', () => {
@@ -479,6 +498,8 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '널1'
@@ -513,10 +534,49 @@ describe('State Data Selector 테스트', () => {
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow()
               .channels,
           ).toStrictEqual(expected)
+
+          checkDependableData(initialSnapshot, expected)
         })
       })
     })
     context('카드 데이터 테스트', () => {
+      const filterSomeCard = (
+        filter: FilterType,
+        expected: TestIconDataType[],
+        no: number,
+        closed?: boolean,
+      ) => {
+        return expected.some(
+          (card) =>
+            card.no === no &&
+            (filter.card.closed === undefined
+              ? true
+              : !!closed === filter.card.closed),
+        )
+      }
+      const checkDependableDataTodo = (
+        initialSnapshot: Recoil.Snapshot,
+        expected: TestIconDataType[],
+      ) => {
+        const filter = initialSnapshot.getLoadable(filterState).valueOrThrow()
+        const expectedTodos = testIconData.todos.filter((todo) =>
+          filterSomeCard(
+            filter,
+            expected,
+            todo.cardNo,
+            testIconData.cards.find((card) => card.no === todo.cardNo)?.closed,
+          ),
+        )
+        console.log('expectedTodos', expectedTodos)
+        console.log(
+          'actualTodos',
+          initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+        )
+        expect(
+          initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().todos,
+        ).toStrictEqual(expectedTodos)
+      }
+
       context('모든 카드', () => {
         it('모든 데이터 출력', () => {
           const initialSnapshot = Recoil.snapshot_UNSTABLE()
@@ -565,6 +625,8 @@ describe('State Data Selector 테스트', () => {
           expect(
             initialSnapshot.getLoadable(iconDataSelector).valueOrThrow().cards,
           ).toStrictEqual(expected)
+
+          checkDependableDataTodo(initialSnapshot, expected)
         })
         it('제목 입력 시', () => {
           const keyword = '드3'
@@ -746,6 +808,7 @@ describe('State Data Selector 테스트', () => {
                 no: 1,
                 name: '채널1',
               },
+              cardNo: 10,
               cardName: '카드10',
               closed: false,
               done: false,
@@ -781,6 +844,7 @@ describe('State Data Selector 테스트', () => {
                 no: 2,
                 name: '채널2',
               },
+              cardNo: 9,
               cardName: '카드9',
               done: true,
               writerNo: 7,
@@ -868,8 +932,8 @@ describe('State Data Selector 테스트', () => {
                 no: 2,
                 name: '채널2',
               },
+              cardNo: 8,
               cardName: '카드8',
-              closed: false,
               done: false,
               writerNo: 8,
               members: [
